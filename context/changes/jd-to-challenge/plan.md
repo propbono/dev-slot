@@ -394,23 +394,23 @@ None in scope — first integration test comes with S-02 or when test framework 
 
 #### Automated
 
-- [x] 1.1 `npm run build` passes with `ai` + `@ai-sdk/deepseek` installed
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `src/lib/ai.ts` exists with `extractConstraints()` + `generateChallenge()`
-- [x] 1.4 `DEEPSEEK_API_KEY` in `astro.config.mjs` env schema
+- [x] 1.1 `npm run build` passes with `ai` + `@ai-sdk/deepseek` installed — 7c8f140
+- [x] 1.2 `npm run lint` passes — 7c8f140
+- [x] 1.3 `src/lib/ai.ts` exists with `extractConstraints()` + `generateChallenge()` — 7c8f140
+- [x] 1.4 `DEEPSEEK_API_KEY` in `astro.config.mjs` env schema — 7c8f140
 
 #### Manual
 
-- [x] 1.5 `DEEPSEEK_API_KEY` in Vercel Production environment variables
-- [x] 1.6 `.env.local` contains `DEEPSEEK_API_KEY`
+- [x] 1.5 `DEEPSEEK_API_KEY` in Vercel Production environment variables — 7c8f140
+- [x] 1.6 `.env.local` contains `DEEPSEEK_API_KEY` — 7c8f140
 
 ### Phase 2: API Route — Generate Challenge
 
 #### Automated
 
-- [ ] 2.1 `npm run build` passes
-- [ ] 2.2 `npm run lint` passes
-- [ ] 2.3 `src/pages/api/interview/generate.ts` exists with POST export
+- [x] 2.1 `npm run build` passes
+- [x] 2.2 `npm run lint` passes
+- [x] 2.3 `src/pages/api/interview/generate.ts` exists with POST export
 
 #### Manual
 
