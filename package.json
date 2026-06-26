@@ -12,6 +12,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "^3.0.0",
     "@astrojs/check": "^0.9.8",
     "@astrojs/react": "^5.0.4",
     "@astrojs/sitemap": "^3.7.2",
@@ -23,6 +24,7 @@
     "@tailwindcss/vite": "^4.2.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "ai": "^7.0.2",
     "astro": "^6.3.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
