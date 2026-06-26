@@ -271,20 +271,20 @@ None in scope. The first integration test will come in S-01 (JD-to-challenge) wh
 
 #### Manual
 
-- [x] 1.3 Tables `sessions` and `session_messages` visible in dashboard Table Editor with correct columns
-- [x] 1.4 RLS policies listed in dashboard (6 policies across both tables)
-- [x] 1.5 Foreign key relationship `sessions.user_id → auth.users.id` confirmed
+- [x] 1.3 Tables `sessions` and `session_messages` visible in dashboard Table Editor with correct columns — 32b54a8
+- [x] 1.4 RLS policies listed in dashboard (6 policies across both tables) — 32b54a8
+- [x] 1.5 Foreign key relationship `sessions.user_id → auth.users.id` confirmed — 32b54a8
 
 ### Phase 2: Verification & Cloud Deployment
 
 #### Automated
 
-- [x] 2.1 `SELECT count(*) FROM sessions` returns a number (table exists, queryable)
-- [x] 2.2 `SELECT count(*) FROM session_messages` returns 0 (table exists, empty)
+- [x] 2.1 `SELECT count(*) FROM sessions` returns a number (table exists, queryable) — 32b54a8
+- [x] 2.2 `SELECT count(*) FROM session_messages` returns 0 (table exists, empty) — 32b54a8
 
 #### Manual
 
-- [x] 2.3 Both tables visible in Supabase dashboard Table Editor
-- [x] 2.4 RLS policies listed under Authentication → Policies
-- [x] 2.5 Cross-user isolation confirmed (user B can't see user A's rows)
-- [x] 2.6 Trigger verified (UPDATE session → updated_at > created_at)
+- [x] 2.3 Both tables visible in Supabase dashboard Table Editor — 32b54a8
+- [x] 2.4 RLS policies listed under Authentication → Policies — 32b54a8
+- [x] 2.5 Cross-user isolation confirmed (user B can't see user A's rows) — 32b54a8
+- [x] 2.6 Trigger verified (UPDATE session → updated_at > created_at) — 32b54a8
