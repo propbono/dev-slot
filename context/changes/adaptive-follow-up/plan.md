@@ -307,12 +307,12 @@ None in scope.
 
 #### Automated
 
-- [x] 1.1 Migration file exists in `supabase/migrations/`
-- [x] 1.2 `npm run build` passes
-- [x] 1.3 `npm run lint` passes
-- [x] 1.4 `AnswerEditor.tsx` exists
-- [x] 1.5 `react-markdown` installed in package.json
-- [x] 1.6 `draft.ts` API route exists
+- [x] 1.1 Migration file exists in `supabase/migrations/` — e55ac73
+- [x] 1.2 `npm run build` passes — e55ac73
+- [x] 1.3 `npm run lint` passes — e55ac73
+- [x] 1.4 `AnswerEditor.tsx` exists — e55ac73
+- [x] 1.5 `react-markdown` installed in package.json — e55ac73
+- [x] 1.6 `draft.ts` API route exists — e55ac73
 
 #### Manual
 
@@ -325,10 +325,10 @@ None in scope.
 
 #### Automated
 
-- [ ] 2.1 `npm run build` passes
-- [ ] 2.2 `npm run lint` passes
-- [ ] 2.3 `evaluateAnswer()` exported from `src/lib/ai.ts`
-- [ ] 2.4 `evaluate.ts` API route exists
+- [x] 2.1 `npm run build` passes
+- [x] 2.2 `npm run lint` passes
+- [x] 2.3 `evaluateAnswer()` exported from `src/lib/ai.ts`
+- [x] 2.4 `evaluate.ts` API route exists
 
 #### Manual
 
