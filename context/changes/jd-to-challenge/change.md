@@ -1,7 +1,7 @@
 ---
 change_id: jd-to-challenge
 title: JD to challenge pipeline
-status: impl_reviewed
+status: implemented
 created: 2026-06-26
 updated: 2026-06-26
 archived_at: null

@@ -414,26 +414,26 @@ None in scope — first integration test comes with S-02 or when test framework 
 
 #### Manual
 
-- [ ] 2.4 Submit real JD → redirected to `/interview/<uuid>` with challenge
-- [ ] 2.5 Submit short JD (< 50 chars) → error redirect
-- [ ] 2.6 Unauthenticated submit → redirect to sign-in
-- [ ] 2.7 Session row + 2 messages in Supabase after successful generation
+- [x] 2.4 Submit real JD → redirected to `/interview/<uuid>` with challenge
+- [x] 2.5 Submit short JD (< 50 chars) → error redirect
+- [x] 2.6 Unauthenticated submit → redirect to sign-in
+- [x] 2.7 Session row + 2 messages in Supabase after successful generation
 
 ### Phase 3: UI — Dashboard + Session Page
 
 #### Automated
 
-- [x] 3.1 `npm run build` passes
-- [x] 3.2 `npm run lint` passes
-- [x] 3.3 `src/pages/dashboard.astro` updated with JD form
-- [x] 3.4 `src/pages/interview/[sessionId].astro` exists
-- [x] 3.5 `src/components/interview/JDInput.tsx` exists
-- [x] 3.6 `src/components/interview/ChallengeDisplay.astro` exists
+- [x] 3.1 `npm run build` passes — 601fbca
+- [x] 3.2 `npm run lint` passes — 601fbca
+- [x] 3.3 `src/pages/dashboard.astro` updated with JD form — 601fbca
+- [x] 3.4 `src/pages/interview/[sessionId].astro` exists — 601fbca
+- [x] 3.5 `src/components/interview/JDInput.tsx` exists — 601fbca
+- [x] 3.6 `src/components/interview/ChallengeDisplay.astro` exists — 601fbca
 
 #### Manual
 
-- [ ] 3.7 Dashboard shows JD form with character counter + disabled button at < 50 chars
-- [ ] 3.8 Client-side validation blocks submit under 50 chars
-- [ ] 3.9 Successful JD → challenge flow (end-to-end)
-- [ ] 3.10 Auth guard on `/interview/[sessionId]` (unauthenticated → sign-in)
-- [ ] 3.11 Cross-user RLS: user B cannot see user A's session
+- [x] 3.7 Dashboard shows JD form with character counter + disabled button at < 50 chars
+- [x] 3.8 Client-side validation blocks submit under 50 chars
+- [x] 3.9 Successful JD → challenge flow (end-to-end)
+- [x] 3.10 Auth guard on `/interview/[sessionId]` (unauthenticated → sign-in)
+- [x] 3.11 Cross-user RLS: user B cannot see user A's session
