@@ -1,0 +1,55 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ChallengeDisplay from "@/components/interview/ChallengeDisplay.astro";
+import { createClient } from "@/lib/supabase";
+
+const { sessionId } = Astro.params;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) return Astro.redirect("/dashboard?error=not_configured");
+
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+if (!user) return Astro.redirect("/auth/signin");
+
+// Fetch challenge message for this session
+const { data: messages } = await supabase
+  .from("session_messages")
+  .select("role, content")
+  .eq("session_id", sessionId)
+  .order("created_at");
+
+const interviewerMessages = messages?.filter((m) => m.role === "interviewer") ?? [];
+const systemMessages = messages?.filter((m) => m.role === "system") ?? [];
+
+if (!messages || messages.length === 0) {
+  return new Response("Session not found or access denied", {
+    status: 404,
+    headers: { "Content-Type": "text/plain" },
+  });
+}
+
+let role: string | undefined;
+let domain: string | undefined;
+if (systemMessages.length > 0) {
+  try {
+    const constraints = JSON.parse(systemMessages[0].content);
+    role = constraints.role_level;
+    domain = constraints.domain;
+  } catch {
+    // Constraints not parseable — leave heading generic
+  }
+}
+
+const challenge =
+  interviewerMessages.length > 0
+    ? interviewerMessages[0].content
+    : "Challenge not available.";
+---
+
+<Layout title={`Interview — DevSlot`}>
+  <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
+    <ChallengeDisplay challenge={challenge} role={role} domain={domain} />
+  </div>
+</Layout>

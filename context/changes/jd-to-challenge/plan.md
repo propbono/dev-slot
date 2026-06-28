@@ -408,9 +408,9 @@ None in scope — first integration test comes with S-02 or when test framework 
 
 #### Automated
 
-- [x] 2.1 `npm run build` passes
-- [x] 2.2 `npm run lint` passes
-- [x] 2.3 `src/pages/api/interview/generate.ts` exists with POST export
+- [x] 2.1 `npm run build` passes — 701f62c
+- [x] 2.2 `npm run lint` passes — 701f62c
+- [x] 2.3 `src/pages/api/interview/generate.ts` exists with POST export — 701f62c
 
 #### Manual
 
@@ -423,12 +423,12 @@ None in scope — first integration test comes with S-02 or when test framework 
 
 #### Automated
 
-- [ ] 3.1 `npm run build` passes
-- [ ] 3.2 `npm run lint` passes
-- [ ] 3.3 `src/pages/dashboard.astro` updated with JD form
-- [ ] 3.4 `src/pages/interview/[sessionId].astro` exists
-- [ ] 3.5 `src/components/interview/JDInput.tsx` exists
-- [ ] 3.6 `src/components/interview/ChallengeDisplay.astro` exists
+- [x] 3.1 `npm run build` passes
+- [x] 3.2 `npm run lint` passes
+- [x] 3.3 `src/pages/dashboard.astro` updated with JD form
+- [x] 3.4 `src/pages/interview/[sessionId].astro` exists
+- [x] 3.5 `src/components/interview/JDInput.tsx` exists
+- [x] 3.6 `src/components/interview/ChallengeDisplay.astro` exists
 
 #### Manual
 

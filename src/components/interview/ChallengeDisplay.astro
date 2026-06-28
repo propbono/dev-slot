@@ -1,0 +1,42 @@
+---
+interface Props {
+  challenge: string;
+  role?: string;
+  domain?: string;
+}
+
+const { challenge, role, domain } = Astro.props;
+const heading = role && domain ? `${role} — ${domain}` : "Your Challenge";
+---
+
+<div class="mx-auto max-w-3xl px-4 py-12">
+  <div class="mb-8">
+    <h2 class="mb-1 text-2xl font-bold text-white">{heading}</h2>
+    <p class="text-sm text-blue-100/50">System design interview challenge</p>
+  </div>
+
+  <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+    <div class="prose prose-invert max-w-none text-blue-100/90 whitespace-pre-wrap leading-relaxed">
+      {challenge}
+    </div>
+  </div>
+
+  <div class="mt-12 border-t border-white/10 pt-8 text-center">
+    <p class="text-sm text-blue-100/40">
+      Ready to respond? The answer workspace will be added in the next update.
+    </p>
+  </div>
+
+  <div class="mt-6 text-center">
+    <a
+      href="/dashboard"
+      class="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm text-blue-100/70 transition-colors hover:bg-white/10 hover:text-white"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14" />
+        <path d="m12 5 7 7-7 7" />
+      </svg>
+      New Session
+    </a>
+  </div>
+</div>
