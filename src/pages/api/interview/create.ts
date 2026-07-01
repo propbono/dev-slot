@@ -29,6 +29,7 @@ export const POST: APIRoute = async (context) => {
     const technologies = (form.get("technologies") as string)?.trim();
     const role = (form.get("role") as string)?.trim();
     const domain = (form.get("domain") as string)?.trim();
+    const tags = (form.get("tags") as string)?.trim() || "";
 
     if (!technologies || !role)
       return context.redirect("/new-session?error=missing_tech_stack");
@@ -41,6 +42,7 @@ export const POST: APIRoute = async (context) => {
         technologies,
         role_level: role,
         domain: domain || "General",
+        tags,
       }),
       status: "committed",
     });

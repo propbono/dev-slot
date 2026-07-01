@@ -17,6 +17,7 @@ export default function JDInput({ error }: Props) {
   const [technologies, setTechnologies] = useState("");
   const [role, setRole] = useState("");
   const [domain, setDomain] = useState("");
+  const [tags, setTags] = useState("");
 
   const jdCharCount = jd.length;
   const canSubmitJd = jdCharCount >= 50;
@@ -156,6 +157,19 @@ export default function JDInput({ error }: Props) {
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
                 placeholder="e.g., Fintech, Healthcare, SaaS"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-blue-100/60">
+                Focus Areas (optional)
+              </label>
+              <input
+                type="text"
+                name="tags"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="e.g., event sourcing, distributed transactions"
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>

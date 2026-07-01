@@ -76,6 +76,10 @@ export const GET: APIRoute = async (context) => {
         domain: (systemContent.domain as string) || "General",
       };
       jd = `Targeting a ${constraints.role_level} role in ${constraints.domain} with experience in ${constraints.tech_stack.join(", ")}.`;
+      const tags = (systemContent.tags as string)?.trim();
+      if (tags) {
+        jd += ` Focus the challenge on these topics: ${tags}.`;
+      }
     } else {
       constraints = await extractConstraints(jd);
     }
