@@ -41,6 +41,7 @@ export default function AnswerEditor({
   );
 
   useEffect(() => {
+    if (submitting) return;
     if (timerRef.current) clearTimeout(timerRef.current);
     if (content.length > 0) {
       timerRef.current = setTimeout(() => {
@@ -50,7 +51,7 @@ export default function AnswerEditor({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [content, saveDraft]);
+  }, [content, saveDraft, submitting]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
