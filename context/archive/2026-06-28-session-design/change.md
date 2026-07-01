@@ -1,10 +1,10 @@
 ---
 change_id: session-design
 title: Session design
-status: implemented
+status: archived
 created: 2026-06-28
-updated: 2026-06-28
-archived_at: null
+updated: 2026-07-01
+archived_at: 2026-07-01T14:56:00Z
 ---
 
 ## Notes
