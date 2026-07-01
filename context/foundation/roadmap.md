@@ -83,7 +83,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Optimal prompt engineering pattern for extracting interview constraints from unstructured JD text — Owner: user. Block: no (iterable during implementation).
   - Acceptable end-to-end latency window for challenge generation (LLM call + extraction) so the interaction feels responsive — Owner: user. Block: no.
 - **Risk:** AI-generated challenges may feel generic or misread the role context despite accurate extraction. Mitigate by starting with a narrow prompt and testing against diverse real-world JDs before shipping.
-- **Status:** blocked
+- **Status:** done
 
 ### S-02: Adaptive follow-up (North star)
 
@@ -150,5 +150,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **At-scale concerns from shape-notes:** At 100x scale, the branching rule may need asynchronous or streamed evaluation paths and routing by domain/difficulty tier. Explicitly deferred — no scaling pressure at MVP size.
 
 ## Done
+
+- **S-01: paste a job description and receive a tailored architecture challenge informed by the role** — Archived 2026-06-28 → `context/archive/2026-06-26-jd-to-challenge/`. Lesson: —.
 
 - **F-01: (foundation) interview session schema landed; sessions + messages tables, RLS policies, migration file** — Archived 2026-06-28 → `context/archive/2026-06-26-session-data-model/`. Lesson: —.
