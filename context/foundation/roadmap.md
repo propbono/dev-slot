@@ -109,7 +109,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The transcript view must handle variable-length AI responses gracefully (some challenges/follow-ups may be long). Use scrollable prose containers rather than fixed-height panels to avoid truncation.
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Performance metrics
 
@@ -150,6 +150,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **At-scale concerns from shape-notes:** At 100x scale, the branching rule may need asynchronous or streamed evaluation paths and routing by domain/difficulty tier. Explicitly deferred — no scaling pressure at MVP size.
 
 ## Done
+
+- **S-03: end a session, browse completed sessions, and review a full chronological transcript** — Archived 2026-07-01 → `context/archive/2026-07-01-session-history/`. Lesson: —.
 
 - **S-02: submit an architectural solution and receive one adaptive follow-up that escalates or de-escalates based on answer quality** — Archived 2026-06-28 → `context/archive/2026-06-26-adaptive-follow-up/`. Lesson: —.
 

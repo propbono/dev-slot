@@ -1,10 +1,10 @@
 ---
 change_id: session-history-fixes
 title: Session history fixes
-status: implementing
+status: archived
 created: 2026-07-01
 updated: 2026-07-01
-archived_at: null
+archived_at: 2026-07-01T12:02:00Z
 ---
 
 ## Notes
