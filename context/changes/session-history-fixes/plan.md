@@ -64,15 +64,15 @@ Single phase — three isolated fixes across three files.
 
 #### Automated
 
-- [x] 1.1 `npm run build` passes
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `EndSessionButton.tsx` exists
-- [x] 1.4 No browser confirm in SessionHeader
-- [x] 1.5 History formatDate includes time
-- [x] 1.6 Completion banner uses `updated_at`
+- [x] 1.1 `npm run build` passes — 8cca97e
+- [x] 1.2 `npm run lint` passes — 8cca97e
+- [x] 1.3 `EndSessionButton.tsx` exists — 8cca97e
+- [x] 1.4 No browser confirm in SessionHeader — 8cca97e
+- [x] 1.5 History formatDate includes time — 8cca97e
+- [x] 1.6 Completion banner uses `updated_at` — 8cca97e
 
 #### Manual
 
-- [ ] 1.7 Styled modal on End Session
-- [ ] 1.8 Time visible in history list
-- [ ] 1.9 Completion banner shows end time, not creation time
+- [x] 1.7 Styled modal on End Session — 8cca97e
+- [x] 1.8 Time visible in history list — 8cca97e
+- [x] 1.9 Completion banner shows end time, not creation time — 8cca97e
