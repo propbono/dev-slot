@@ -325,10 +325,10 @@ None in scope.
 
 #### Automated
 
-- [x] 2.1 `npm run build` passes
-- [x] 2.2 `npm run lint` passes
-- [x] 2.3 `evaluateAnswer()` exported from `src/lib/ai.ts`
-- [x] 2.4 `evaluate.ts` API route exists
+- [x] 2.1 `npm run build` passes — ea22cbe
+- [x] 2.2 `npm run lint` passes — ea22cbe
+- [x] 2.3 `evaluateAnswer()` exported from `src/lib/ai.ts` — ea22cbe
+- [x] 2.4 `evaluate.ts` API route exists — ea22cbe
 
 #### Manual
 
@@ -341,10 +341,10 @@ None in scope.
 
 #### Automated
 
-- [ ] 3.1 `npm run build` passes
-- [ ] 3.2 `npm run lint` passes
-- [ ] 3.3 `MessageThread.astro` exists
-- [ ] 3.4 `AnswerCard.astro` exists
+- [x] 3.1 `npm run build` passes
+- [x] 3.2 `npm run lint` passes
+- [x] 3.3 `MessageThread.astro` exists
+- [x] 3.4 `AnswerCard.astro` exists
 
 #### Manual
 

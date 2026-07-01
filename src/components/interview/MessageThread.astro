@@ -1,0 +1,54 @@
+---
+import ChallengeDisplay from "./ChallengeDisplay.astro";
+import AnswerCard from "./AnswerCard.astro";
+
+interface Message {
+  id: string;
+  role: string;
+  content: string;
+  metadata?: Record<string, any>;
+}
+
+interface Props {
+  messages: Message[];
+  role?: string;
+  domain?: string;
+}
+
+const { messages, role, domain } = Astro.props;
+---
+
+<div class="space-y-4">
+  {
+    messages.map((msg) => {
+      if (msg.role === "system") return null;
+
+      if (msg.role === "interviewer") {
+        // First is the challenge, subsequent are follow-ups
+        const isChallenge = messages.findIndex((m) => m.role === "interviewer") === messages.indexOf(msg);
+        return (
+          <div class="mb-8">
+            <ChallengeDisplay
+              challenge={msg.content}
+              role={isChallenge ? role : undefined}
+              domain={isChallenge ? domain : undefined}
+            />
+          </div>
+        );
+      }
+
+      if (msg.role === "user") {
+        return (
+          <AnswerCard
+            answer={msg.content}
+            quality={msg.metadata?.quality}
+            confidence={msg.metadata?.confidence}
+            rationale={msg.metadata?.rationale}
+          />
+        );
+      }
+
+      return null;
+    })
+  }
+</div>

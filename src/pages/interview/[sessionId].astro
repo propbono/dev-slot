@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import ChallengeDisplay from "@/components/interview/ChallengeDisplay.astro";
+import AnswerEditor from "@/components/interview/AnswerEditor";
+import MessageThread from "@/components/interview/MessageThread.astro";
 import { createClient } from "@/lib/supabase";
 
 const { sessionId } = Astro.params;
@@ -13,15 +14,13 @@ const {
 } = await supabase.auth.getUser();
 if (!user) return Astro.redirect("/auth/signin");
 
-// Fetch challenge message for this session
+// Fetch committed messages for this session
 const { data: messages } = await supabase
   .from("session_messages")
-  .select("role, content")
+  .select("id, role, content, metadata, created_at")
   .eq("session_id", sessionId)
+  .eq("status", "committed")
   .order("created_at");
-
-const interviewerMessages = messages?.filter((m) => m.role === "interviewer") ?? [];
-const systemMessages = messages?.filter((m) => m.role === "system") ?? [];
 
 if (!messages || messages.length === 0) {
   return new Response("Session not found or access denied", {
@@ -30,26 +29,49 @@ if (!messages || messages.length === 0) {
   });
 }
 
+// Parse role + domain from system message
+const systemMsg = messages.find((m) => m.role === "system");
 let role: string | undefined;
 let domain: string | undefined;
-if (systemMessages.length > 0) {
+if (systemMsg) {
   try {
-    const constraints = JSON.parse(systemMessages[0].content);
+    const constraints = JSON.parse(systemMsg.content);
     role = constraints.role_level;
     domain = constraints.domain;
-  } catch {
-    // Constraints not parseable — leave heading generic
-  }
+  } catch {}
 }
 
-const challenge =
-  interviewerMessages.length > 0
-    ? interviewerMessages[0].content
-    : "Challenge not available.";
+// Fetch draft for this session (if any) to pre-fill editor
+const { data: drafts } = await supabase
+  .from("session_messages")
+  .select("content")
+  .eq("session_id", sessionId)
+  .eq("role", "user")
+  .eq("status", "draft")
+  .order("created_at", { ascending: false })
+  .limit(1);
+
+const draftContent = drafts?.[0]?.content ?? undefined;
+
+const error = Astro.url.searchParams.get("error");
+const errorMessages: Record<string, string> = {
+  missing_fields: "Please provide both a session and an answer.",
+  missing_context: "Could not load interview context. Please try again.",
+  invalid_context: "Session data is corrupted. Start a new session.",
+};
+const evaluationError = error ? (errorMessages[error] ?? "An unexpected error occurred. Please try again.") : undefined;
 ---
 
 <Layout title={`Interview — DevSlot`}>
   <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
-    <ChallengeDisplay challenge={challenge} role={role} domain={domain} />
+    <div class="py-8">
+      <MessageThread messages={messages} role={role} domain={domain} />
+      <AnswerEditor
+        sessionId={sessionId}
+        initialDraft={draftContent}
+        evaluationError={evaluationError}
+        client:load
+      />
+    </div>
   </div>
 </Layout>
