@@ -70,7 +70,7 @@ export default function GenerationSkeleton({ sessionId }: Props) {
           </h2>
           <p className="mb-6 text-sm text-red-300/80">{error}</p>
           <a
-            href="/dashboard"
+            href="/new-session"
             className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm text-blue-100/70 transition-colors hover:bg-white/10 hover:text-white"
           >
             Return to Dashboard

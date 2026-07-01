@@ -11,7 +11,7 @@ async function delay(ms: number): Promise<void> {
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) return context.redirect("/dashboard?error=not_configured");
+  if (!supabase) return context.redirect("/new-session?error=not_configured");
 
   const {
     data: { user },
@@ -34,7 +34,7 @@ export const POST: APIRoute = async (context) => {
     .single();
 
   if (sessionErr || !session)
-    return context.redirect("/dashboard?error=session_not_found");
+    return context.redirect("/new-session?error=session_not_found");
 
   // Flip draft to committed (or insert if no draft exists)
   const { data: draft } = await supabase
@@ -133,5 +133,5 @@ export const POST: APIRoute = async (context) => {
 
   // All retries exhausted
   console.error("Evaluation failed after retries:", lastError);
-  return context.redirect("/dashboard?error=evaluation_failed");
+  return context.redirect("/new-session?error=evaluation_failed");
 };

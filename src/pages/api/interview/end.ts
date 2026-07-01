@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase";
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) return context.redirect("/dashboard?error=not_configured");
+  if (!supabase) return context.redirect("/new-session?error=not_configured");
 
   const {
     data: { user },
@@ -12,7 +12,7 @@ export const POST: APIRoute = async (context) => {
 
   const form = await context.request.formData();
   const sessionId = (form.get("sessionId") as string)?.trim();
-  if (!sessionId) return context.redirect("/dashboard?error=missing_session");
+  if (!sessionId) return context.redirect("/new-session?error=missing_session");
 
   // Verify session ownership
   const { data: session } = await supabase
@@ -22,7 +22,7 @@ export const POST: APIRoute = async (context) => {
     .eq("user_id", user.id)
     .single();
 
-  if (!session) return context.redirect("/dashboard?error=session_not_found");
+  if (!session) return context.redirect("/new-session?error=session_not_found");
 
   // Only end if active
   if (session.status === "active") {

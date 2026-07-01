@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase";
 const { sessionId } = Astro.params;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
-if (!supabase) return Astro.redirect("/dashboard?error=not_configured");
+if (!supabase) return Astro.redirect("/new-session?error=not_configured");
 
 const {
   data: { user },

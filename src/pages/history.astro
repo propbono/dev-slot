@@ -3,7 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import { createClient } from "@/lib/supabase";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
-if (!supabase) return Astro.redirect("/dashboard?error=not_configured");
+if (!supabase) return Astro.redirect("/new-session?error=not_configured");
 
 const {
   data: { user },
@@ -87,7 +87,7 @@ const formatDate = (iso: string) =>
           </p>
         </div>
         <a
-          href="/dashboard"
+          href="/new-session"
           class="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs text-blue-100/70 transition-colors hover:bg-white/10 hover:text-white"
         >
           New Session
@@ -103,7 +103,7 @@ const formatDate = (iso: string) =>
             Start your first interview and end it to see it here.
           </p>
           <a
-            href="/dashboard"
+            href="/new-session"
             class="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
           >
             Start Interview
