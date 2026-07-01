@@ -64,4 +64,14 @@ DeepSeek V4 via `@ai-sdk/deepseek` and Vercel AI SDK (`ai` v7). AI service modul
 
 ## Testing
 
-No test runner configured yet. Vitest is the recommended choice (first-class Astro/Vite support). Add before writing test files; do not create tests against a non-existent framework.
+- `npm test` — Run all tests (Vitest)
+- `npm run test:watch` — Watch mode
+- Test files are co-located: `src/**/*.test.ts`
+- Mock external API calls; don't hit real APIs in unit tests
+
+```
+src/
+  lib/
+    ai.ts
+    ai.test.ts        ← co-located test
+```
