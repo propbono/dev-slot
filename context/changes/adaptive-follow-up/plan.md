@@ -332,25 +332,25 @@ None in scope.
 
 #### Manual
 
-- [ ] 2.5 Weak answer → foundational diagnostic follow-up
-- [ ] 2.6 Strong answer → adversarial pressure-test follow-up
-- [ ] 2.7 Evaluation metadata stored on user message in Supabase
-- [ ] 2.8 Retry logic: 3 attempts on failure → redirect with error
+- [x] 2.5 Weak answer → foundational diagnostic follow-up
+- [x] 2.6 Strong answer → adversarial pressure-test follow-up
+- [x] 2.7 Evaluation metadata stored on user message in Supabase
+- [x] 2.8 Retry logic: 3 attempts on failure → redirect with error
 
 ### Phase 3: Session Page — Thread View & Full Flow
 
 #### Automated
 
-- [x] 3.1 `npm run build` passes
-- [x] 3.2 `npm run lint` passes
-- [x] 3.3 `MessageThread.astro` exists
-- [x] 3.4 `AnswerCard.astro` exists
+- [x] 3.1 `npm run build` passes — 9f986ca
+- [x] 3.2 `npm run lint` passes — 9f986ca
+- [x] 3.3 `MessageThread.astro` exists — 9f986ca
+- [x] 3.4 `AnswerCard.astro` exists — 9f986ca
 
 #### Manual
 
-- [ ] 3.5 Full flow: challenge → answer → evaluation → follow-up in thread
-- [ ] 3.6 Quality badge on answer card (strong/green or weak/amber)
-- [ ] 3.7 Draft restoration on page reload
-- [ ] 3.8 Submit clears draft + commits message
-- [ ] 3.9 Error retry → redirect to dashboard
-- [ ] 3.10 Cross-user RLS: user B blocked
+- [x] 3.5 Full flow: challenge → answer → evaluation → follow-up in thread
+- [x] 3.6 Quality badge on answer card (strong/green or weak/amber)
+- [x] 3.7 Draft restoration on page reload
+- [x] 3.8 Submit clears draft + commits message
+- [x] 3.9 Error retry → redirect to dashboard
+- [x] 3.10 Cross-user RLS: user B blocked
