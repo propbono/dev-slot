@@ -1,8 +1,9 @@
 ---
 project: DevSlot
-version: 1
+version: 2
 status: draft
 created: 2026-06-02
+updated: 2026-07-01
 context_type: greenfield
 product_type: web-app
 target_scale:
@@ -138,7 +139,6 @@ Future role separation may be introduced later for business model or administrat
 
 ## Non-Goals
 
-- No deep multi-turn interview trees beyond the first adaptive follow-up in the MVP, so the first version stays focused on proving the branching core.
 - No mobile-native application support in the MVP, so effort stays on the primary web experience.
 - No advanced admin, billing, or subscription management in the MVP, because monetization and back-office workflows are explicitly deferred.
 - No guarantees for ultra-low-latency conversational feedback in the MVP, because conversational adaptation matters more than near-instant responsiveness in the first release.
@@ -146,3 +146,64 @@ Future role separation may be introduced later for business model or administrat
 ## Open Questions
 
 No open questions currently.
+
+---
+
+## Brownfield Addition: Multi-Turn Interview Trees
+
+> Added 2026-07-01. Extends S-02 (adaptive follow-up) from a single turn into an open-ended, turn-based conversation that feels like a real interview.
+
+### User Stories
+
+### US-02: Multi-turn interview with auto-complete and new challenges
+
+- **Given** a signed-in user is in an active interview session with a generated challenge
+- **When** they submit an answer and receive an evaluation
+- **Then** the interviewer responds with a follow-up that points out weak points or reinforces strengths, and the conversation continues turn-by-turn
+- **And** after 2-3 consecutive "strong" evaluations, the interviewer wraps up with a comprehensive summary (quality, confidence, strengths, improvement areas) and the challenge auto-completes
+- **And** the user can generate a new architecture challenge from the same JD/tech stack without starting a new session
+
+#### Acceptance Criteria
+- The conversation flows turn-by-turn with no hard limit on exchanges
+- The interviewer's tone is evaluative and coaching — pointing out gaps and praising depth
+- Auto-complete triggers after 2-3 consecutive strong answers
+- Summary includes: quality label, confidence score, rationale, strengths (list), improvement areas (list)
+- New challenge is different from the previous challenge for the same stack
+- Multiple challenges within a session appear as vertical tabs, not mixed together
+
+### Functional Requirements
+
+#### Multi-turn
+- FR-019: User can submit answers and receive follow-up questions in a continuous turn-based loop. Priority: must-have
+- FR-020: The interviewer's response includes specific feedback — pointing out weak points, challenging assumptions, and reinforcing strengths. Priority: must-have
+
+#### Auto-complete
+- FR-021: Challenge auto-completes after 2-3 consecutive "strong" evaluations. Priority: must-have
+- FR-022: On auto-complete, the system generates a comprehensive summary including: quality label, confidence score, rationale, strengths (string[]), and improvement areas (string[]). Priority: must-have
+
+#### New challenges
+- FR-023: User can generate a new architecture challenge from the same JD/tech stack as the current session. Priority: must-have
+- FR-024: The new challenge must be substantively different from previous challenges in the same session. Priority: must-have
+
+#### Challenge organization
+- FR-025: Multiple challenges within a session are displayed as vertical tabs, with each tab showing that challenge's full conversation thread. Priority: must-have
+- FR-026: User can switch between challenges in a session. Switching hides the current challenge's thread and shows the selected one. Priority: must-have
+
+#### Data model
+- FR-027: A `challenges` table stores challenge metadata (session_id, status, summary). Priority: must-have
+- FR-028: `session_messages` includes a `challenge_id` foreign key to group messages per challenge. Priority: must-have
+
+### Business Logic
+
+**Multi-turn evaluation loop**: The existing `evaluateAnswer()` pipeline now runs in a continuous loop. After each user answer, the system evaluates quality (strong/weak), generates a follow-up, and persists both. The interviewer's tone shifts from neutral follow-up generator to active evaluator — responses include specific feedback on what the user did well or missed.
+
+**Auto-complete rule**: The system tracks consecutive strong evaluations per challenge. When the count reaches the threshold (2-3, configurable), the challenge triggers auto-complete. A separate LLM call synthesizes the full conversation into a comprehensive summary stored in the `challenges` table.
+
+**New challenge generation**: When auto-complete fires, the system offers a "New Challenge" option. The new challenge is generated from the same JD/tech stack stored in the session's system message, with a prompt directive to produce something different from the previous challenge. The user can accept or decline.
+
+### Non-Goals (for this addition)
+
+- No real-time conversational mode — turn-based only.
+- No streaming — same `generateText()` pattern.
+- No challenge replay or undo.
+- No hard cap on challenges per session for MVP.

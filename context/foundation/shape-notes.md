@@ -2,7 +2,7 @@
 project: DevSlot
 context_type: greenfield
 created: 2026-06-02
-updated: 2026-06-02
+updated: 2026-07-01
 product_type: web-app
 target_scale:
   users: large
@@ -222,3 +222,46 @@ Additional supporting rules:
 
 - At much larger scale, the user expects the branching experience to remain responsive under heavier concurrency.
 - User note: at 100x scale, the branching rule may need asynchronous or streamed evaluation paths and routing by domain and difficulty tier.
+
+## Brownfield Addition: Multi-Turn Interview Trees
+
+### Seed idea
+
+> Extend the adaptive follow-up from a single turn to an open-ended, turn-based conversation that feels like a real interview. The interviewer assesses each answer, points out weak points, asks follow-up questions, and can decide when enough ground has been covered.
+
+### Context
+
+DevSlot currently ships: challenge generation from JD/stack (S-01), single adaptive follow-up (S-02), session history (S-03), and performance metrics (S-04). The session page supports an `active` state with the AnswerEditor. The evaluation pipeline (`evaluateAnswer()`) already works for single-turn evaluation with quality, confidence, and rationale metadata.
+
+### What changes
+
+- **Turn-based rhythm**: same flow as current — write answer, submit, wait for evaluation, get interviewer response. Repeat indefinitely until the interview ends.
+- **Interviewer voice**: the interviewer actively points out weak points, challenges assumptions, and reinforces strengths. Not just a follow-up generator — an evaluator and coach.
+- **Auto-complete**: after 2-3 consecutive "strong" evaluations, the interviewer wraps up with a comprehensive summary and the challenge auto-completes.
+- **New challenge from same stack**: when the interviewer is satisfied with an answer, a new architecture challenge can be generated from the same JD/tech stack — different from the previous challenge. User can accept or decline.
+- **Manual end**: user can always click "End Session" (existing feature).
+- **Session summary**: comprehensive — quality, confidence, rationale, strengths, and areas for improvement. Generated via a separate LLM call that synthesizes the full conversation.
+
+### UI
+
+- **Vertical tabs** per challenge within a session. Each tab shows that challenge's full conversation thread (challenge card → user answers → interviewer follow-ups → summary).
+- Challenges are not mixed together — clean separation.
+- "New Challenge" button appears after auto-complete or from the tab bar.
+
+### Data model
+
+- New `challenges` table: `id, session_id, status, summary (JSONB), created_at`
+- `session_messages` gets a `challenge_id` FK.
+- Each challenge tracks its own lifecycle: active → completed (auto or manual).
+- Summary JSONB stores: quality, confidence, rationale, strengths (string[]), improvement_areas (string[]).
+
+### Non-Goals (for this addition)
+
+- No real-time conversational mode — turn-based only.
+- No streaming evaluation or response generation (same `generateText()` pattern).
+- No challenge replay or undo.
+
+### Open Questions
+
+- How many challenges per session before the user should start a new session? No hard cap for MVP.
+- Should the user be able to switch between challenges mid-answer? No — complete or abandon current challenge first.

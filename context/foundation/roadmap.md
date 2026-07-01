@@ -1,9 +1,9 @@
 ---
 project: DevSlot
-version: 1
+version: 2
 status: draft
 created: 2026-06-26
-updated: 2026-06-28
+updated: 2026-07-01
 prd_version: 1
 main_goal: market-feedback
 top_blocker: time
@@ -32,6 +32,11 @@ Senior engineers targeting staff roles use DevSlot to simulate live architecture
 | S-02 | adaptive-follow-up | submit an architectural solution and receive one adaptive follow-up that escalates or de-escalates based on answer quality | F-01, S-01 | US-01, FR-010, FR-011, FR-012, FR-013, FR-014 | blocked |
 | S-03 | session-history | end a session, browse completed sessions, and review a full chronological transcript | F-01, S-01 | FR-003, FR-015, FR-016, FR-017 | proposed |
 | S-04 | performance-metrics | view performance metrics and a categorized engineering breakdown for a completed session | F-01, S-01, S-02 | FR-018 | done |
+| F-02 | challenges-data-model | (foundation) challenges table with summary column + challenge_id FK on session_messages | — | FR-027, FR-028 | proposed |
+| S-05 | multi-turn-loop | submit answers and receive follow-up questions in a continuous turn-based loop with evaluative feedback | F-02, S-02 | US-02, FR-019, FR-020 | proposed |
+| S-06 | auto-complete-summaries | challenge auto-completes after 2-3 consecutive strong answers with comprehensive summary | S-05 | US-02, FR-021, FR-022 | proposed |
+| S-07 | new-challenge-from-stack | generate a new architecture challenge from the same JD/tech stack within a session | F-02, S-01, S-06 | US-02, FR-023, FR-024 | proposed |
+| S-08 | vertical-challenge-tabs | multiple challenges displayed as vertical tabs within a session | F-02, S-07 | US-02, FR-025, FR-026 | proposed |
 
 ## Streams
 
@@ -125,25 +130,91 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Categorized scoring risks false precision if evaluation quality is still immature at this point. The PRD itself flags this tension. Mitigate by framing metrics as a "reflection aid" rather than an authoritative score, with qualitative labels over numeric precision.
 - **Status:** done
 
+### F-02: Challenges data model
+
+- **Outcome:** (foundation) `challenges` table with session_id, status, summary JSONB landed. Migration adds `challenge_id` FK to session_messages.
+- **Change ID:** challenges-data-model
+- **PRD refs:** FR-027, FR-028
+- **Unlocks:** S-05 (needs challenge_id on messages), S-07 (needs challenges table), S-08 (needs challenge rows for tabs)
+- **Prerequisites:** — (sessions table exists from F-01)
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Adding a NOT NULL FK to session_messages — existing rows need a default challenge. Mitigate by creating a default challenge row per session during migration.
+- **Status:** proposed
+
+### S-05: Multi-turn loop
+
+- **Outcome:** user can submit answers and receive follow-up questions in a continuous turn-based loop, with the interviewer providing specific feedback on weak points and strengths.
+- **Change ID:** multi-turn-loop
+- **PRD refs:** US-02, FR-019, FR-020
+- **Prerequisites:** F-02, S-02
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** The evaluation loop must not create a tight coupling between frontend polling and backend state. Use the existing evaluate.ts pattern — POST answer → evaluate → redirect → page shows new thread.
+- **Status:** proposed
+
+### S-06: Auto-complete + summaries
+
+- **Outcome:** challenge auto-completes after 2-3 consecutive strong evaluations, with a comprehensive summary including quality, confidence, strengths, and improvement areas.
+- **Change ID:** auto-complete-summaries
+- **PRD refs:** US-02, FR-021, FR-022
+- **Prerequisites:** S-05
+- **Parallel with:** S-07
+- **Blockers:** —
+- **Unknowns:**
+  - Summary prompt engineering — how to synthesize a full conversation into strengths/improvement areas via a single LLM call — Owner: user. Block: no.
+- **Risk:** The auto-complete threshold (2-3 strong answers) may trigger too early or too late depending on evaluation accuracy. Mitigate with a configurable threshold.
+- **Status:** proposed
+
+### S-07: New challenges from same stack
+
+- **Outcome:** user can generate a new architecture challenge from the same JD/tech stack, with the new challenge substantively different from previous challenges in the session.
+- **Change ID:** new-challenge-from-stack
+- **PRD refs:** US-02, FR-023, FR-024
+- **Prerequisites:** F-02, S-01, S-06
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:**
+  - "Substantively different" heuristic — how to ensure the new challenge doesn't feel repetitive — Owner: user. Block: no.
+- **Risk:** New challenges may drift too far from the original JD intent. Mitigate by keeping the same constraints and role context in the prompt.
+- **Status:** proposed
+
+### S-08: Vertical challenge tabs
+
+- **Outcome:** multiple challenges within a session are displayed as vertical tabs, each showing that challenge's full conversation thread. User can switch between challenges.
+- **Change ID:** vertical-challenge-tabs
+- **PRD refs:** US-02, FR-025, FR-026
+- **Prerequisites:** F-02, S-07
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Multiple challenges on one page increase page weight. Mitigate with lazy loading — only render the active tab's thread.
+- **Status:** proposed
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
-| F-01 | session-data-model | Create interview sessions schema with RLS | yes | No blockers; run `/10x-plan session-data-model` |
-| S-01 | jd-to-challenge | JD input → challenge generation pipeline | no | Blocked by Open Roadmap Q#1 (LLM provider) |
-| S-02 | adaptive-follow-up | Adaptive follow-up — evaluation + branching | no | Blocked by Open Roadmap Q#1; depends on S-01 |
-| S-03 | session-history | Session history — list, end, transcript review | no | Depends on S-01 landing first |
-| S-04 | performance-metrics | Performance metrics and engineering breakdown | no | Depends on S-01 + S-02 |
+| F-01 | session-data-model | Create interview sessions schema with RLS | yes | Done |
+| S-01 | jd-to-challenge | JD input → challenge generation pipeline | yes | Done |
+| S-02 | adaptive-follow-up | Adaptive follow-up — evaluation + branching | yes | Done |
+| S-03 | session-history | Session history — list, end, transcript review | yes | Done |
+| S-04 | performance-metrics | Performance metrics and engineering breakdown | yes | Done |
+| F-02 | challenges-data-model | Create challenges table with FK | no | Run `/10x-plan challenges-data-model` first |
+| S-05 | multi-turn-loop | Continuous turn-based interview loop | no | Depends on F-02 |
+| S-06 | auto-complete-summaries | Auto-complete after strong answers | no | Depends on S-05 |
+| S-07 | new-challenge-from-stack | New challenge from same JD/stack | no | Depends on S-06 |
+| S-08 | vertical-challenge-tabs | Vertical challenge tabs in session page | no | Depends on S-07 |
 
 ## Open Roadmap Questions
 
-1. **Which LLM provider and model for challenge generation, evaluation, and adaptive follow-up?** — Owner: user. Block: S-01, S-02. The AI pipeline (JD extraction, challenge generation, answer evaluation, follow-up branching) touches both blocked slices. Provider choice affects latency budget, prompt engineering approach, and integration architecture. Resolving this unblocks 2 slices.
+1. **Summary prompt engineering for multi-turn conversations** — Owner: user. Block: S-06. How to synthesize a full conversation into strengths and improvement areas via a single LLM call.
+2. **"Substantively different" challenge heuristic** — Owner: user. Block: S-07. How to ensure new challenges from the same stack don't feel repetitive.
 
 ## Parked
 
-- **FR-004 (JD vs tech stack mode choice):** — Parked because main goal is market-feedback on the core loop; mode-switching UI adds setup complexity without changing the validation signal.
-- **FR-006 (explicit technical tags):** — Parked for same reason as FR-004; JD-to-challenge extraction (FR-007 in S-01) provides sufficient input for the MVP.
-- **Multi-turn interview trees beyond the first adaptive follow-up:** — PRD §Non-Goals explicitly defers this past MVP.
 - **Mobile-native app:** — PRD §Non-Goals.
 - **Admin, billing, subscriptions:** — PRD §Non-Goals.
 - **Ultra-low-latency streaming responses:** — PRD §Non-Goals.
