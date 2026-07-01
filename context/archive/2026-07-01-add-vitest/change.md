@@ -1,10 +1,10 @@
 ---
 change_id: add-vitest
 title: Add Vitest
-status: implementing
+status: archived
 created: 2026-07-01
 updated: 2026-07-01
-archived_at: null
+archived_at: 2026-07-01T12:23:00Z
 ---
 
 ## Notes
