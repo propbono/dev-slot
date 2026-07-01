@@ -69,7 +69,7 @@ export const POST: APIRoute = async (context) => {
   // Fetch context for evaluation
   const { data: messages } = await supabase
     .from("session_messages")
-    .select("role, content")
+    .select("id, role, content")
     .eq("session_id", sessionId)
     .eq("status", "committed")
     .order("created_at");

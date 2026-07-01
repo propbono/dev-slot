@@ -17,9 +17,9 @@ const evaluatedMessages = messages
 if (evaluatedMessages.length === 0) return null;
 
 const latest = evaluatedMessages[0];
-const quality = latest.metadata.quality as string;
-const confidence = (latest.metadata.confidence as number) ?? 0;
-const rationale = (latest.metadata.rationale as string) ?? "";
+const quality = latest.metadata!.quality as string;
+const confidence = (latest.metadata!.confidence as number) ?? 0;
+const rationale = (latest.metadata!.rationale as string) ?? "";
 
 const qualityColor =
   quality === "strong"
