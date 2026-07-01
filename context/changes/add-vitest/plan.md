@@ -176,13 +176,13 @@ The test itself is the deliverable. Running `npm test` verifies:
 
 #### Automated
 
-- [x] 1.1 `npm test` passes
-- [x] 1.2 `npm run build` passes
-- [x] 1.3 `npm run lint` passes
-- [x] 1.4 `vitest.config.ts` exists
-- [x] 1.5 `src/lib/ai.test.ts` exists
-- [x] 1.6 CI workflow includes test step
+- [x] 1.1 `npm test` passes — d97547e
+- [x] 1.2 `npm run build` passes — d97547e
+- [x] 1.3 `npm run lint` passes — d97547e
+- [x] 1.4 `vitest.config.ts` exists — d97547e
+- [x] 1.5 `src/lib/ai.test.ts` exists — d97547e
+- [x] 1.6 CI workflow includes test step — d97547e
 
 #### Manual
 
-- [x] 1.7 Test watch mode works
+- [x] 1.7 Test watch mode works — d97547e
