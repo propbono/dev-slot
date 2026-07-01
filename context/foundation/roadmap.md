@@ -31,7 +31,7 @@ Senior engineers targeting staff roles use DevSlot to simulate live architecture
 | S-01 | jd-to-challenge | paste a job description and receive a tailored architecture challenge informed by the role | F-01 | US-01, FR-005, FR-007, FR-008, FR-009 | blocked |
 | S-02 | adaptive-follow-up | submit an architectural solution and receive one adaptive follow-up that escalates or de-escalates based on answer quality | F-01, S-01 | US-01, FR-010, FR-011, FR-012, FR-013, FR-014 | blocked |
 | S-03 | session-history | end a session, browse completed sessions, and review a full chronological transcript | F-01, S-01 | FR-003, FR-015, FR-016, FR-017 | proposed |
-| S-04 | performance-metrics | view performance metrics and a categorized engineering breakdown for a completed session | F-01, S-01, S-02 | FR-018 | proposed |
+| S-04 | performance-metrics | view performance metrics and a categorized engineering breakdown for a completed session | F-01, S-01, S-02 | FR-018 | done |
 
 ## Streams
 
@@ -123,7 +123,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Metric categories: which engineering dimensions to surface (scalability, data modeling, fault tolerance, tradeoff reasoning, etc.) — Owner: user. Block: no (start with 3-4 categories from S-02's evaluation, expand based on feedback).
   - Visualization approach: numeric scores vs qualitative breakdown vs both — Owner: user. Block: no.
 - **Risk:** Categorized scoring risks false precision if evaluation quality is still immature at this point. The PRD itself flags this tension. Mitigate by framing metrics as a "reflection aid" rather than an authoritative score, with qualitative labels over numeric precision.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -150,6 +150,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **At-scale concerns from shape-notes:** At 100x scale, the branching rule may need asynchronous or streamed evaluation paths and routing by domain/difficulty tier. Explicitly deferred — no scaling pressure at MVP size.
 
 ## Done
+
+- **S-04: view performance metrics and a categorized engineering breakdown for a completed session** — Archived 2026-07-01 → `context/archive/2026-07-01-performance-metrics/`. Lesson: —.
 
 - **S-03: end a session, browse completed sessions, and review a full chronological transcript** — Archived 2026-07-01 → `context/archive/2026-07-01-session-history/`. Lesson: —.
 
