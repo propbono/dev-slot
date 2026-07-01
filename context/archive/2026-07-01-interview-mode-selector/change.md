@@ -1,10 +1,10 @@
 ---
 change_id: interview-mode-selector
 title: Interview mode selector
-status: implementing
+status: archived
 created: 2026-07-01
 updated: 2026-07-01
-archived_at: null
+archived_at: 2026-07-01T13:19:00Z
 ---
 
 ## Notes
