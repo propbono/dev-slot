@@ -54,15 +54,15 @@ Add an optional "Focus Areas" field to the Tech Stack mode that lets users speci
 
 #### Automated
 
-- [x] 1.1 `npm run build` passes
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `npm run typecheck` passes
-- [x] 1.4 `npm test` passes
-- [x] 1.5 Tags field in JDInput
-- [x] 1.6 create.ts stores tags
-- [x] 1.7 generate.ts includes tags in prompt
+- [x] 1.1 `npm run build` passes — 9f4e1f9
+- [x] 1.2 `npm run lint` passes — 9f4e1f9
+- [x] 1.3 `npm run typecheck` passes — 9f4e1f9
+- [x] 1.4 `npm test` passes — 9f4e1f9
+- [x] 1.5 Tags field in JDInput — 9f4e1f9
+- [x] 1.6 create.ts stores tags — 9f4e1f9
+- [x] 1.7 generate.ts includes tags in prompt — 9f4e1f9
 
 #### Manual
 
-- [ ] 1.8 Tags influence the generated challenge
-- [ ] 1.9 No regression when tags empty
+- [x] 1.8 Tags influence the generated challenge — 9f4e1f9
+- [x] 1.9 No regression when tags empty — 9f4e1f9
