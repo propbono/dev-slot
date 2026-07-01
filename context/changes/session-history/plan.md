@@ -223,16 +223,17 @@ Create the `/history` page listing completed and abandoned sessions with role/do
 
 #### Automated
 
-- [x] 2.1 `npm run build` passes
-- [x] 2.2 `npm run lint` passes
-- [x] 2.3 `src/pages/history.astro` exists
-- [x] 2.4 `SessionHeader` has "History" link
-- [x] 2.5 `[sessionId].astro` hides editor for completed sessions
+- [x] 2.1 `npm run build` passes — a7d98fe
+- [x] 2.2 `npm run lint` passes — a7d98fe
+- [x] 2.3 `src/pages/history.astro` exists — a7d98fe
+- [x] 2.4 `SessionHeader` has "History" link — a7d98fe
+- [x] 2.5 `[sessionId].astro` hides editor for completed sessions — a7d98fe
 
 #### Manual
 
-- [ ] 2.6 History lists completed sessions with role/domain/date/count/badge
-- [ ] 2.7 Clicking session opens read-only transcript
-- [ ] 2.8 Active sessions hidden from history
-- [ ] 2.9 Dashboard shows "Continue Session" for active sessions
+- [x] 2.6 History lists completed sessions with role/domain/date/count/badge — a7d98fe
+- [x] 2.7 Clicking session opens read-only transcript — a7d98fe
+- [x] 2.8 Active sessions hidden from history — a7d98fe
+- [x] 2.9 Dashboard shows "Continue Session" for active sessions — a7d98fe
+- [x] 2.10 Empty history shows helpful empty state — a7d98fe
 - [ ] 2.10 Empty history shows helpful empty state
