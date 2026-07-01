@@ -37,7 +37,7 @@ export default function JDInput({ error }: Props) {
         </div>
       )}
 
-      <form method="POST" action="/api/interview/generate" onSubmit={() => setSubmitting(true)}>
+      <form method="POST" action="/api/interview/create" onSubmit={() => setSubmitting(true)}>
         <textarea
           name="jd"
           value={jd}
