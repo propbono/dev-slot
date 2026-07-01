@@ -72,7 +72,7 @@ ALTER TABLE session_messages ALTER COLUMN challenge_id SET NOT NULL;
 
 ### Phase 1: Migration
 
-- [x] 1.1 Migration file exists
-- [x] 1.2 Build / typecheck / lint / test pass
-- [ ] 1.3 Migration applied to cloud
-- [ ] 1.4 Existing messages assigned to challenges
+- [x] 1.1 Migration file exists — 2ffd978
+- [x] 1.2 Build / typecheck / lint / test pass — 2ffd978
+- [x] 1.3 Migration applied to cloud — 2ffd978
+- [x] 1.4 Existing messages assigned to challenges — 2ffd978
