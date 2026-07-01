@@ -1,4 +1,6 @@
 ---
+import EndSessionButton from "./EndSessionButton";
+
 interface Props {
   role?: string;
   domain?: string;
@@ -17,12 +19,7 @@ const isActive = status === "active";
     <a href="/history" class="ml-3 text-xs text-blue-100/50 transition-colors hover:text-blue-100/80">History</a>
     <div class="flex items-center gap-2">
       {isActive && sessionId && (
-        <form method="POST" action="/api/interview/end" onsubmit="return confirm('End this session? Your transcript will be saved.')">
-          <input type="hidden" name="sessionId" value={sessionId} />
-          <button type="submit" class="rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs text-blue-100/70 transition-colors hover:bg-white/10 hover:text-white">
-            End Session
-          </button>
-        </form>
+        <EndSessionButton sessionId={sessionId} client:load />
       )}
       <a
         href="/dashboard"
