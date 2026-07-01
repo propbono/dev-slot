@@ -211,15 +211,15 @@ On error: shows "Generation failed. Return to dashboard and try again." with a l
 
 #### Automated
 
-- [x] 2.1 `npm run build` passes
-- [x] 2.2 `npm run lint` passes
-- [x] 2.3 `GenerationSkeleton.tsx` exists
-- [x] 2.4 `[sessionId].astro` no longer returns 404 for empty sessions
+- [x] 2.1 `npm run build` passes — 7e221d2
+- [x] 2.2 `npm run lint` passes — 7e221d2
+- [x] 2.3 `GenerationSkeleton.tsx` exists — 7e221d2
+- [x] 2.4 `[sessionId].astro` no longer returns 404 for empty sessions — 7e221d2
 
 #### Manual
 
-- [ ] 2.5 Submit JD → skeleton → challenge appears → page reloads
-- [ ] 2.6 Skeleton shows stage transitions
-- [ ] 2.7 Empty session shows skeleton, not 404
-- [ ] 2.8 Error card with dashboard link on generation failure
-- [ ] 2.9 Existing sessions still render full thread (no regression)
+- [x] 2.5 Submit JD → skeleton → challenge appears → page reloads
+- [x] 2.6 Skeleton shows stage transitions
+- [x] 2.7 Empty session shows skeleton, not 404
+- [x] 2.8 Error card with dashboard link on generation failure
+- [x] 2.9 Existing sessions still render full thread (no regression)
