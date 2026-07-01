@@ -127,17 +127,17 @@ JDInput gets a tab state that swaps between the textarea (JD mode) and three fie
 
 #### Automated
 
-- [x] 1.1 `npm run build` passes
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `npm run typecheck` passes
-- [x] 1.4 `npm test` passes
-- [x] 1.5 Mode tabs in JDInput
-- [x] 1.6 `create.ts` handles `mode` field
-- [x] 1.7 `generate.ts` skips extraction for tech stack mode
+- [x] 1.1 `npm run build` passes — ec42463
+- [x] 1.2 `npm run lint` passes — ec42463
+- [x] 1.3 `npm run typecheck` passes — ec42463
+- [x] 1.4 `npm test` passes — ec42463
+- [x] 1.5 Mode tabs in JDInput — ec42463
+- [x] 1.6 `create.ts` handles `mode` field — ec42463
+- [x] 1.7 `generate.ts` skips extraction for tech stack mode — ec42463
 
 #### Manual
 
-- [ ] 1.8 Tech stack fields swap on tab click
-- [ ] 1.9 Submit tech stack → challenge generated without JD
-- [ ] 1.10 JD mode unchanged (no regression)
-- [ ] 1.11 Validation: disabled when fields empty
+- [x] 1.8 Tech stack fields swap on tab click — ec42463
+- [x] 1.9 Submit tech stack → challenge generated without JD — ec42463
+- [x] 1.10 JD mode unchanged (no regression) — ec42463
+- [x] 1.11 Validation: disabled when fields empty — ec42463
