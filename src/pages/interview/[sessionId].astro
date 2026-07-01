@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import AnswerEditor from "@/components/interview/AnswerEditor";
 import MessageThread from "@/components/interview/MessageThread.astro";
+import GenerationSkeleton from "@/components/interview/GenerationSkeleton";
 import { createClient } from "@/lib/supabase";
 
 const { sessionId } = Astro.params;
@@ -14,6 +15,21 @@ const {
 } = await supabase.auth.getUser();
 if (!user) return Astro.redirect("/auth/signin");
 
+// Check session exists and belongs to user
+const { data: session } = await supabase
+  .from("sessions")
+  .select("id, status")
+  .eq("id", sessionId)
+  .eq("user_id", user.id)
+  .single();
+
+if (!session) {
+  return new Response("Session not found or access denied", {
+    status: 404,
+    headers: { "Content-Type": "text/plain" },
+  });
+}
+
 // Fetch committed messages for this session
 const { data: messages } = await supabase
   .from("session_messages")
@@ -22,15 +38,11 @@ const { data: messages } = await supabase
   .eq("status", "committed")
   .order("created_at");
 
-if (!messages || messages.length === 0) {
-  return new Response("Session not found or access denied", {
-    status: 404,
-    headers: { "Content-Type": "text/plain" },
-  });
-}
+const interviewerMessages = messages?.filter((m) => m.role === "interviewer") ?? [];
+const showSkeleton = interviewerMessages.length === 0;
 
-// Parse role + domain from system message
-const systemMsg = messages.find((m) => m.role === "system");
+// Parse role + domain from system message (when messages exist)
+const systemMsg = messages?.find((m) => m.role === "system");
 let role: string | undefined;
 let domain: string | undefined;
 if (systemMsg) {
@@ -62,16 +74,22 @@ const errorMessages: Record<string, string> = {
 const evaluationError = error ? (errorMessages[error] ?? "An unexpected error occurred. Please try again.") : undefined;
 ---
 
-<Layout title={`Interview — DevSlot`}>
+<Layout title={showSkeleton ? "Generating — DevSlot" : "Interview — DevSlot"}>
   <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
     <div class="py-8">
-      <MessageThread messages={messages} role={role} domain={domain} />
-      <AnswerEditor
-        sessionId={sessionId}
-        initialDraft={draftContent}
-        evaluationError={evaluationError}
-        client:load
-      />
+      {showSkeleton ? (
+        <GenerationSkeleton sessionId={sessionId} client:load />
+      ) : (
+        <>
+          <MessageThread messages={messages!} role={role} domain={domain} />
+          <AnswerEditor
+            sessionId={sessionId}
+            initialDraft={draftContent}
+            evaluationError={evaluationError}
+            client:load
+          />
+        </>
+      )}
     </div>
   </div>
 </Layout>

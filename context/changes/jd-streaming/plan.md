@@ -195,26 +195,26 @@ On error: shows "Generation failed. Return to dashboard and try again." with a l
 
 #### Automated
 
-- [x] 1.1 `npm run build` passes
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `create.ts` exists with POST handler
-- [x] 1.4 `generate.ts` updated with background generation
+- [x] 1.1 `npm run build` passes — cfdf60d
+- [x] 1.2 `npm run lint` passes — cfdf60d
+- [x] 1.3 `create.ts` exists with POST handler — cfdf60d
+- [x] 1.4 `generate.ts` updated with background generation — cfdf60d
 
 #### Manual
 
-- [ ] 1.5 POST JD → redirect to `/interview/<uuid>` within 1s
-- [ ] 1.6 Session row with JD text in Supabase
-- [ ] 1.7 Generate endpoint produces challenge + updates session to `active`
-- [ ] 1.8 Cross-user: generate returns error for another user's session
+- [x] 1.5 POST JD → redirect to `/interview/<uuid>` within 1s
+- [x] 1.6 Session row with JD text in Supabase
+- [x] 1.7 Generate endpoint produces challenge + updates session to `active`
+- [x] 1.8 Cross-user: generate returns error for another user's session
 
 ### Phase 2: Session Page — Loading State
 
 #### Automated
 
-- [ ] 2.1 `npm run build` passes
-- [ ] 2.2 `npm run lint` passes
-- [ ] 2.3 `GenerationSkeleton.tsx` exists
-- [ ] 2.4 `[sessionId].astro` no longer returns 404 for empty sessions
+- [x] 2.1 `npm run build` passes
+- [x] 2.2 `npm run lint` passes
+- [x] 2.3 `GenerationSkeleton.tsx` exists
+- [x] 2.4 `[sessionId].astro` no longer returns 404 for empty sessions
 
 #### Manual
 
