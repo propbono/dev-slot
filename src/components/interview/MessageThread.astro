@@ -18,20 +18,20 @@ interface Props {
 const { messages, role, domain } = Astro.props;
 ---
 
-<div class="space-y-4">
+<div class="space-y-6 py-4">
   {
     messages.map((msg) => {
       if (msg.role === "system") return null;
 
       if (msg.role === "interviewer") {
-        // First is the challenge, subsequent are follow-ups
-        const isChallenge = messages.findIndex((m) => m.role === "interviewer") === messages.indexOf(msg);
+        const isFirst = messages.findIndex((m) => m.role === "interviewer") === messages.indexOf(msg);
         return (
-          <div class="mb-8">
+          <div>
             <ChallengeDisplay
               challenge={msg.content}
-              role={isChallenge ? role : undefined}
-              domain={isChallenge ? domain : undefined}
+              role={isFirst ? role : undefined}
+              domain={isFirst ? domain : undefined}
+              followUp={!isFirst}
             />
           </div>
         );

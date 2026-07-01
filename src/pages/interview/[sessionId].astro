@@ -3,6 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import AnswerEditor from "@/components/interview/AnswerEditor";
 import MessageThread from "@/components/interview/MessageThread.astro";
 import GenerationSkeleton from "@/components/interview/GenerationSkeleton";
+import SessionHeader from "@/components/interview/SessionHeader.astro";
 import { createClient } from "@/lib/supabase";
 
 const { sessionId } = Astro.params;
@@ -81,6 +82,7 @@ const evaluationError = error ? (errorMessages[error] ?? "An unexpected error oc
         <GenerationSkeleton sessionId={sessionId} client:load />
       ) : (
         <>
+          <SessionHeader role={role} domain={domain} />
           <MessageThread messages={messages!} role={role} domain={domain} />
           <AnswerEditor
             sessionId={sessionId}
