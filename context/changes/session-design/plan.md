@@ -154,17 +154,17 @@ Add a sticky header bar, refactor ChallengeDisplay into a pure message card, res
 
 #### Automated
 
-- [x] 1.1 `npm run build` passes
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `SessionHeader.astro` exists
-- [x] 1.4 `ChallengeDisplay.astro` stripped of footer
-- [x] 1.5 `AnswerCard.astro` right-aligned + blue tint
-- [x] 1.6 `MessageThread.astro` uses inline cards
+- [x] 1.1 `npm run build` passes — 1f06c32
+- [x] 1.2 `npm run lint` passes — 1f06c32
+- [x] 1.3 `SessionHeader.astro` exists — 1f06c32
+- [x] 1.4 `ChallengeDisplay.astro` stripped of footer — 1f06c32
+- [x] 1.5 `AnswerCard.astro` right-aligned + blue tint — 1f06c32
+- [x] 1.6 `MessageThread.astro` uses inline cards — 1f06c32
 
 #### Manual
 
-- [x] 1.7 Header pinned on scroll, single "New Session" button
-- [x] 1.8 Interviewer messages left-aligned purple
-- [x] 1.9 User messages right-aligned blue
-- [x] 1.10 Thread reads clearly as conversation
-- [x] 1.11 No regressions in existing sessions
+- [x] 1.7 Header pinned on scroll, single "New Session" button — 1f06c32
+- [x] 1.8 Interviewer messages left-aligned purple — 1f06c32
+- [x] 1.9 User messages right-aligned blue — 1f06c32
+- [x] 1.10 Thread reads clearly as conversation — 1f06c32
+- [x] 1.11 No regressions in existing sessions — 1f06c32
