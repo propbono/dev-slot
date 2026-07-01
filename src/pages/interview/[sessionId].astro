@@ -83,13 +83,25 @@ const evaluationError = error ? (errorMessages[error] ?? "An unexpected error oc
       ) : (
         <>
           <SessionHeader role={role} domain={domain} sessionId={sessionId} status={session.status} />
+          {session.status !== "active" && (
+            <div class="mx-auto max-w-3xl px-4 pt-4">
+              <div class="rounded-lg border border-green-500/20 bg-green-500/10 px-4 py-2 text-center">
+                <span class="text-sm font-medium text-green-300">Session Complete</span>
+                <span class="ml-2 text-xs text-green-400/60">
+                  {new Date(session.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </span>
+              </div>
+            </div>
+          )}
           <MessageThread messages={messages!} role={role} domain={domain} />
-          <AnswerEditor
-            sessionId={sessionId}
-            initialDraft={draftContent}
-            evaluationError={evaluationError}
-            client:load
-          />
+          {session.status === "active" && (
+            <AnswerEditor
+              sessionId={sessionId}
+              initialDraft={draftContent}
+              evaluationError={evaluationError}
+              client:load
+            />
+          )}
         </>
       )}
     </div>

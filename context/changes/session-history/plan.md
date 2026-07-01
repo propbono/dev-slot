@@ -208,26 +208,26 @@ Create the `/history` page listing completed and abandoned sessions with role/do
 
 #### Automated
 
-- [x] 1.1 `npm run build` passes
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `end.ts` API route exists
-- [x] 1.4 `SessionHeader.astro` has end-session form with confirmation
+- [x] 1.1 `npm run build` passes — 1566d05
+- [x] 1.2 `npm run lint` passes — 1566d05
+- [x] 1.3 `end.ts` API route exists — 1566d05
+- [x] 1.4 `SessionHeader.astro` has end-session form with confirmation — 1566d05
 
 #### Manual
 
-- [ ] 1.5 "End Session" button visible on active session page
-- [ ] 1.6 Confirmation dialog on click
-- [ ] 1.7 Confirming flips session status to `completed`
+- [x] 1.5 "End Session" button visible on active session page — 1566d05
+- [x] 1.6 Confirmation dialog on click — 1566d05
+- [x] 1.7 Confirming flips session status to `completed` — 1566d05
 
 ### Phase 2: History Page + Read-Only Mode
 
 #### Automated
 
-- [ ] 2.1 `npm run build` passes
-- [ ] 2.2 `npm run lint` passes
-- [ ] 2.3 `src/pages/history.astro` exists
-- [ ] 2.4 `SessionHeader` has "History" link
-- [ ] 2.5 `[sessionId].astro` hides editor for completed sessions
+- [x] 2.1 `npm run build` passes
+- [x] 2.2 `npm run lint` passes
+- [x] 2.3 `src/pages/history.astro` exists
+- [x] 2.4 `SessionHeader` has "History" link
+- [x] 2.5 `[sessionId].astro` hides editor for completed sessions
 
 #### Manual
 

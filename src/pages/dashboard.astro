@@ -2,15 +2,45 @@
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import JDInput from "@/components/interview/JDInput";
+import { createClient } from "@/lib/supabase";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 const error = Astro.url.searchParams.get("error") ?? undefined;
+
+// Check for active session
+let activeSessionId: string | null = null;
+if (supabase) {
+  const { data: active } = await supabase
+    .from("sessions")
+    .select("id")
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+  activeSessionId = active?.id ?? null;
+}
 ---
 
 <Layout title="Dashboard — DevSlot">
   <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
     <div class="relative z-10 p-4 sm:p-8">
       <Topbar />
+      <div class="mx-auto max-w-2xl">
+        {activeSessionId && (
+          <div class="mb-4 rounded-lg border border-purple-500/20 bg-purple-500/10 px-4 py-2 text-center">
+            <a href={`/interview/${activeSessionId}`} class="text-sm font-medium text-purple-300 transition-colors hover:text-purple-200">
+              Continue Active Session →
+            </a>
+          </div>
+        )}
+      </div>
       <JDInput error={error} client:load />
+      <div class="mx-auto max-w-2xl mt-6 text-center">
+        <a href="/history" class="text-xs text-blue-100/40 transition-colors hover:text-blue-100/70">
+          View Session History
+        </a>
+      </div>
     </div>
   </div>
 </Layout>

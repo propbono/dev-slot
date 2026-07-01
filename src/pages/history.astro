@@ -1,0 +1,145 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { createClient } from "@/lib/supabase";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) return Astro.redirect("/dashboard?error=not_configured");
+
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+if (!user) return Astro.redirect("/auth/signin");
+
+// Fetch completed and abandoned sessions
+const { data: sessions } = await supabase
+  .from("sessions")
+  .select("id, status, created_at")
+  .eq("user_id", user.id)
+  .in("status", ["completed", "abandoned"])
+  .order("created_at", { ascending: false });
+
+const sessionCards: Array<{
+  id: string;
+  status: string;
+  created_at: string;
+  role?: string;
+  domain?: string;
+  messageCount: number;
+}> = [];
+
+if (sessions) {
+  for (const session of sessions) {
+    // Fetch role/domain from system message
+    const { data: sysMsgs } = await supabase
+      .from("session_messages")
+      .select("content")
+      .eq("session_id", session.id)
+      .eq("role", "system")
+      .eq("status", "committed")
+      .limit(1);
+
+    let role: string | undefined;
+    let domain: string | undefined;
+    if (sysMsgs && sysMsgs.length > 0) {
+      try {
+        const parsed = JSON.parse(sysMsgs[0].content);
+        role = parsed.role_level;
+        domain = parsed.domain;
+      } catch {}
+    }
+
+    // Count committed messages
+    const { count } = await supabase
+      .from("session_messages")
+      .select("*", { count: "exact", head: true })
+      .eq("session_id", session.id)
+      .eq("status", "committed");
+
+    sessionCards.push({
+      id: session.id,
+      status: session.status,
+      created_at: session.created_at,
+      role,
+      domain,
+      messageCount: count ?? 0,
+    });
+  }
+}
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+---
+
+<Layout title="Session History — DevSlot">
+  <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
+    <div class="mx-auto max-w-3xl px-4 py-12">
+      <div class="mb-8 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">Session History</h1>
+          <p class="mt-1 text-sm text-blue-100/50">
+            Review your past interview sessions
+          </p>
+        </div>
+        <a
+          href="/dashboard"
+          class="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs text-blue-100/70 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          New Session
+        </a>
+      </div>
+
+      {sessionCards.length === 0 ? (
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur-xl">
+          <p class="mb-3 text-lg font-medium text-white">
+            No completed sessions yet
+          </p>
+          <p class="mb-6 text-sm text-blue-100/50">
+            Start your first interview and end it to see it here.
+          </p>
+          <a
+            href="/dashboard"
+            class="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+          >
+            Start Interview
+          </a>
+        </div>
+      ) : (
+        <div class="space-y-3">
+          {sessionCards.map((s) => (
+            <a
+              href={`/interview/${s.id}`}
+              class="block rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl transition-colors hover:bg-white/10"
+            >
+              <div class="flex items-start justify-between">
+                <div>
+                  <h3 class="font-medium text-white">
+                    {s.role && s.domain
+                      ? `${s.role} — ${s.domain}`
+                      : "Interview Session"}
+                  </h3>
+                  <p class="mt-1 text-xs text-blue-100/50">
+                    {formatDate(s.created_at)} · {s.messageCount}{" "}
+                    message{s.messageCount !== 1 ? "s" : ""}
+                  </p>
+                </div>
+                <span
+                  class={`rounded-full border px-2 py-0.5 text-xs font-medium ${
+                    s.status === "completed"
+                      ? "border-green-500/30 bg-green-500/20 text-green-300"
+                      : "border-gray-500/30 bg-gray-500/20 text-gray-300"
+                  }`}
+                >
+                  {s.status === "completed" ? "Completed" : "Abandoned"}
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>
