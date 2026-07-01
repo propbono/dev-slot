@@ -1,10 +1,10 @@
 ---
 change_id: auth-ux-fixes
 title: Auth UX fixes
-status: new
+status: archived
 created: 2026-07-01
 updated: 2026-07-01
-archived_at: null
+archived_at: 2026-07-01T12:48:00Z
 ---
 
 ## Notes
