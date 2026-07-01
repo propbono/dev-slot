@@ -2,14 +2,14 @@
 import ChallengeDisplay from "./ChallengeDisplay.astro";
 import AnswerCard from "./AnswerCard.astro";
 
-interface Message {
+type Message = {
   id: string;
   role: string;
   content: string;
   metadata?: Record<string, any>;
 }
 
-interface Props {
+type Props = {
   messages: Message[];
   role?: string;
   domain?: string;

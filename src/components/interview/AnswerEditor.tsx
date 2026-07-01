@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 
-interface Props {
+type Props = {
   sessionId: string;
   initialDraft?: string;
   evaluationError?: string;

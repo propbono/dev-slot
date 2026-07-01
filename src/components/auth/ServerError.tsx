@@ -1,6 +1,6 @@
 import { CircleAlert } from "lucide-react";
 
-interface ServerErrorProps {
+type ServerErrorProps = {
   message?: string | null;
 }
 

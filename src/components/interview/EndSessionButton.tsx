@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-interface Props {
+type Props = {
   sessionId: string;
 }
 

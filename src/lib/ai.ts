@@ -4,7 +4,7 @@ import { DEEPSEEK_API_KEY } from "astro:env/server";
 
 const deepseek = createDeepSeek({ apiKey: DEEPSEEK_API_KEY });
 
-export interface JDConstraints {
+export type JDConstraints = {
   tech_stack: string[];
   role_level: string;
   domain: string;
@@ -69,7 +69,7 @@ Return ONLY the challenge text.`,
   return text;
 }
 
-export interface EvaluationResult {
+export type EvaluationResult = {
   quality: "strong" | "weak";
   confidence: number;
   rationale: string;

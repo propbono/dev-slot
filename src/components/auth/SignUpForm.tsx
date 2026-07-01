@@ -7,7 +7,7 @@ import { ServerError } from "@/components/auth/ServerError";
 
 const MIN_PASSWORD_LENGTH = 6;
 
-interface Props {
+type Props = {
   serverError?: string | null;
 }
 
