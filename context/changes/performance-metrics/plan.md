@@ -126,16 +126,16 @@ The session page already fetches all committed messages for the session. Each us
 
 #### Automated
 
-- [x] 1.1 `npm run build` passes
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `npm test` passes
-- [x] 1.4 `PerformanceCard.astro` exists
-- [x] 1.5 Session page renders PerformanceCard for completed sessions
-- [x] 1.6 SessionHeader has "Performance" link
+- [x] 1.1 `npm run build` passes — d7bfcd3
+- [x] 1.2 `npm run lint` passes — d7bfcd3
+- [x] 1.3 `npm test` passes — d7bfcd3
+- [x] 1.4 `PerformanceCard.astro` exists — d7bfcd3
+- [x] 1.5 Session page renders PerformanceCard for completed sessions — d7bfcd3
+- [x] 1.6 SessionHeader has "Performance" link — d7bfcd3
 
 #### Manual
 
-- [ ] 1.7 Quality badge + confidence bar + rationale on completed session
-- [ ] 1.8 No card when no evaluation metadata
-- [ ] 1.9 "Performance" link scrolls to card
-- [ ] 1.10 Confidence bar width matches value
+- [x] 1.7 Quality badge + confidence bar + rationale on completed session — d7bfcd3
+- [x] 1.8 No card when no evaluation metadata — d7bfcd3
+- [x] 1.9 "Performance" link scrolls to card — d7bfcd3
+- [x] 1.10 Confidence bar width matches value — d7bfcd3
