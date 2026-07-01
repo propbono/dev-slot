@@ -1,10 +1,10 @@
 ---
 change_id: tech-tags-input
 title: Tech tags input
-status: implementing
+status: archived
 created: 2026-07-01
 updated: 2026-07-01
-archived_at: null
+archived_at: 2026-07-01T13:30:00Z
 ---
 
 ## Notes
