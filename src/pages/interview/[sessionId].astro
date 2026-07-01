@@ -82,7 +82,7 @@ const evaluationError = error ? (errorMessages[error] ?? "An unexpected error oc
         <GenerationSkeleton sessionId={sessionId} client:load />
       ) : (
         <>
-          <SessionHeader role={role} domain={domain} />
+          <SessionHeader role={role} domain={domain} sessionId={sessionId} status={session.status} />
           <MessageThread messages={messages!} role={role} domain={domain} />
           <AnswerEditor
             sessionId={sessionId}
