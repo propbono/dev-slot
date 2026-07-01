@@ -97,7 +97,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Evaluation heuristic: what signal reliably distinguishes strong from weak architectural answers from a single open-ended response — Owner: user. Block: no (ship with best-guess heuristic; market-feedback validates it).
   - Follow-up prompt architecture: how to generate a contextual counter-challenge vs diagnostic drill from the same evaluation model — Owner: user. Block: no.
 - **Risk:** The adaptive branching is the product's differentiator — if follow-ups feel random or disconnected from the user's answer, the product has no value. This is the highest-risk slice and the reason it is the north star. Mitigate by testing against varied answer quality (deliberately weak, deliberately strong) before considering the slice done.
-- **Status:** blocked
+- **Status:** done
 
 ### S-03: Session history
 
@@ -150,6 +150,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **At-scale concerns from shape-notes:** At 100x scale, the branching rule may need asynchronous or streamed evaluation paths and routing by domain/difficulty tier. Explicitly deferred — no scaling pressure at MVP size.
 
 ## Done
+
+- **S-02: submit an architectural solution and receive one adaptive follow-up that escalates or de-escalates based on answer quality** — Archived 2026-06-28 → `context/archive/2026-06-26-adaptive-follow-up/`. Lesson: —.
 
 - **S-01: paste a job description and receive a tailored architecture challenge informed by the role** — Archived 2026-06-28 → `context/archive/2026-06-26-jd-to-challenge/`. Lesson: —.
 

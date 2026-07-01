@@ -1,10 +1,10 @@
 ---
 change_id: adaptive-follow-up
 title: Adaptive follow-up — evaluation and branching
-status: implemented
+status: archived
 created: 2026-06-26
-updated: 2026-06-26
-archived_at: null
+updated: 2026-06-28
+archived_at: 2026-06-28T14:56:00Z
 ---
 
 ## Notes
