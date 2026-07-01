@@ -141,7 +141,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Adding a NOT NULL FK to session_messages — existing rows need a default challenge. Mitigate by creating a default challenge row per session during migration.
-- **Status:** proposed
+- **Status:** done
 
 ### S-05: Multi-turn loop
 
@@ -202,7 +202,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-02 | adaptive-follow-up | Adaptive follow-up — evaluation + branching | yes | Done |
 | S-03 | session-history | Session history — list, end, transcript review | yes | Done |
 | S-04 | performance-metrics | Performance metrics and engineering breakdown | yes | Done |
-| F-02 | challenges-data-model | Create challenges table with FK | no | Run `/10x-plan challenges-data-model` first |
+| F-02 | challenges-data-model | Create challenges table with FK | yes | Done |
 | S-05 | multi-turn-loop | Continuous turn-based interview loop | no | Depends on F-02 |
 | S-06 | auto-complete-summaries | Auto-complete after strong answers | no | Depends on S-05 |
 | S-07 | new-challenge-from-stack | New challenge from same JD/stack | no | Depends on S-06 |
@@ -221,6 +221,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **At-scale concerns from shape-notes:** At 100x scale, the branching rule may need asynchronous or streamed evaluation paths and routing by domain/difficulty tier. Explicitly deferred — no scaling pressure at MVP size.
 
 ## Done
+
+- **F-02: (foundation) challenges table with summary column + challenge_id FK on session_messages** — Archived 2026-07-01 → `context/archive/2026-07-01-challenges-data-model/`. Lesson: —.
 
 - **S-04: view performance metrics and a categorized engineering breakdown for a completed session** — Archived 2026-07-01 → `context/archive/2026-07-01-performance-metrics/`. Lesson: —.
 

@@ -1,10 +1,10 @@
 ---
 change_id: challenges-data-model
 title: Challenges data model
-status: implementing
+status: archived
 created: 2026-07-01
 updated: 2026-07-01
-archived_at: null
+archived_at: 2026-07-01T19:37:00Z
 ---
 
 ## Notes
