@@ -39,6 +39,7 @@ Architecture rule: Astro components for static content and layout; React compone
 | `npm run build` | Production build (SSR) |
 | `npm run lint` | ESLint with type-checked rules |
 | `npm run lint:fix` | Auto-fix lint issues |
+| `npm run typecheck` | TypeScript type checking (`astro check`) |
 | `npm run format` | Prettier (includes Astro + Tailwind plugins) |
 
 Pre-commit: husky + lint-staged auto-runs ESLint on `*.{ts,tsx,astro}` and Prettier on `*.{json,css,md}`.
@@ -52,7 +53,7 @@ Pre-commit: husky + lint-staged auto-runs ESLint on `*.{ts,tsx,astro}` and Prett
 
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`): lint + build on every push and PR to `main`. Build step requires `SUPABASE_URL` and `SUPABASE_KEY` repository secrets. Vercel auto-deploys on push to `main` via GitHub integration.
+GitHub Actions (`.github/workflows/ci.yml`): typecheck + lint + build + test on every push and PR to `main`. Build step requires `SUPABASE_URL` and `SUPABASE_KEY` repository secrets. Vercel auto-deploys on push to `main` via GitHub integration.
 
 ## Auth
 

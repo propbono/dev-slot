@@ -11,6 +11,7 @@
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:watch": "vitest",
+    "typecheck": "astro check",
     "format": "prettier --write ."
   },
   "dependencies": {

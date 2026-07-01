@@ -4,6 +4,7 @@ import AnswerEditor from "@/components/interview/AnswerEditor";
 import MessageThread from "@/components/interview/MessageThread.astro";
 import GenerationSkeleton from "@/components/interview/GenerationSkeleton";
 import SessionHeader from "@/components/interview/SessionHeader.astro";
+import PerformanceCard from "@/components/interview/PerformanceCard.astro";
 import { createClient } from "@/lib/supabase";
 
 const { sessionId } = Astro.params;
@@ -92,6 +93,9 @@ const evaluationError = error ? (errorMessages[error] ?? "An unexpected error oc
                 </span>
               </div>
             </div>
+          )}
+          {session.status !== "active" && (
+            <PerformanceCard messages={messages!} />
           )}
           <MessageThread messages={messages!} role={role} domain={domain} />
           {session.status === "active" && (

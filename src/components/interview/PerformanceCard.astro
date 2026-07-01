@@ -1,0 +1,67 @@
+---
+type Props = {
+  messages: Array<{
+    role: string;
+    content: string;
+    metadata?: Record<string, any>;
+  }>;
+};
+
+const { messages } = Astro.props;
+
+// Find latest user message with evaluation metadata
+const evaluatedMessages = messages
+  .filter((m) => m.role === "user" && m.metadata?.quality)
+  .reverse();
+
+if (evaluatedMessages.length === 0) return null;
+
+const latest = evaluatedMessages[0];
+const quality = latest.metadata.quality as string;
+const confidence = (latest.metadata.confidence as number) ?? 0;
+const rationale = (latest.metadata.rationale as string) ?? "";
+
+const qualityColor =
+  quality === "strong"
+    ? "text-green-300"
+    : "text-amber-300";
+const qualityBg =
+  quality === "strong"
+    ? "border-green-500/30 bg-green-500/15"
+    : "border-amber-500/30 bg-amber-500/15";
+const qualityLabel = quality === "strong" ? "Strong" : "Needs Work";
+---
+
+<div id="performance" class="mx-auto max-w-3xl px-4 pt-4">
+  <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+    <h2 class="mb-4 text-lg font-semibold text-white">Performance Summary</h2>
+
+    <div class="mb-4 flex items-center gap-4">
+      <span
+        class={`rounded-full border px-3 py-1 text-sm font-medium ${qualityBg} ${qualityColor}`}
+      >
+        {qualityLabel}
+      </span>
+      <div class="flex-1">
+        <div class="mb-1 flex items-center justify-between text-xs text-blue-100/50">
+          <span>Confidence</span>
+          <span>{Math.round(confidence * 100)}%</span>
+        </div>
+        <div class="h-1.5 overflow-hidden rounded-full bg-white/10">
+          <div
+            class={`h-full rounded-full transition-all ${quality === "strong" ? "bg-green-500" : "bg-amber-500"}`}
+            style={`width: ${Math.round(confidence * 100)}%`}
+          />
+        </div>
+      </div>
+    </div>
+
+    {rationale && (
+      <p class="text-sm leading-relaxed text-blue-100/70">{rationale}</p>
+    )}
+
+    <p class="mt-4 text-xs text-blue-100/30">
+      Reflection aid — not an authoritative score
+    </p>
+  </div>
+</div>
