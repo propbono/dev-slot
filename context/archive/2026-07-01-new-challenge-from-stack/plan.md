@@ -39,8 +39,8 @@ The "New Challenge" button on the ChallengeComplete card generates a fresh archi
 
 ## Progress
 
-- [x] 1.1 Build / typecheck / lint / test pass
-- [x] 1.2 new-challenge.ts endpoint
-- [x] 1.3 ChallengeComplete button triggers POST
-- [x] 1.4 generateChallenge accepts previousTopics
-- [ ] 1.5 New challenge is different from previous
+- [x] 1.1 Build / typecheck / lint / test pass — 646bf59
+- [x] 1.2 new-challenge.ts endpoint — 646bf59
+- [x] 1.3 ChallengeComplete button triggers POST — 646bf59
+- [x] 1.4 generateChallenge accepts previousTopics — 646bf59
+- [x] 1.5 New challenge is different from previous — 646bf59

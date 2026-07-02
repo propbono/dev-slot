@@ -179,7 +179,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - "Substantively different" heuristic — how to ensure the new challenge doesn't feel repetitive — Owner: user. Block: no.
 - **Risk:** New challenges may drift too far from the original JD intent. Mitigate by keeping the same constraints and role context in the prompt.
-- **Status:** proposed
+- **Status:** done
 
 ### S-08: Vertical challenge tabs
 
@@ -205,7 +205,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-02 | challenges-data-model | Create challenges table with FK | yes | Done |
 | S-05 | multi-turn-loop | Continuous turn-based interview loop | yes | Done |
 | S-06 | auto-complete-summaries | Auto-complete after strong answers | yes | Done |
-| S-07 | new-challenge-from-stack | New challenge from same JD/stack | no | Depends on S-06 |
+| S-07 | new-challenge-from-stack | New challenge from same JD/stack | yes | Done |
 | S-08 | vertical-challenge-tabs | Vertical challenge tabs in session page | no | Depends on S-07 |
 
 ## Open Roadmap Questions
@@ -221,6 +221,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **At-scale concerns from shape-notes:** At 100x scale, the branching rule may need asynchronous or streamed evaluation paths and routing by domain/difficulty tier. Explicitly deferred — no scaling pressure at MVP size.
 
 ## Done
+
+- **S-07: generate a new architecture challenge from the same JD/tech stack within a session** — Archived 2026-07-01 → `context/archive/2026-07-01-new-challenge-from-stack/`. Lesson: —.
 
 - **S-06: challenge auto-completes after 2-3 consecutive strong answers with comprehensive summary** — Archived 2026-07-01 → `context/archive/2026-07-01-auto-complete-summaries/`. Lesson: —.
 
