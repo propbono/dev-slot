@@ -73,10 +73,23 @@ export const POST: APIRoute = async (context) => {
   try {
     const challenge = await generateChallenge(jd, constraints, previousTopics);
 
+    // Get previous challenge's max_rounds to inherit
+    const { data: prevChallenge } = await supabase
+      .from("challenges")
+      .select("max_rounds")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
     // Create new challenge row
     const { data: newChallenge } = await supabase
       .from("challenges")
-      .insert({ session_id: sessionId, status: "active" })
+      .insert({
+        session_id: sessionId,
+        status: "active",
+        max_rounds: prevChallenge?.max_rounds ?? 5,
+      })
       .select("id")
       .single();
 

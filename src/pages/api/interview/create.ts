@@ -29,6 +29,7 @@ export const POST: APIRoute = async (context) => {
   const { data: challenge } = await supabase.from("challenges").insert({
     session_id: session.id,
     status: "active",
+    max_rounds: parseInt(form.get("maxRounds") as string) || 5,
   }).select("id").single();
 
   const challengeId = challenge?.id;

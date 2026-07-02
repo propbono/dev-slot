@@ -18,6 +18,8 @@ export default function JDInput({ error }: Props) {
   const [role, setRole] = useState("");
   const [domain, setDomain] = useState("");
   const [tags, setTags] = useState("");
+  const [maxRounds, setMaxRounds] = useState(5);
+  const [strongThreshold, setStrongThreshold] = useState(3);
 
   const jdCharCount = jd.length;
   const canSubmitJd = jdCharCount >= 50;
@@ -88,6 +90,8 @@ export default function JDInput({ error }: Props) {
         onSubmit={() => setSubmitting(true)}
       >
         <input type="hidden" name="mode" value={mode} />
+        <input type="hidden" name="maxRounds" value={maxRounds} />
+        <input type="hidden" name="strongThreshold" value={strongThreshold} />
 
         {mode === "jd" ? (
           <>
