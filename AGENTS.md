@@ -10,6 +10,7 @@ Astro 6 SSR web app with React 19 islands, TypeScript, Tailwind CSS 4, Supabase 
 - Every new Supabase table must have RLS enabled with granular per-operation, per-role policies. Migrations in `supabase/migrations/` use the naming format `YYYYMMDDHHmmss_description.sql`.
 - Use `type` for type aliases, not `interface`. Reserve `interface` for declaration merging only (rare in application code).
 - **After every implementation phase, run the full verification suite before committing:** `npm run lint && npm run typecheck && npm test && npm run build`. All four must pass with zero errors. Fix any failures before proceeding.
+- **Every new feature or API route must have at least one co-located test file.** Test files use `*.test.ts` or `*.test.tsx` alongside the source. Mock external dependencies (Supabase, AI SDK).
 
 ## Project Structure
 

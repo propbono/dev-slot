@@ -50,8 +50,11 @@ describe("JDInput", () => {
     expect(buttons[buttons.length - 1]).toBeDisabled();
   });
 
-  it("shows error message when error prop is set", () => {
-    render(<JDInput error="jd_too_short" />);
-    expect(screen.getAllByText(/job description is too short/i)[0]).toBeInTheDocument();
+  it("shows upgrade prompt when error is upgrade_required", () => {
+    render(<JDInput error="upgrade_required" />);
+    expect(
+      screen.getAllByText(/reached your free tier limit/i)[0],
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/View Plans/i)[0]).toBeInTheDocument();
   });
 });
