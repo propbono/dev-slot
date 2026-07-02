@@ -2,15 +2,13 @@ import { describe, it, expect } from "vitest";
 
 // Extract the data-selection logic from PerformanceCard
 function getPerformanceData(
-  messages: Array<{
+  messages: {
     role: string;
     content: string;
     metadata?: Record<string, any>;
-  }>,
+  }[],
 ) {
-  const evaluated = messages
-    .filter((m) => m.role === "user" && m.metadata?.quality)
-    .reverse();
+  const evaluated = messages.filter((m) => m.role === "user" && m.metadata?.quality).reverse();
   if (evaluated.length === 0) return null;
   return evaluated[0].metadata;
 }

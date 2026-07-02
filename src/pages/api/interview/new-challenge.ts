@@ -1,3 +1,14 @@
+type SystemContent = {
+  mode?: string;
+  raw_jd?: string;
+  technologies?: string;
+  role_level?: string;
+  domain?: string;
+  tech_stack?: string[];
+  tags?: string;
+  status?: string;
+};
+
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { generateChallenge, type JDConstraints } from "@/lib/ai";
@@ -12,7 +23,7 @@ export const POST: APIRoute = async (context) => {
   if (!user) return context.redirect("/auth/signin");
 
   const form = await context.request.formData();
-  const sessionId = (form.get("sessionId") as string)?.trim();
+  const sessionId = (form.get("sessionId") as string | null)?.trim();
   if (!sessionId) return context.redirect("/new-session?error=missing_session");
 
   // Verify session ownership
@@ -34,27 +45,29 @@ export const POST: APIRoute = async (context) => {
     .eq("status", "committed")
     .limit(1);
 
-  if (!sysMsgs || sysMsgs.length === 0)
-    return context.redirect(`/interview/${sessionId}?error=no_stack`);
+  if (!sysMsgs || sysMsgs.length === 0) return context.redirect(`/interview/${sessionId}?error=no_stack`);
 
   let constraints: JDConstraints;
   let jd: string;
-  const parsed = JSON.parse(sysMsgs[0].content);
+  const content = JSON.parse(sysMsgs[0].content) as SystemContent;
 
-  if (parsed.mode === "tech-stack") {
+  if (content.mode === "tech-stack") {
     constraints = {
-      tech_stack: (parsed.technologies as string).split(",").map((s: string) => s.trim()).filter(Boolean),
-      role_level: parsed.role_level as string,
-      domain: (parsed.domain as string) || "General",
+      tech_stack: (content.technologies ?? "")
+        .split(",")
+        .map((s: string) => s.trim())
+        .filter(Boolean),
+      role_level: content.role_level ?? "Senior",
+      domain: content.domain ?? "General",
     };
     jd = `Targeting a ${constraints.role_level} role in ${constraints.domain} with experience in ${constraints.tech_stack.join(", ")}.`;
   } else {
     constraints = {
-      tech_stack: parsed.tech_stack || [],
-      role_level: parsed.role_level || "Senior",
-      domain: parsed.domain || "General",
+      tech_stack: (content.tech_stack as string[]) || [],
+      role_level: content.role_level ?? "Senior",
+      domain: content.domain ?? "General",
     };
-    jd = parsed.raw_jd || "";
+    jd = content.raw_jd ?? "";
   }
 
   // Get previous challenge topics to avoid repetition
@@ -66,14 +79,12 @@ export const POST: APIRoute = async (context) => {
     .eq("status", "committed")
     .order("created_at");
 
-  const previousTopics = (prevChallenges ?? []).map((m) =>
-    m.content.substring(0, 100),
-  );
+  const previousTopics = (prevChallenges ?? []).map((m) => m.content.substring(0, 100));
 
   try {
     const challenge = await generateChallenge(jd, constraints, previousTopics);
 
-    // Get previous challenge's max_rounds to inherit
+    // Get previous challenge max_rounds to inherit
     const { data: prevChallenge } = await supabase
       .from("challenges")
       .select("max_rounds")
@@ -88,7 +99,7 @@ export const POST: APIRoute = async (context) => {
       .insert({
         session_id: sessionId,
         status: "active",
-        max_rounds: prevChallenge?.max_rounds ?? 5,
+        max_rounds: (prevChallenge?.max_rounds as number) ?? 5,
       })
       .select("id")
       .single();

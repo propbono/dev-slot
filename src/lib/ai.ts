@@ -8,7 +8,7 @@ export type JDConstraints = {
   tech_stack: string[];
   role_level: string;
   domain: string;
-}
+};
 
 export class ExtractionError extends Error {
   constructor(
@@ -82,7 +82,7 @@ export type EvaluationResult = {
   confidence: number;
   rationale: string;
   followUp: string;
-}
+};
 
 export async function evaluateAnswer(
   constraints: JDConstraints,
@@ -126,10 +126,7 @@ export type ChallengeSummary = {
   improvement_areas: string[];
 };
 
-export async function generateSummary(
-  constraints: JDConstraints,
-  conversation: string,
-): Promise<ChallengeSummary> {
+export async function generateSummary(constraints: JDConstraints, conversation: string): Promise<ChallengeSummary> {
   const { text } = await generateText({
     model: deepseek("deepseek-chat"),
     system:

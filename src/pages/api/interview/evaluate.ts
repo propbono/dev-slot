@@ -22,8 +22,7 @@ export const POST: APIRoute = async (context) => {
   const sessionId = (form.get("sessionId") as string)?.trim();
   const answer = (form.get("answer") as string)?.trim();
 
-  if (!sessionId || !answer)
-    return context.redirect(`/interview/${sessionId}?error=missing_fields`);
+  if (!sessionId || !answer) return context.redirect(`/interview/${sessionId}?error=missing_fields`);
 
   // Verify session ownership
   const { data: session, error: sessionErr } = await supabase
@@ -33,8 +32,7 @@ export const POST: APIRoute = async (context) => {
     .eq("user_id", user.id)
     .single();
 
-  if (sessionErr || !session)
-    return context.redirect("/new-session?error=session_not_found");
+  if (sessionErr || !session) return context.redirect("/new-session?error=session_not_found");
 
   // Get active challenge
   const { data: challenge } = await supabase
@@ -44,8 +42,7 @@ export const POST: APIRoute = async (context) => {
     .eq("status", "active")
     .single();
 
-  if (!challenge)
-    return context.redirect("/new-session?error=no_active_challenge");
+  if (!challenge) return context.redirect("/new-session?error=no_active_challenge");
 
   // Flip draft to committed (or insert if no draft exists)
   const { data: draft } = await supabase
@@ -64,7 +61,7 @@ export const POST: APIRoute = async (context) => {
       .eq("id", answerId);
   } else {
     // No draft existed — insert committed directly
-    const { data: inserted } = await supabase
+    const { data: _inserted } = await supabase
       .from("session_messages")
       .insert({
         session_id: sessionId,
@@ -105,14 +102,10 @@ export const POST: APIRoute = async (context) => {
   let lastError: unknown;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const result = await evaluateAnswer(
-        constraints,
-        challengeMsg.content,
-        answerMsg.content,
-      );
+      const result = await evaluateAnswer(constraints, challengeMsg.content, answerMsg.content);
 
       // Update answer message with evaluation metadata
-      const answerRowId = answerMsg.id || answerId;
+      const answerRowId = answerMsg.id ?? answerId;
       if (answerRowId) {
         await supabase
           .from("session_messages")
@@ -182,23 +175,18 @@ export const POST: APIRoute = async (context) => {
       }
 
       if (shouldComplete) {
-          // Build conversation text for summary
-          const { data: allMsgs } = await supabase
-            .from("session_messages")
-            .select("role, content")
-            .eq("challenge_id", challenge.id)
-            .eq("status", "committed")
-            .order("created_at");
+        // Build conversation text for summary
+        const { data: allMsgs } = await supabase
+          .from("session_messages")
+          .select("role, content")
+          .eq("challenge_id", challenge.id)
+          .eq("status", "committed")
+          .order("created_at");
 
-          const conversation = (allMsgs ?? [])
-            .map((m) => `${m.role}: ${m.content}`)
-            .join("\n\n");
+        const conversation = (allMsgs ?? []).map((m) => `${m.role}: ${m.content}`).join("\n\n");
 
-          const summary = await generateSummary(constraints, conversation);
-          await supabase
-            .from("challenges")
-            .update({ status: "completed", summary })
-            .eq("id", challenge.id);
+        const summary = await generateSummary(constraints, conversation);
+        await supabase.from("challenges").update({ status: "completed", summary }).eq("id", challenge.id);
       }
 
       return context.redirect(`/interview/${sessionId}`);

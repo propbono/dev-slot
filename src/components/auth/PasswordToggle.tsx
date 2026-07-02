@@ -3,7 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 type PasswordToggleProps = {
   visible: boolean;
   onToggle: () => void;
-}
+};
 
 export function PasswordToggle({ visible, onToggle }: PasswordToggleProps) {
   return (

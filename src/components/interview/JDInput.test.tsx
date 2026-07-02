@@ -11,9 +11,7 @@ describe("JDInput", () => {
 
   it("shows JD textarea by default", () => {
     render(<JDInput />);
-    expect(
-      screen.getAllByPlaceholderText(/paste a full job description/i)[0],
-    ).toBeInTheDocument();
+    expect(screen.getAllByPlaceholderText(/paste a full job description/i)[0]).toBeInTheDocument();
     // Tech stack fields should not be visible
     const allTechFields = screen.queryAllByPlaceholderText(/React, AWS, Kafka/);
     expect(allTechFields.length).toBe(0);
@@ -34,9 +32,7 @@ describe("JDInput", () => {
 
   it("enables submit at 50+ characters", () => {
     render(<JDInput />);
-    const textareas = screen.getAllByPlaceholderText(
-      /paste a full job description/i,
-    );
+    const textareas = screen.getAllByPlaceholderText(/paste a full job description/i);
     fireEvent.change(textareas[textareas.length - 1], {
       target: {
         value:
@@ -56,8 +52,6 @@ describe("JDInput", () => {
 
   it("shows error message when error prop is set", () => {
     render(<JDInput error="jd_too_short" />);
-    expect(
-      screen.getAllByText(/job description is too short/i)[0],
-    ).toBeInTheDocument();
+    expect(screen.getAllByText(/job description is too short/i)[0]).toBeInTheDocument();
   });
 });

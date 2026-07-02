@@ -45,8 +45,6 @@ describe("extractConstraints", () => {
       text: "not json at all",
     } as any);
 
-    await expect(extractConstraints("Fake JD")).rejects.toThrow(
-      "Failed to parse extraction JSON",
-    );
+    await expect(extractConstraints("Fake JD")).rejects.toThrow("Failed to parse extraction JSON");
   });
 });

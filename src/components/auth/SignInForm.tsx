@@ -7,7 +7,7 @@ import { ServerError } from "@/components/auth/ServerError";
 
 type Props = {
   serverError?: string | null;
-}
+};
 
 export default function SignInForm({ serverError }: Props) {
   const [email, setEmail] = useState("");

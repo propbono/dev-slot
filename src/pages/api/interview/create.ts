@@ -3,8 +3,7 @@ import { createClient } from "@/lib/supabase";
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase)
-    return context.redirect("/new-session?error=not_configured");
+  if (!supabase) return context.redirect("/new-session?error=not_configured");
 
   const {
     data: { user },
@@ -21,16 +20,18 @@ export const POST: APIRoute = async (context) => {
     .select("id")
     .single();
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (sessionErr || !session)
-    return context.redirect("/new-session?error=session_failed");
+  if (sessionErr || !session) return context.redirect("/new-session?error=session_failed");
 
   // Create default challenge for this session
-  const { data: challenge } = await supabase.from("challenges").insert({
-    session_id: session.id,
-    status: "active",
-    max_rounds: parseInt(form.get("maxRounds") as string) || 5,
-  }).select("id").single();
+  const { data: challenge } = await supabase
+    .from("challenges")
+    .insert({
+      session_id: session.id,
+      status: "active",
+      max_rounds: parseInt(form.get("maxRounds") as string) || 5,
+    })
+    .select("id")
+    .single();
 
   const challengeId = challenge?.id;
 
@@ -40,8 +41,7 @@ export const POST: APIRoute = async (context) => {
     const domain = (form.get("domain") as string)?.trim();
     const tags = (form.get("tags") as string)?.trim() || "";
 
-    if (!technologies || !role)
-      return context.redirect("/new-session?error=missing_tech_stack");
+    if (!technologies || !role) return context.redirect("/new-session?error=missing_tech_stack");
 
     await supabase.from("session_messages").insert({
       session_id: session.id,
@@ -58,8 +58,7 @@ export const POST: APIRoute = async (context) => {
     });
   } else {
     const jd = (form.get("jd") as string | null)?.trim();
-    if (!jd || jd.length < 50)
-      return context.redirect("/new-session?error=jd_too_short");
+    if (!jd || jd.length < 50) return context.redirect("/new-session?error=jd_too_short");
 
     await supabase.from("session_messages").insert({
       session_id: session.id,

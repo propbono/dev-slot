@@ -22,8 +22,7 @@ export const GET: APIRoute = async (context) => {
     .eq("user_id", user.id)
     .single();
 
-  if (sessionErr || !session)
-    return Response.json({ ready: false, error: "session_not_found" }, { status: 404 });
+  if (sessionErr || !session) return Response.json({ ready: false, error: "session_not_found" }, { status: 404 });
 
   // Check if generation already completed
   const { data: existing } = await supabase
@@ -48,8 +47,7 @@ export const GET: APIRoute = async (context) => {
     .order("created_at")
     .limit(1);
 
-  if (!systemMsgs || systemMsgs.length === 0)
-    return Response.json({ ready: false, error: "no_jd_found" });
+  if (!systemMsgs || systemMsgs.length === 0) return Response.json({ ready: false, error: "no_jd_found" });
 
   let jd: string;
   let mode = "jd";
@@ -122,10 +120,7 @@ export const GET: APIRoute = async (context) => {
     });
 
     // Mark session active
-    await supabase
-      .from("sessions")
-      .update({ status: "active" })
-      .eq("id", sessionId);
+    await supabase.from("sessions").update({ status: "active" }).eq("id", sessionId);
 
     return Response.json({ ready: true });
   } catch {

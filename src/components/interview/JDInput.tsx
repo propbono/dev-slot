@@ -18,8 +18,8 @@ export default function JDInput({ error }: Props) {
   const [role, setRole] = useState("");
   const [domain, setDomain] = useState("");
   const [tags, setTags] = useState("");
-  const [maxRounds, setMaxRounds] = useState(5);
-  const [strongThreshold, setStrongThreshold] = useState(3);
+  const [maxRounds] = useState(5);
+  const [strongThreshold] = useState(3);
 
   const jdCharCount = jd.length;
   const canSubmitJd = jdCharCount >= 50;
@@ -28,24 +28,19 @@ export default function JDInput({ error }: Props) {
   const canSubmit = mode === "jd" ? canSubmitJd : canSubmitTechStack;
 
   const errorMessages: Record<string, string> = {
-    jd_too_short:
-      "Job description is too short. Paste at least 50 characters.",
+    jd_too_short: "Job description is too short. Paste at least 50 characters.",
     generation_failed: "Challenge generation failed. Please try again.",
     session_failed: "Could not create interview session. Please try again.",
     not_configured: "AI service is not configured. Check your API keys.",
     missing_fields: "Please fill in all required fields.",
-    missing_tech_stack:
-      "Please enter technologies and select a role level.",
+    missing_tech_stack: "Please enter technologies and select a role level.",
   };
 
-  const errorText =
-    error && (errorMessages[error] ?? "An unexpected error occurred.");
+  const errorText = error && (errorMessages[error] ?? "An unexpected error occurred.");
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <h2 className="mb-2 text-center text-2xl font-bold text-white">
-        New Interview
-      </h2>
+      <h2 className="mb-2 text-center text-2xl font-bold text-white">New Interview</h2>
       <p className="mb-8 text-center text-blue-100/60">
         {mode === "jd"
           ? "Paste a job description to generate a tailored architecture challenge."
@@ -56,7 +51,9 @@ export default function JDInput({ error }: Props) {
       <div className="mb-6 flex justify-center gap-1">
         <button
           type="button"
-          onClick={() => setMode("jd")}
+          onClick={() => {
+            setMode("jd");
+          }}
           className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${
             mode === "jd"
               ? "bg-purple-600 text-white"
@@ -67,7 +64,9 @@ export default function JDInput({ error }: Props) {
         </button>
         <button
           type="button"
-          onClick={() => setMode("tech-stack")}
+          onClick={() => {
+            setMode("tech-stack");
+          }}
           className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${
             mode === "tech-stack"
               ? "bg-purple-600 text-white"
@@ -87,7 +86,9 @@ export default function JDInput({ error }: Props) {
       <form
         method="POST"
         action="/api/interview/create"
-        onSubmit={() => setSubmitting(true)}
+        onSubmit={() => {
+          setSubmitting(true);
+        }}
       >
         <input type="hidden" name="mode" value={mode} />
         <input type="hidden" name="maxRounds" value={maxRounds} />
@@ -98,15 +99,15 @@ export default function JDInput({ error }: Props) {
             <textarea
               name="jd"
               value={jd}
-              onChange={(e) => setJd(e.target.value)}
+              onChange={(e) => {
+                setJd(e.target.value);
+              }}
               placeholder="Paste a full job description (minimum 50 characters)..."
               rows={12}
-              className="w-full resize-y rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+              className="w-full resize-y rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 focus:outline-none"
             />
             <div className="mt-3 flex items-center justify-between">
-              <span
-                className={`text-sm ${jdTooShort ? "text-red-300" : "text-blue-100/50"}`}
-              >
+              <span className={`text-sm ${jdTooShort ? "text-red-300" : "text-blue-100/50"}`}>
                 {jdCharCount}/50 minimum
               </span>
               <Button
@@ -121,27 +122,27 @@ export default function JDInput({ error }: Props) {
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="mb-1 block text-xs font-medium text-blue-100/60">
-                Technologies
-              </label>
+              <label className="mb-1 block text-xs font-medium text-blue-100/60">Technologies</label>
               <input
                 type="text"
                 name="technologies"
                 value={technologies}
-                onChange={(e) => setTechnologies(e.target.value)}
+                onChange={(e) => {
+                  setTechnologies(e.target.value);
+                }}
                 placeholder="e.g., React, AWS, Kafka"
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 focus:outline-none"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-blue-100/60">
-                Role Level
-              </label>
+              <label className="mb-1 block text-xs font-medium text-blue-100/60">Role Level</label>
               <select
                 name="role"
                 value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white backdrop-blur-sm focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                onChange={(e) => {
+                  setRole(e.target.value);
+                }}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white backdrop-blur-sm focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 focus:outline-none"
               >
                 <option value="">Select role level...</option>
                 <option value="Junior">Junior</option>
@@ -152,29 +153,29 @@ export default function JDInput({ error }: Props) {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-blue-100/60">
-                Domain
-              </label>
+              <label className="mb-1 block text-xs font-medium text-blue-100/60">Domain</label>
               <input
                 type="text"
                 name="domain"
                 value={domain}
-                onChange={(e) => setDomain(e.target.value)}
+                onChange={(e) => {
+                  setDomain(e.target.value);
+                }}
                 placeholder="e.g., Fintech, Healthcare, SaaS"
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 focus:outline-none"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-blue-100/60">
-                Focus Areas (optional)
-              </label>
+              <label className="mb-1 block text-xs font-medium text-blue-100/60">Focus Areas (optional)</label>
               <input
                 type="text"
                 name="tags"
                 value={tags}
-                onChange={(e) => setTags(e.target.value)}
+                onChange={(e) => {
+                  setTags(e.target.value);
+                }}
                 placeholder="e.g., event sourcing, distributed transactions"
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 focus:outline-none"
               />
             </div>
             <div className="flex justify-end">

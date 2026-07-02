@@ -4,13 +4,9 @@ import { useState, useEffect, useRef } from "react";
 
 type Props = {
   sessionId: string;
-}
+};
 
-const STAGES = [
-  "Creating your interview session...",
-  "Analyzing job description...",
-  "Crafting your challenge...",
-];
+const STAGES = ["Creating your interview session...", "Analyzing job description...", "Crafting your challenge..."];
 const POLL_INTERVAL = 2000;
 
 export default function GenerationSkeleton({ sessionId }: Props) {
@@ -32,27 +28,27 @@ export default function GenerationSkeleton({ sessionId }: Props) {
     });
 
     // Poll the generate endpoint
-    pollRef.current = setInterval(async () => {
-      try {
-        const res = await fetch(
-          `/api/interview/generate?sessionId=${encodeURIComponent(sessionId)}`,
-        );
-        if (!res.ok && res.status !== 404) {
-          setError("Generation failed. Return to dashboard and try again.");
-          if (pollRef.current) clearInterval(pollRef.current);
-          return;
+    pollRef.current = setInterval(() => {
+      void (async () => {
+        try {
+          const res = await fetch(`/api/interview/generate?sessionId=${encodeURIComponent(sessionId)}`);
+          if (!res.ok && res.status !== 404) {
+            setError("Generation failed. Return to dashboard and try again.");
+            if (pollRef.current) clearInterval(pollRef.current);
+            return;
+          }
+          const data = await res.json();
+          if (data.ready) {
+            if (pollRef.current) clearInterval(pollRef.current);
+            window.location.reload();
+          } else if (data.error) {
+            setError("Generation failed. Return to dashboard and try again.");
+            if (pollRef.current) clearInterval(pollRef.current);
+          }
+        } catch {
+          // Network error — keep polling, don't show error immediately
         }
-        const data = await res.json();
-        if (data.ready) {
-          if (pollRef.current) clearInterval(pollRef.current);
-          window.location.reload();
-        } else if (data.error) {
-          setError("Generation failed. Return to dashboard and try again.");
-          if (pollRef.current) clearInterval(pollRef.current);
-        }
-      } catch {
-        // Network error — keep polling, don't show error immediately
-      }
+      })();
     }, POLL_INTERVAL);
 
     return () => {
@@ -65,9 +61,7 @@ export default function GenerationSkeleton({ sessionId }: Props) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-8 backdrop-blur-xl">
-          <h2 className="mb-3 text-xl font-bold text-red-200">
-            Generation Failed
-          </h2>
+          <h2 className="mb-3 text-xl font-bold text-red-200">Generation Failed</h2>
           <p className="mb-6 text-sm text-red-300/80">{error}</p>
           <a
             href="/new-session"
@@ -77,7 +71,9 @@ export default function GenerationSkeleton({ sessionId }: Props) {
           </a>
           <button
             type="button"
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              window.location.reload();
+            }}
             className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
           >
             Retry
@@ -99,18 +95,10 @@ export default function GenerationSkeleton({ sessionId }: Props) {
             <div key={i} className="flex items-center gap-3">
               <div
                 className={`h-2 w-2 rounded-full transition-colors ${
-                  i <= stage
-                    ? i === stage
-                      ? "bg-purple-400 animate-pulse"
-                      : "bg-purple-600"
-                    : "bg-white/10"
+                  i <= stage ? (i === stage ? "animate-pulse bg-purple-400" : "bg-purple-600") : "bg-white/10"
                 }`}
               />
-              <span
-                className={`text-sm transition-colors ${
-                  i <= stage ? "text-blue-100/80" : "text-blue-100/30"
-                }`}
-              >
+              <span className={`text-sm transition-colors ${i <= stage ? "text-blue-100/80" : "text-blue-100/30"}`}>
                 {label}
               </span>
               {i < stage && (
@@ -121,20 +109,14 @@ export default function GenerationSkeleton({ sessionId }: Props) {
                   stroke="currentColor"
                   strokeWidth={2}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m5 13 4 4L19 7"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
                 </svg>
               )}
             </div>
           ))}
         </div>
 
-        <p className="mt-8 text-center text-xs text-blue-100/30">
-          This usually takes 5-10 seconds
-        </p>
+        <p className="mt-8 text-center text-xs text-blue-100/30">This usually takes 5-10 seconds</p>
       </div>
     </div>
   );

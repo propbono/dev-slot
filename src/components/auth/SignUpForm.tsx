@@ -9,7 +9,7 @@ const MIN_PASSWORD_LENGTH = 6;
 
 type Props = {
   serverError?: string | null;
-}
+};
 
 export default function SignUpForm({ serverError }: Props) {
   const [email, setEmail] = useState("");

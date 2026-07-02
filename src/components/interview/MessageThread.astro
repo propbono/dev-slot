@@ -7,13 +7,13 @@ type Message = {
   role: string;
   content: string;
   metadata?: Record<string, any>;
-}
+};
 
 type Props = {
   messages: Message[];
   role?: string;
   domain?: string;
-}
+};
 
 const { messages, role, domain } = Astro.props;
 ---

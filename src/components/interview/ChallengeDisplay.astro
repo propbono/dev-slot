@@ -4,7 +4,7 @@ type Props = {
   role?: string;
   domain?: string;
   followUp?: boolean;
-}
+};
 
 const { challenge, role, domain, followUp } = Astro.props;
 const heading = followUp ? "Follow-up" : role && domain ? `${role} — ${domain}` : "Your Challenge";
@@ -16,7 +16,7 @@ const heading = followUp ? "Follow-up" : role && domain ? `${role} — ${domain}
   </div>
 
   <div class="rounded-2xl border border-purple-500/20 bg-purple-500/10 p-6 backdrop-blur-xl">
-    <div class="prose prose-invert max-w-none text-blue-100/90 whitespace-pre-wrap leading-relaxed">
+    <div class="prose prose-invert max-w-none leading-relaxed whitespace-pre-wrap text-blue-100/90">
       {challenge}
     </div>
   </div>

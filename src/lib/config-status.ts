@@ -6,7 +6,7 @@ export type ConfigStatus = {
   message: string;
   docsUrl?: string;
   docsLabel?: string;
-}
+};
 
 export const configStatuses: ConfigStatus[] = [
   {

@@ -26,10 +26,7 @@ export const POST: APIRoute = async (context) => {
 
   // Only end if active
   if (session.status === "active") {
-    await supabase
-      .from("sessions")
-      .update({ status: "completed" })
-      .eq("id", sessionId);
+    await supabase.from("sessions").update({ status: "completed" }).eq("id", sessionId);
   }
 
   return context.redirect(`/interview/${sessionId}`);

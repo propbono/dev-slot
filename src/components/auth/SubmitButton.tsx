@@ -6,7 +6,7 @@ type SubmitButtonProps = {
   pendingText: string;
   icon: ReactNode;
   children: ReactNode;
-}
+};
 
 export function SubmitButton({ pendingText, icon, children }: SubmitButtonProps) {
   const { pending } = useFormStatus();

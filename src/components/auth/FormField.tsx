@@ -17,7 +17,7 @@ type FormFieldProps = {
   hint?: ReactNode;
   icon: ReactNode;
   endContent?: ReactNode;
-}
+};
 
 export function FormField({
   id,

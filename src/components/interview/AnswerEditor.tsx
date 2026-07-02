@@ -8,13 +8,9 @@ type Props = {
   sessionId: string;
   initialDraft?: string;
   evaluationError?: string;
-}
+};
 
-export default function AnswerEditor({
-  sessionId,
-  initialDraft,
-  evaluationError,
-}: Props) {
+export default function AnswerEditor({ sessionId, initialDraft, evaluationError }: Props) {
   const [content, setContent] = useState(initialDraft ?? "");
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [submitting, setSubmitting] = useState(false);
@@ -45,7 +41,7 @@ export default function AnswerEditor({
     if (timerRef.current) clearTimeout(timerRef.current);
     if (content.length > 0) {
       timerRef.current = setTimeout(() => {
-        saveDraft(content);
+        void saveDraft(content);
       }, 3000);
     }
     return () => {
@@ -58,14 +54,12 @@ export default function AnswerEditor({
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-white">Your Solution</h3>
         <div className="flex items-center gap-3">
-          {lastSaved && (
-            <span className="text-xs text-blue-100/40">
-              Draft saved {lastSaved.toLocaleTimeString()}
-            </span>
-          )}
+          {lastSaved && <span className="text-xs text-blue-100/40">Draft saved {lastSaved.toLocaleTimeString()}</span>}
           <button
             type="button"
-            onClick={() => setMode(mode === "edit" ? "preview" : "edit")}
+            onClick={() => {
+              setMode(mode === "edit" ? "preview" : "edit");
+            }}
             className="rounded border border-white/20 px-3 py-1 text-xs text-blue-100/60 transition-colors hover:bg-white/10 hover:text-white"
           >
             {mode === "edit" ? "Preview" : "Edit"}
@@ -83,10 +77,12 @@ export default function AnswerEditor({
         <textarea
           name="answer"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => {
+            setContent(e.target.value);
+          }}
           placeholder="Type your architectural solution here... Use markdown for formatting."
           rows={16}
-          className="w-full resize-y rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-mono text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+          className="w-full resize-y rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-mono text-sm text-white placeholder-blue-100/40 backdrop-blur-sm focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 focus:outline-none"
         />
       ) : (
         <div className="min-h-[24rem] rounded-xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-sm">
@@ -95,24 +91,22 @@ export default function AnswerEditor({
               <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           ) : (
-            <p className="text-sm text-blue-100/40">
-              Nothing to preview yet. Switch to Edit mode to start typing.
-            </p>
+            <p className="text-sm text-blue-100/40">Nothing to preview yet. Switch to Edit mode to start typing.</p>
           )}
         </div>
       )}
 
       <div className="mt-4 flex items-center justify-between">
-        <span
-          className={`text-sm ${content.length > 0 && content.length < 20 ? "text-red-300" : "text-blue-100/50"}`}
-        >
+        <span className={`text-sm ${content.length > 0 && content.length < 20 ? "text-red-300" : "text-blue-100/50"}`}>
           {content.length}/20 minimum
         </span>
 
         <form
           method="POST"
           action={`/api/interview/evaluate`}
-          onSubmit={() => setSubmitting(true)}
+          onSubmit={() => {
+            setSubmitting(true);
+          }}
         >
           <input type="hidden" name="sessionId" value={sessionId} />
           <input type="hidden" name="answer" value={content} />

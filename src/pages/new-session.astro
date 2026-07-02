@@ -27,16 +27,21 @@ if (supabase) {
     <div class="relative z-10 p-4 sm:p-8">
       <Topbar />
       <div class="mx-auto max-w-2xl">
-        {activeSessionId && (
-          <div class="mb-4 rounded-lg border border-purple-500/20 bg-purple-500/10 px-4 py-2 text-center">
-            <a href={`/interview/${activeSessionId}`} class="text-sm font-medium text-purple-300 transition-colors hover:text-purple-200">
-              Continue Active Session →
-            </a>
-          </div>
-        )}
+        {
+          activeSessionId && (
+            <div class="mb-4 rounded-lg border border-purple-500/20 bg-purple-500/10 px-4 py-2 text-center">
+              <a
+                href={`/interview/${activeSessionId}`}
+                class="text-sm font-medium text-purple-300 transition-colors hover:text-purple-200"
+              >
+                Continue Active Session →
+              </a>
+            </div>
+          )
+        }
       </div>
       <JDInput error={error} client:load />
-      <div class="mx-auto max-w-2xl mt-6 text-center">
+      <div class="mx-auto mt-6 max-w-2xl text-center">
         <a href="/history" class="text-xs text-blue-100/40 transition-colors hover:text-blue-100/70">
           View Session History
         </a>
