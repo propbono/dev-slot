@@ -135,7 +135,10 @@ export const POST: APIRoute = async (context) => {
         challenge_id: challenge.id,
       });
 
-      // Check for auto-complete: 3 consecutive strong answers
+      // Check for auto-complete: 3 consecutive strong OR max rounds reached
+      let shouldComplete = false;
+
+      // Strong path: 3 consecutive strong answers
       if (result.quality === "strong") {
         const { data: lastThree } = await supabase
           .from("session_messages")
@@ -153,7 +156,32 @@ export const POST: APIRoute = async (context) => {
             return meta?.quality === "strong";
           });
 
-        if (allStrong) {
+        if (allStrong) shouldComplete = true;
+      }
+
+      // Max rounds path: check total answer count
+      if (!shouldComplete) {
+        const { data: fullChallenge } = await supabase
+          .from("challenges")
+          .select("max_rounds")
+          .eq("id", challenge.id)
+          .single();
+
+        const maxRounds = fullChallenge?.max_rounds ?? 5;
+
+        const { count: totalRounds } = await supabase
+          .from("session_messages")
+          .select("*", { count: "exact", head: true })
+          .eq("challenge_id", challenge.id)
+          .eq("role", "user")
+          .eq("status", "committed");
+
+        if (totalRounds && totalRounds >= maxRounds) {
+          shouldComplete = true;
+        }
+      }
+
+      if (shouldComplete) {
           // Build conversation text for summary
           const { data: allMsgs } = await supabase
             .from("session_messages")
@@ -171,7 +199,6 @@ export const POST: APIRoute = async (context) => {
             .from("challenges")
             .update({ status: "completed", summary })
             .eq("id", challenge.id);
-        }
       }
 
       return context.redirect(`/interview/${sessionId}`);
