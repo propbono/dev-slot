@@ -53,8 +53,8 @@ if (totalRounds && totalRounds >= (maxRounds ?? 5)) {
 
 ## Progress
 
-- [ ] 1.1 Build / typecheck / lint / test pass
-- [ ] 1.2 Migration applied
-- [ ] 1.3 create.ts + new-challenge.ts set max_rounds
-- [ ] 1.4 evaluate.ts checks max_rounds
-- [ ] 1.5 5 total rounds → auto-complete
+- [x] 1.1 Build / typecheck / lint / test pass — 6b452ee
+- [x] 1.2 Migration applied — 6b452ee
+- [x] 1.3 create.ts + new-challenge.ts set max_rounds — 6b452ee
+- [x] 1.4 evaluate.ts checks max_rounds — 6b452ee
+- [x] 1.5 5 total rounds → auto-complete — 6b452ee
