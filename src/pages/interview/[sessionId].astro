@@ -111,7 +111,7 @@ const evaluationError = error ? (errorMessages[error] ?? "An unexpected error oc
 ---
 
 <Layout title={showSkeleton ? "Generating — DevSlot" : "Interview — DevSlot"}>
-  <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
+  <div class="bg-cosmic relative min-h-screen w-full">
     <div class="py-8">
       {showSkeleton ? (
         <GenerationSkeleton sessionId={sessionId!} client:load />
