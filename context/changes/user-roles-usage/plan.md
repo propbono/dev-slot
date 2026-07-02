@@ -46,5 +46,5 @@ CREATE POLICY "Users can view own usage" ON usage_counters
 
 - [x] 1.1 Build / typecheck / lint / test pass
 - [x] 1.2 Migration file exists
-- [ ] 1.3 Migration applied to cloud
-- [ ] 1.4 Existing users seeded with role
+- [x] 1.3 Migration applied to cloud — 95f7f09
+- [x] 1.4 Existing users seeded with role — 95f7f09

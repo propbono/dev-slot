@@ -1,7 +1,7 @@
 ---
 change_id: user-roles-usage
 title: User roles and usage counters
-status: implementing
+status: implemented
 created: 2026-07-02
 updated: 2026-07-02
 archived_at: null
