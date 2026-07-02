@@ -57,8 +57,8 @@ Enable continuous turn-based interview conversations by fixing challenge_id in A
 
 ### Phase 1: Fixes + Coaching
 
-- [x] 1.1 Build / typecheck / lint / test pass
-- [x] 1.2 create.ts creates default challenge
-- [x] 1.3 draft.ts + evaluate.ts include challenge_id
-- [x] 1.4 Coaching tone in evaluation prompt
-- [ ] 1.5 Submit answer → follow-up appears, editor re-appears (continuous)
+- [x] 1.1 Build / typecheck / lint / test pass — 427ead9
+- [x] 1.2 create.ts creates default challenge — 427ead9
+- [x] 1.3 draft.ts + evaluate.ts include challenge_id — 427ead9
+- [x] 1.4 Coaching tone in evaluation prompt — 427ead9
+- [x] 1.5 Submit answer → follow-up appears, editor re-appears (continuous) — 427ead9

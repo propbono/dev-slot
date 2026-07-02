@@ -1,7 +1,10 @@
 ---
 change_id: multi-turn-loop
 title: Multi-turn loop
-status: implementing
+status: archived
+created: 2026-07-01
+updated: 2026-07-01
+archived_at: 2026-07-01T20:23:00Z
 created: 2026-07-01
 updated: 2026-07-01
 archived_at: null

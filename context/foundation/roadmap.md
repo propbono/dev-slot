@@ -153,7 +153,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The evaluation loop must not create a tight coupling between frontend polling and backend state. Use the existing evaluate.ts pattern — POST answer → evaluate → redirect → page shows new thread.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: Auto-complete + summaries
 
@@ -203,7 +203,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-03 | session-history | Session history — list, end, transcript review | yes | Done |
 | S-04 | performance-metrics | Performance metrics and engineering breakdown | yes | Done |
 | F-02 | challenges-data-model | Create challenges table with FK | yes | Done |
-| S-05 | multi-turn-loop | Continuous turn-based interview loop | no | Depends on F-02 |
+| S-05 | multi-turn-loop | Continuous turn-based interview loop | yes | Done |
 | S-06 | auto-complete-summaries | Auto-complete after strong answers | no | Depends on S-05 |
 | S-07 | new-challenge-from-stack | New challenge from same JD/stack | no | Depends on S-06 |
 | S-08 | vertical-challenge-tabs | Vertical challenge tabs in session page | no | Depends on S-07 |
@@ -221,6 +221,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **At-scale concerns from shape-notes:** At 100x scale, the branching rule may need asynchronous or streamed evaluation paths and routing by domain/difficulty tier. Explicitly deferred — no scaling pressure at MVP size.
 
 ## Done
+
+- **S-05: submit answers and receive follow-up questions in a continuous turn-based loop with evaluative feedback** — Archived 2026-07-01 → `context/archive/2026-07-01-multi-turn-loop/`. Lesson: —.
 
 - **F-02: (foundation) challenges table with summary column + challenge_id FK on session_messages** — Archived 2026-07-01 → `context/archive/2026-07-01-challenges-data-model/`. Lesson: —.
 
