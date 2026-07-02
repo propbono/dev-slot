@@ -28,6 +28,7 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 
 ### Key conventions
 
+- **Verification gate**: After every implementation phase, run `npm run lint && npm run typecheck && npm test && npm run build`. All must pass with zero errors before committing. Fix any failures first.
 - **Path alias**: `@/*` maps to `./src/*` (tsconfig paths).
 - **Astro components** for static content/layout; **React components** only when interactivity is needed. React islands use `client:load` directive.
 - **Tailwind class merging**: use the `cn()` helper from `@/lib/utils` (clsx + tailwind-merge) for conditional/merged class names. Do not concatenate class strings manually.

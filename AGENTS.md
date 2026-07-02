@@ -9,6 +9,7 @@ Astro 6 SSR web app with React 19 islands, TypeScript, Tailwind CSS 4, Supabase 
 - Use `cn()` from `@/lib/utils` for conditional Tailwind classes. Never concatenate class strings manually.
 - Every new Supabase table must have RLS enabled with granular per-operation, per-role policies. Migrations in `supabase/migrations/` use the naming format `YYYYMMDDHHmmss_description.sql`.
 - Use `type` for type aliases, not `interface`. Reserve `interface` for declaration merging only (rare in application code).
+- **After every implementation phase, run the full verification suite before committing:** `npm run lint && npm run typecheck && npm test && npm run build`. All four must pass with zero errors. Fix any failures before proceeding.
 
 ## Project Structure
 
