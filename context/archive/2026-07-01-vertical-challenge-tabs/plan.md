@@ -38,8 +38,8 @@ Add a right-side vertical tab bar showing all challenges in a session. Each tab 
 
 ## Progress
 
-- [x] 1.1 Build / typecheck / lint / test pass
-- [x] 1.2 ChallengeTabs component renders challenge list
-- [x] 1.3 Session page filters messages by challenge
-- [x] 1.4 Tab switching via query param
-- [x] 1.5 Active tab highlighted, completed tabs badged
+- [x] 1.1 Build / typecheck / lint / test pass — 14334c6
+- [x] 1.2 ChallengeTabs component renders challenge list — 14334c6
+- [x] 1.3 Session page filters messages by challenge — 14334c6
+- [x] 1.4 Tab switching via query param — 14334c6
+- [x] 1.5 Active tab highlighted, completed tabs badged — 14334c6

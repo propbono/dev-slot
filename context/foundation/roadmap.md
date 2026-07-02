@@ -191,7 +191,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Multiple challenges on one page increase page weight. Mitigate with lazy loading — only render the active tab's thread.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
