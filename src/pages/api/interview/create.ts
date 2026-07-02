@@ -25,6 +25,12 @@ export const POST: APIRoute = async (context) => {
   if (sessionErr || !session)
     return context.redirect("/new-session?error=session_failed");
 
+  // Create default challenge for this session
+  await supabase.from("challenges").insert({
+    session_id: session.id,
+    status: "active",
+  });
+
   if (mode === "tech-stack") {
     const technologies = (form.get("technologies") as string)?.trim();
     const role = (form.get("role") as string)?.trim();

@@ -84,7 +84,7 @@ export async function evaluateAnswer(
   const { text } = await generateText({
     model: deepseek("deepseek-chat"),
     system:
-      "You are an expert technical interviewer evaluating a system design answer. Return ONLY valid JSON, no other text.",
+      "You are an expert technical interviewer evaluating answers. Be direct and constructive — like a real interviewer giving feedback. Point out what the candidate missed or got right. Return ONLY valid JSON, no other text.",
     prompt: `You are evaluating a ${constraints.role_level} engineer for a ${constraints.domain} role.
 Tech stack: ${constraints.tech_stack.join(", ")}.
 

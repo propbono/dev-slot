@@ -28,6 +28,16 @@ export const POST: APIRoute = async (context) => {
 
   if (!session) return new Response("Session not found", { status: 404 });
 
+  // Get active challenge for this session
+  const { data: challenge } = await supabase
+    .from("challenges")
+    .select("id")
+    .eq("session_id", sessionId)
+    .eq("status", "active")
+    .single();
+
+  if (!challenge) return new Response("No active challenge", { status: 404 });
+
   // Upsert draft: if a draft exists, update it; otherwise insert
   const { data: existing } = await supabase
     .from("session_messages")
@@ -40,7 +50,7 @@ export const POST: APIRoute = async (context) => {
   if (existing) {
     await supabase
       .from("session_messages")
-      .update({ content, metadata: { draft: true } })
+      .update({ content, challenge_id: challenge.id, metadata: { draft: true } })
       .eq("id", existing.id);
   } else {
     await supabase.from("session_messages").insert({
@@ -48,6 +58,7 @@ export const POST: APIRoute = async (context) => {
       role: "user",
       content,
       status: "draft",
+      challenge_id: challenge.id,
       metadata: { draft: true },
     });
   }

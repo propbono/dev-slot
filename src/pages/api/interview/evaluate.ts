@@ -36,6 +36,17 @@ export const POST: APIRoute = async (context) => {
   if (sessionErr || !session)
     return context.redirect("/new-session?error=session_not_found");
 
+  // Get active challenge
+  const { data: challenge } = await supabase
+    .from("challenges")
+    .select("id")
+    .eq("session_id", sessionId)
+    .eq("status", "active")
+    .single();
+
+  if (!challenge)
+    return context.redirect("/new-session?error=no_active_challenge");
+
   // Flip draft to committed (or insert if no draft exists)
   const { data: draft } = await supabase
     .from("session_messages")
@@ -59,6 +70,7 @@ export const POST: APIRoute = async (context) => {
         session_id: sessionId,
         role: "user",
         content: answer,
+        challenge_id: challenge.id,
         status: "committed",
       })
       .select("id")
@@ -120,6 +132,7 @@ export const POST: APIRoute = async (context) => {
         role: "interviewer",
         content: result.followUp,
         status: "committed",
+        challenge_id: challenge.id,
       });
 
       return context.redirect(`/interview/${sessionId}`);

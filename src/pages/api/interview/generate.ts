@@ -103,12 +103,22 @@ export const GET: APIRoute = async (context) => {
       .eq("status", "committed");
 
     // Step 2: Generate challenge
-    const challenge = await generateChallenge(jd, constraints);
+    const challengeText = await generateChallenge(jd, constraints);
+
+    // Get active challenge for this session
+    const { data: activeChallenge } = await supabase
+      .from("challenges")
+      .select("id")
+      .eq("session_id", sessionId)
+      .eq("status", "active")
+      .single();
+
     await supabase.from("session_messages").insert({
       session_id: sessionId,
       role: "interviewer",
-      content: challenge,
+      content: challengeText,
       status: "committed",
+      challenge_id: activeChallenge?.id,
     });
 
     // Mark session active
