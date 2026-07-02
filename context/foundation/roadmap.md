@@ -208,7 +208,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Adding role column requires migration and backfill. Default 'user' for all existing accounts.
-- **Status:** proposed
+- **Status:** done
 
 ### S-09: Tier enforcement
 
