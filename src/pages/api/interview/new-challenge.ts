@@ -12,6 +12,7 @@ type SystemContent = {
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { generateChallenge, type JDConstraints } from "@/lib/ai";
+import { checkChallengeLimit } from "@/lib/tiers";
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -35,6 +36,12 @@ export const POST: APIRoute = async (context) => {
     .single();
 
   if (!session) return context.redirect("/new-session?error=session_not_found");
+
+  // Check challenge limit
+  const { allowed, message } = await checkChallengeLimit(supabase, user.id, sessionId);
+  if (!allowed) {
+    return context.redirect(`/interview/${sessionId}?error=${message}`);
+  }
 
   // Get stack data from system message
   const { data: sysMsgs } = await supabase

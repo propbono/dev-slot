@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { checkInterviewLimit, incrementInterviewCounter } from "@/lib/tiers";
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -13,6 +14,12 @@ export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
   const mode = (form.get("mode") as string) || "jd";
 
+  // Check interview limit
+  const { allowed, message } = await checkInterviewLimit(supabase, user.id);
+  if (!allowed) {
+    return context.redirect(`/new-session?error=${message}`);
+  }
+
   // Create session
   const { data: session, error: sessionErr } = await supabase
     .from("sessions")
@@ -21,6 +28,8 @@ export const POST: APIRoute = async (context) => {
     .single();
 
   if (sessionErr || !session) return context.redirect("/new-session?error=session_failed");
+
+  await incrementInterviewCounter(supabase, user.id);
 
   // Create default challenge for this session
   const { data: challenge } = await supabase

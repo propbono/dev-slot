@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { evaluateAnswer, generateSummary, type JDConstraints } from "@/lib/ai";
+import { checkTurnLimit } from "@/lib/tiers";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
@@ -43,6 +44,16 @@ export const POST: APIRoute = async (context) => {
     .single();
 
   if (!challenge) return context.redirect("/new-session?error=no_active_challenge");
+
+  // Check turn limit
+  const { allowed: turnAllowed, message: turnMsg } = await checkTurnLimit(
+    supabase,
+    user.id,
+    challenge.id,
+  );
+  if (!turnAllowed) {
+    return context.redirect(`/interview/${sessionId}?error=${turnMsg}`);
+  }
 
   // Flip draft to committed (or insert if no draft exists)
   const { data: draft } = await supabase

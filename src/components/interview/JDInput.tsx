@@ -20,6 +20,7 @@ export default function JDInput({ error }: Props) {
   const [tags, setTags] = useState("");
   const [maxRounds] = useState(5);
   const [strongThreshold] = useState(3);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const jdCharCount = jd.length;
   const canSubmitJd = jdCharCount >= 50;
@@ -32,6 +33,8 @@ export default function JDInput({ error }: Props) {
     generation_failed: "Challenge generation failed. Please try again.",
     session_failed: "Could not create interview session. Please try again.",
     not_configured: "AI service is not configured. Check your API keys.",
+    upgrade_required:
+      "You have reached your free tier limit. Upgrade to continue.",
     missing_fields: "Please fill in all required fields.",
     missing_tech_stack: "Please enter technologies and select a role level.",
   };
@@ -80,6 +83,55 @@ export default function JDInput({ error }: Props) {
       {errorText && (
         <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           {errorText}
+          {error === "upgrade_required" && (
+            <button
+              type="button"
+              onClick={() => setShowUpgrade(true)}
+              className="ml-3 underline transition-colors hover:text-white"
+            >
+              View Plans
+            </button>
+          )}
+        </div>
+      )}
+
+      {showUpgrade && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-sm rounded-2xl border border-white/10 bg-gray-900 p-6 shadow-2xl">
+            <h3 className="mb-2 text-lg font-semibold text-white">
+              Upgrade Your Plan
+            </h3>
+            <div className="mb-4 space-y-2">
+              <div className="rounded-lg border border-white/10 p-3">
+                <div className="flex justify-between">
+                  <span className="font-medium text-white">Pro</span>
+                  <span className="text-purple-300">$10/mo</span>
+                </div>
+                <p className="text-xs text-blue-100/50">
+                  5 interviews/mo · Unlimited turns · 5 challenges
+                </p>
+              </div>
+              <div className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-3">
+                <div className="flex justify-between">
+                  <span className="font-medium text-white">Unlimited</span>
+                  <span className="text-purple-300">$15/mo</span>
+                </div>
+                <p className="text-xs text-blue-100/50">
+                  Unlimited everything
+                </p>
+              </div>
+            </div>
+            <p className="mb-4 text-xs text-blue-100/40">
+              Payment processing is coming soon.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowUpgrade(false)}
+              className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm text-blue-100/70 transition-colors hover:bg-white/10"
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
 
