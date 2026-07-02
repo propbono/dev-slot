@@ -166,7 +166,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Summary prompt engineering — how to synthesize a full conversation into strengths/improvement areas via a single LLM call — Owner: user. Block: no.
 - **Risk:** The auto-complete threshold (2-3 strong answers) may trigger too early or too late depending on evaluation accuracy. Mitigate with a configurable threshold.
-- **Status:** proposed
+- **Status:** done
 
 ### S-07: New challenges from same stack
 
@@ -204,7 +204,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-04 | performance-metrics | Performance metrics and engineering breakdown | yes | Done |
 | F-02 | challenges-data-model | Create challenges table with FK | yes | Done |
 | S-05 | multi-turn-loop | Continuous turn-based interview loop | yes | Done |
-| S-06 | auto-complete-summaries | Auto-complete after strong answers | no | Depends on S-05 |
+| S-06 | auto-complete-summaries | Auto-complete after strong answers | yes | Done |
 | S-07 | new-challenge-from-stack | New challenge from same JD/stack | no | Depends on S-06 |
 | S-08 | vertical-challenge-tabs | Vertical challenge tabs in session page | no | Depends on S-07 |
 
@@ -221,6 +221,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **At-scale concerns from shape-notes:** At 100x scale, the branching rule may need asynchronous or streamed evaluation paths and routing by domain/difficulty tier. Explicitly deferred — no scaling pressure at MVP size.
 
 ## Done
+
+- **S-06: challenge auto-completes after 2-3 consecutive strong answers with comprehensive summary** — Archived 2026-07-01 → `context/archive/2026-07-01-auto-complete-summaries/`. Lesson: —.
 
 - **S-05: submit answers and receive follow-up questions in a continuous turn-based loop with evaluative feedback** — Archived 2026-07-01 → `context/archive/2026-07-01-multi-turn-loop/`. Lesson: —.
 

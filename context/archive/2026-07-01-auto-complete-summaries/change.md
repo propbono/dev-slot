@@ -4,7 +4,7 @@ title: Auto-complete and summaries
 status: implementing
 created: 2026-07-01
 updated: 2026-07-01
-archived_at: null
+archived_at: 2026-07-01T21:08:00Z
 ---
 
 ## Notes

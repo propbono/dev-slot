@@ -85,8 +85,8 @@ Prompt: "You are evaluating a completed interview challenge. Given the full conv
 
 ### Phase 1: Tracking + Summary + UI
 
-- [x] 1.1 Build / typecheck / lint / test pass
-- [x] 1.2 evaluate.ts tracks consecutive strong answers
-- [x] 1.3 generateSummary() in ai.ts
-- [x] 1.4 Session page shows per-challenge completion card
-- [ ] 1.5 3 strong → auto-complete with summary
+- [x] 1.1 Build / typecheck / lint / test pass — 2d01339
+- [x] 1.2 evaluate.ts tracks consecutive strong answers — 2d01339
+- [x] 1.3 generateSummary() in ai.ts — 2d01339
+- [x] 1.4 Session page shows per-challenge completion card — 2d01339
+- [x] 1.5 3 strong → auto-complete with summary — 2d01339
