@@ -4,7 +4,7 @@ title: Lint cleanup
 status: implementing
 created: 2026-07-02
 updated: 2026-07-02
-archived_at: null
+archived_at: 2026-07-02T18:17:00Z
 ---
 
 ## Notes
