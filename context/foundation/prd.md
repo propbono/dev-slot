@@ -1,6 +1,6 @@
 ---
 project: DevSlot
-version: 2
+version: 3
 status: draft
 created: 2026-06-02
 updated: 2026-07-01
@@ -137,6 +137,10 @@ MVP authentication supports OAuth and magic link sign-in. The MVP uses a flat us
 
 Future role separation may be introduced later for business model or administration needs, but it is not part of the MVP.
 
+### Brownfield Addition: Admin Role (v3)
+
+The MVP now introduces an `admin` role alongside the existing `user` role. Admins access the admin dashboard at `/admin`. Role stored on the user profile. All existing users default to `user` role.
+
 ## Non-Goals
 
 - No mobile-native application support in the MVP, so effort stays on the primary web experience.
@@ -207,3 +211,76 @@ No open questions currently.
 - No streaming — same `generateText()` pattern.
 - No challenge replay or undo.
 - No hard cap on challenges per session for MVP.
+
+---
+
+## Brownfield Addition: Admin, Billing & Subscriptions
+
+> Added 2026-07-02. Introduces usage-based monetization with Stripe, subscription tiers, and an admin dashboard.
+
+### User Stories
+
+### US-03: Free user upgrades to Pro after hitting limits
+
+- **Given** a signed-in free-tier user who has used their single interview for the month
+- **When** they try to start a new interview
+- **Then** they see an upgrade prompt showing Pro ($10/mo) and Unlimited ($15/mo) plans
+- **And** they can select a plan, enter payment via Stripe, and immediately continue
+
+#### Acceptance Criteria
+- Upgrade prompt appears when the free user exhausts their interview
+- Stripe Checkout collects payment
+- Subscription activates immediately after payment
+- User can continue their interview without page reload
+
+### US-04: Admin views user list and subscription overview
+
+- **Given** an admin user is signed in
+- **When** they navigate to `/admin`
+- **Then** they see a list of all users with status, tier, interviews this month
+- **And** they see billing overview: MRR, active subscribers per tier, churn
+
+#### Acceptance Criteria
+- Admin dashboard protected by role check (non-admin redirected)
+- User list shows email, tier, interviews used this month
+- Billing overview shows aggregate metrics
+
+### Functional Requirements
+
+#### Subscription tiers
+- FR-029: User defaults to Free tier on signup (1 interview/mo, 3 turns, 1 challenge, 7-day history). Priority: must-have
+- FR-030: Pro tier ($10/mo): 5 interviews/mo, unlimited turns, 5 challenges, forever history. Priority: must-have
+- FR-031: Unlimited tier ($15/mo): unlimited interviews, turns, challenges, forever history. Priority: must-have
+
+#### Payment
+- FR-032: Stripe Checkout integration for subscription signup and management. Priority: must-have
+- FR-033: User can view current plan, upgrade/downgrade, and billing history on a Subscription page. Priority: must-have
+- FR-034: Tier limits reset on the monthly billing cycle. Priority: must-have
+
+#### Tier enforcement
+- FR-035: API routes check user tier limits before allowing new sessions (interview count), new turns (turn count), and new challenges (challenge count). Priority: must-have
+- FR-036: Free tier users see an upgrade prompt when they exhaust their single interview. Priority: must-have
+
+#### Admin dashboard
+- FR-037: Admin dashboard at `/admin` with user management (list, status, tier, usage). Priority: must-have
+- FR-038: Billing overview showing MRR, subscribers per tier, churn rate. Priority: must-have
+- FR-039: Admin role stored on user profile. Existing users default to `user`. Priority: must-have
+
+#### Usage tracking
+- FR-040: Per-user counters: interviews this month, turns this challenge, challenges this session. Priority: must-have
+
+### Business Logic
+
+**Tier enforcement**: Before creating a new interview session, the API checks the user's tier limits. If the user has exhausted their monthly interview count and is on the Free tier, the API returns an error that triggers the upgrade prompt. Pro and Unlimited tiers skip the count check. Turn and challenge limits are enforced at the API level.
+
+**Subscription lifecycle**: New users start on Free tier. Upgrading happens via Stripe Checkout. The Stripe webhook updates the user's tier and subscription status. Downgrading takes effect at the next billing cycle. Cancellation reverts to Free tier at cycle end.
+
+**Admin access**: The `/admin` route checks `user.role === 'admin'`. Non-admin users are redirected. The first admin is set manually via Supabase dashboard (no self-service admin creation for MVP).
+
+### Non-Goals (for this addition)
+
+- No coupon codes, promotional pricing, or free trials.
+- No team/enterprise/multi-seat plans.
+- No invoice generation (Stripe handles receipts).
+- No dunning management (Stripe handles failed payments).
+- No admin ability to override tier limits per user (future).

@@ -2,7 +2,7 @@
 project: DevSlot
 context_type: greenfield
 created: 2026-06-02
-updated: 2026-07-01
+updated: 2026-07-02
 product_type: web-app
 target_scale:
   users: large
@@ -265,3 +265,49 @@ DevSlot currently ships: challenge generation from JD/stack (S-01), single adapt
 
 - How many challenges per session before the user should start a new session? No hard cap for MVP.
 - Should the user be able to switch between challenges mid-answer? No — complete or abandon current challenge first.
+
+## Brownfield Addition: Admin, Billing & Subscriptions
+
+### Seed idea
+
+> Add usage-based monetization with subscription tiers and an admin dashboard. Currently DevSlot is free with no revenue model. Users pay for interview volume, LLM costs are covered by subscription revenue.
+
+### Context
+
+DevSlot has a flat user model (no roles), auth via Supabase, and no payment integration. All features are free. The product needs a revenue stream to cover LLM costs and justify continued development.
+
+### Subscription Tiers
+
+| Tier | Price | Interviews/mo | Max turns/challenge | Max challenges | History retention |
+|---|---|---|---|---|---|
+| Free | $0 | 1 | 3 | 1 | 7 days |
+| Pro | $10/mo | 5 | Unlimited | 5 | Forever |
+| Unlimited | $15/mo | Unlimited | Unlimited | Unlimited | Forever |
+
+### What changes
+
+- **Payment integration**: Stripe for subscription management and billing.
+- **Tier enforcement**: API routes check the user's tier limits before allowing new sessions/turns/challenges.
+- **Subscription page**: user can view current plan, upgrade/downgrade, see billing history.
+- **Admin dashboard**: user management (list, status, tier), billing overview (MRR, churn), usage analytics (interviews per tier, active users).
+- **Usage tracking**: per-user counters (interviews this month, challenges this session, LLM tokens).
+- **Role system**: introduce `admin` role alongside the existing flat user. Migrate existing users to Free tier.
+
+### Business Logic
+
+- New users default to Free tier. After exhausting the single interview, they see an upgrade prompt.
+- Tier limits reset monthly (billing cycle).
+- Admins access the dashboard at `/admin` — protected by role check.
+- Subscription changes take effect at the next billing cycle (no mid-cycle proration for MVP).
+
+### Non-Goals (for this addition)
+
+- No coupon codes or promotional pricing for MVP.
+- No team/enterprise plans — individual subscriptions only.
+- No invoice generation — Stripe handles receipts.
+- No dunning management — Stripe handles failed payments.
+
+### Open Questions
+
+- Should the single free interview reset if the user deletes their account and re-registers? No — enforce via email or device fingerprint.
+- Should admins be able to override tier limits for specific users? Yes, but not in MVP.

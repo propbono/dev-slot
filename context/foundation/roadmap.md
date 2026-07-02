@@ -1,6 +1,6 @@
 ---
 project: DevSlot
-version: 2
+version: 3
 status: draft
 created: 2026-06-26
 updated: 2026-07-01
@@ -36,7 +36,11 @@ Senior engineers targeting staff roles use DevSlot to simulate live architecture
 | S-05 | multi-turn-loop | submit answers and receive follow-up questions in a continuous turn-based loop with evaluative feedback | F-02, S-02 | US-02, FR-019, FR-020 | proposed |
 | S-06 | auto-complete-summaries | challenge auto-completes after 2-3 consecutive strong answers with comprehensive summary | S-05 | US-02, FR-021, FR-022 | proposed |
 | S-07 | new-challenge-from-stack | generate a new architecture challenge from the same JD/tech stack within a session | F-02, S-01, S-06 | US-02, FR-023, FR-024 | proposed |
-| S-08 | vertical-challenge-tabs | multiple challenges displayed as vertical tabs within a session | F-02, S-07 | US-02, FR-025, FR-026 | proposed |
+| S-08 | vertical-challenge-tabs | multiple challenges displayed as vertical tabs within a session | F-02, S-07 | US-02, FR-025, FR-026 | done |
+| F-03 | user-roles-usage | (foundation) user role column + usage counters table | — | FR-039, FR-040 | proposed |
+| S-09 | tier-enforcement | API checks interview/turn/challenge limits, upgrade prompt for free tier | F-03 | US-03, FR-035, FR-036 | proposed |
+| S-10 | stripe-integration | Stripe Checkout + webhook + subscription management page | F-03 | US-03, FR-032, FR-033, FR-034 | proposed |
+| S-11 | admin-dashboard | admin dashboard with user list, billing overview, usage analytics | F-03 | US-04, FR-037, FR-038 | proposed |
 
 ## Streams
 
@@ -193,6 +197,56 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Multiple challenges on one page increase page weight. Mitigate with lazy loading — only render the active tab's thread.
 - **Status:** done
 
+### F-03: User roles + usage counters
+
+- **Outcome:** (foundation) `role` column on users (default: 'user'), `usage_counters` table tracking interviews/month and turns/challenge per user.
+- **Change ID:** user-roles-usage
+- **PRD refs:** FR-039, FR-040
+- **Unlocks:** S-09 (needs role for limit enforcement), S-10 (needs subscription status), S-11 (needs user list)
+- **Prerequisites:** — (auth exists from original setup)
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Adding role column requires migration and backfill. Default 'user' for all existing accounts.
+- **Status:** proposed
+
+### S-09: Tier enforcement
+
+- **Outcome:** API routes check user tier limits before allowing new sessions, turns, and challenges. Free tier users see an upgrade prompt when limits are hit.
+- **Change ID:** tier-enforcement
+- **PRD refs:** US-03, FR-035, FR-036
+- **Prerequisites:** F-03
+- **Parallel with:** S-10
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Enforcement should not block the evaluation pipeline mid-turn — check limits at the start of each action, not mid-process.
+- **Status:** proposed
+
+### S-10: Stripe integration
+
+- **Outcome:** Stripe Checkout for subscription signup, webhook handler for subscription events, subscription management page for users to view/change plans.
+- **Change ID:** stripe-integration
+- **PRD refs:** US-03, FR-032, FR-033, FR-034
+- **Prerequisites:** F-03
+- **Parallel with:** S-09
+- **Blockers:** —
+- **Unknowns:**
+  - Stripe product/price IDs — need to be created in Stripe dashboard before implementation — Owner: user. Block: yes.
+- **Risk:** Stripe webhook must be secured with signature verification to prevent spoofed events.
+- **Status:** proposed
+
+### S-11: Admin dashboard
+
+- **Outcome:** Admin dashboard at `/admin` with user list, billing overview (MRR, subscribers per tier), and usage analytics.
+- **Change ID:** admin-dashboard
+- **PRD refs:** US-04, FR-037, FR-038
+- **Prerequisites:** F-03
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Admin dashboard exposes PII (user emails) — must be protected by role check.
+- **Status:** proposed
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
@@ -206,12 +260,17 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-05 | multi-turn-loop | Continuous turn-based interview loop | yes | Done |
 | S-06 | auto-complete-summaries | Auto-complete after strong answers | yes | Done |
 | S-07 | new-challenge-from-stack | New challenge from same JD/stack | yes | Done |
-| S-08 | vertical-challenge-tabs | Vertical challenge tabs in session page | no | Depends on S-07 |
+| S-08 | vertical-challenge-tabs | Vertical challenge tabs in session page | yes | Done |
+| F-03 | user-roles-usage | Add role column + usage counters | no | First; /10x-plan user-roles-usage |
+| S-09 | tier-enforcement | Enforce tier limits in API routes | no | Depends on F-03 |
+| S-10 | stripe-integration | Stripe Checkout + webhook + subscriptions | no | Stripe setup first |
+| S-11 | admin-dashboard | Admin user list + billing + analytics | no | Depends on F-03 |
 
 ## Open Roadmap Questions
 
 1. **Summary prompt engineering for multi-turn conversations** — Owner: user. Block: S-06. How to synthesize a full conversation into strengths and improvement areas via a single LLM call.
 2. **"Substantively different" challenge heuristic** — Owner: user. Block: S-07. How to ensure new challenges from the same stack don't feel repetitive.
+3. **Stripe product/price IDs** — Owner: user. Block: S-10. Free, Pro, and Unlimited products and prices must be created in Stripe dashboard before implementation.
 
 ## Parked
 
