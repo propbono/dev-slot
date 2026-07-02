@@ -26,10 +26,12 @@ export const POST: APIRoute = async (context) => {
     return context.redirect("/new-session?error=session_failed");
 
   // Create default challenge for this session
-  await supabase.from("challenges").insert({
+  const { data: challenge } = await supabase.from("challenges").insert({
     session_id: session.id,
     status: "active",
-  });
+  }).select("id").single();
+
+  const challengeId = challenge?.id;
 
   if (mode === "tech-stack") {
     const technologies = (form.get("technologies") as string)?.trim();
@@ -43,6 +45,7 @@ export const POST: APIRoute = async (context) => {
     await supabase.from("session_messages").insert({
       session_id: session.id,
       role: "system",
+      challenge_id: challengeId,
       content: JSON.stringify({
         mode: "tech-stack",
         technologies,
@@ -60,6 +63,7 @@ export const POST: APIRoute = async (context) => {
     await supabase.from("session_messages").insert({
       session_id: session.id,
       role: "system",
+      challenge_id: challengeId,
       content: JSON.stringify({ raw_jd: jd, status: "pending", mode: "jd" }),
       status: "committed",
     });
