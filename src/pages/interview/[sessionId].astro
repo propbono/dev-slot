@@ -5,6 +5,7 @@ import MessageThread from "@/components/interview/MessageThread.astro";
 import GenerationSkeleton from "@/components/interview/GenerationSkeleton";
 import SessionHeader from "@/components/interview/SessionHeader.astro";
 import PerformanceCard from "@/components/interview/PerformanceCard.astro";
+import ChallengeComplete from "@/components/interview/ChallengeComplete.astro";
 import { createClient } from "@/lib/supabase";
 
 const { sessionId } = Astro.params;
@@ -42,6 +43,18 @@ const { data: messages } = await supabase
 
 const interviewerMessages = messages?.filter((m) => m.role === "interviewer") ?? [];
 const showSkeleton = interviewerMessages.length === 0;
+
+// Check if active challenge is completed
+const { data: activeChallenge } = await supabase
+  .from("challenges")
+  .select("id, status, summary")
+  .eq("session_id", sessionId)
+  .eq("status", "completed")
+  .order("created_at", { ascending: false })
+  .limit(1)
+  .single();
+
+const challengeCompleted = !!activeChallenge;
 
 // Parse role + domain from system message (when messages exist)
 const systemMsg = messages?.find((m) => m.role === "system");
@@ -98,7 +111,9 @@ const evaluationError = error ? (errorMessages[error] ?? "An unexpected error oc
             <PerformanceCard messages={messages!} />
           )}
           <MessageThread messages={messages!} role={role} domain={domain} />
-          {session.status === "active" && (
+          {challengeCompleted && activeChallenge?.summary ? (
+            <ChallengeComplete summary={activeChallenge.summary} sessionId={sessionId!} />
+          ) : session.status === "active" && (
             <AnswerEditor
               sessionId={sessionId!}
               initialDraft={draftContent}

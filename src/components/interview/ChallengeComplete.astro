@@ -1,0 +1,57 @@
+---
+type Props = {
+  summary: Record<string, any>;
+  sessionId: string;
+};
+
+const { summary: s, sessionId } = Astro.props;
+const quality = s.quality as string;
+const isStrong = quality === "strong";
+---
+
+<div class="mx-auto max-w-3xl px-4 pt-4">
+  <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+    <h3 class="mb-3 text-lg font-semibold text-white">Challenge Complete</h3>
+
+    <div class="mb-4 flex items-center gap-4">
+      <span class={`rounded-full border px-3 py-1 text-sm font-medium ${isStrong ? "border-green-500/30 bg-green-500/15 text-green-300" : "border-amber-500/30 bg-amber-500/15 text-amber-300"}`}>
+        {isStrong ? "Strong" : "Mixed"}
+      </span>
+      <div class="flex-1">
+        <div class="mb-1 flex items-center justify-between text-xs text-blue-100/50">
+          <span>Confidence</span>
+          <span>{Math.round(((s.confidence as number) ?? 0) * 100)}%</span>
+        </div>
+        <div class="h-1.5 overflow-hidden rounded-full bg-white/10">
+          <div class={`h-full rounded-full ${isStrong ? "bg-green-500" : "bg-amber-500"}`} style={`width: ${Math.round(((s.confidence as number) ?? 0) * 100)}%`} />
+        </div>
+      </div>
+    </div>
+
+    <p class="mb-4 text-sm text-blue-100/70">{s.rationale}</p>
+
+    {(s.strengths as string[])?.length > 0 && (
+      <div class="mb-3">
+        <p class="mb-1 text-xs font-medium text-green-300">Strengths</p>
+        <ul class="list-inside list-disc space-y-1 text-sm text-blue-100/70">
+          {(s.strengths as string[]).map((item: string) => <li>{item}</li>)}
+        </ul>
+      </div>
+    )}
+
+    {(s.improvement_areas as string[])?.length > 0 && (
+      <div class="mb-3">
+        <p class="mb-1 text-xs font-medium text-amber-300">Areas for Improvement</p>
+        <ul class="list-inside list-disc space-y-1 text-sm text-blue-100/70">
+          {(s.improvement_areas as string[]).map((item: string) => <li>{item}</li>)}
+        </ul>
+      </div>
+    )}
+
+    <div class="mt-6 text-center">
+      <a href={`/interview/${sessionId}`} class="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500">
+        New Challenge
+      </a>
+    </div>
+  </div>
+</div>

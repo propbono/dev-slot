@@ -109,3 +109,29 @@ Then generate ONE follow-up question:\n- If strong: escalate into an adversarial
     .trim();
   return JSON.parse(cleaned) as EvaluationResult;
 }
+
+export type ChallengeSummary = {
+  quality: "strong" | "mixed";
+  confidence: number;
+  rationale: string;
+  strengths: string[];
+  improvement_areas: string[];
+};
+
+export async function generateSummary(
+  constraints: JDConstraints,
+  conversation: string,
+): Promise<ChallengeSummary> {
+  const { text } = await generateText({
+    model: deepseek("deepseek-chat"),
+    system:
+      "You are evaluating a completed interview challenge. Provide an honest, constructive summary of the candidate's performance. Return ONLY valid JSON.",
+    prompt: `You evaluated a ${constraints.role_level} engineer for a ${constraints.domain} role.\nTech stack: ${constraints.tech_stack.join(", ")}.\n\nFull conversation:\n${conversation}\n\nProvide a comprehensive summary:\n- Overall quality: "strong" (consistently high-quality answers) or "mixed" (some strong, some weak)\n- Confidence score (0-1)\n- One-sentence rationale\n- 2-4 specific strengths\n- 1-3 specific areas for improvement (if any, otherwise empty array)\n\nReturn JSON: {"quality": "strong"|"mixed", "confidence": <0-1>, "rationale": "...", "strengths": [...], "improvement_areas": [...]}`,
+  });
+
+  const cleaned = text
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/, "")
+    .trim();
+  return JSON.parse(cleaned) as ChallengeSummary;
+}

@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
-import { evaluateAnswer, type JDConstraints } from "@/lib/ai";
+import { evaluateAnswer, generateSummary, type JDConstraints } from "@/lib/ai";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
@@ -134,6 +134,45 @@ export const POST: APIRoute = async (context) => {
         status: "committed",
         challenge_id: challenge.id,
       });
+
+      // Check for auto-complete: 3 consecutive strong answers
+      if (result.quality === "strong") {
+        const { data: recentAnswers } = await supabase
+          .from("session_messages")
+          .select("metadata")
+          .eq("challenge_id", challenge.id)
+          .eq("role", "user")
+          .eq("status", "committed")
+          .order("created_at", { ascending: false })
+          .limit(3);
+
+        const allStrong =
+          recentAnswers &&
+          recentAnswers.length === 3 &&
+          recentAnswers.every(
+            (a) => a.metadata?.quality === "strong",
+          );
+
+        if (allStrong) {
+          // Build conversation text for summary
+          const { data: allMsgs } = await supabase
+            .from("session_messages")
+            .select("role, content")
+            .eq("challenge_id", challenge.id)
+            .eq("status", "committed")
+            .order("created_at");
+
+          const conversation = (allMsgs ?? [])
+            .map((m) => `${m.role}: ${m.content}`)
+            .join("\n\n");
+
+          const summary = await generateSummary(constraints, conversation);
+          await supabase
+            .from("challenges")
+            .update({ status: "completed", summary })
+            .eq("id", challenge.id);
+        }
+      }
 
       return context.redirect(`/interview/${sessionId}`);
     } catch (err) {
