@@ -4,7 +4,7 @@ title: Vertical challenge tabs
 status: implementing
 created: 2026-07-01
 updated: 2026-07-01
-archived_at: null
+archived_at: 2026-07-01T22:48:00Z
 ---
 
 ## Notes

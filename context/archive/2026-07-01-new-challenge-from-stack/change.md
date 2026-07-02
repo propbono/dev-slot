@@ -4,7 +4,7 @@ title: New challenge from same stack
 status: implementing
 created: 2026-07-01
 updated: 2026-07-01
-archived_at: null
+archived_at: 2026-07-01T22:41:00Z
 ---
 
 ## Notes

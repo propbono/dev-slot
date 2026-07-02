@@ -137,7 +137,6 @@ export const POST: APIRoute = async (context) => {
 
       // Check for auto-complete: 3 consecutive strong answers
       if (result.quality === "strong") {
-        // Get last 3 answers, count strong ones
         const { data: lastThree } = await supabase
           .from("session_messages")
           .select("metadata")
@@ -147,11 +146,12 @@ export const POST: APIRoute = async (context) => {
           .order("created_at", { ascending: false })
           .limit(3);
 
-        const strongCount = (lastThree ?? []).filter(
-          (a) => a.metadata && a.metadata.quality === "strong",
-        ).length;
-
-        const allStrong = lastThree?.length === 3 && strongCount === 3;
+        const allStrong =
+          lastThree?.length === 3 &&
+          lastThree.every((a) => {
+            const meta = a.metadata as Record<string, unknown> | null;
+            return meta?.quality === "strong";
+          });
 
         if (allStrong) {
           // Build conversation text for summary
