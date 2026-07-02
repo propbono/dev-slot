@@ -6,6 +6,7 @@ import GenerationSkeleton from "@/components/interview/GenerationSkeleton";
 import SessionHeader from "@/components/interview/SessionHeader.astro";
 import PerformanceCard from "@/components/interview/PerformanceCard.astro";
 import ChallengeComplete from "@/components/interview/ChallengeComplete.astro";
+import ChallengeTabs from "@/components/interview/ChallengeTabs.astro";
 import { createClient } from "@/lib/supabase";
 
 const { sessionId } = Astro.params;
@@ -36,13 +37,33 @@ if (!session) {
 // Fetch committed messages for this session
 const { data: messages } = await supabase
   .from("session_messages")
-  .select("id, role, content, metadata, created_at")
+  .select("id, role, content, metadata, challenge_id, created_at")
   .eq("session_id", sessionId)
   .eq("status", "committed")
   .order("created_at");
 
 const interviewerMessages = messages?.filter((m) => m.role === "interviewer") ?? [];
-const showSkeleton = interviewerMessages.length === 0;
+
+// Query all challenges for this session
+const { data: challenges } = await supabase
+  .from("challenges")
+  .select("id, status, created_at")
+  .eq("session_id", sessionId)
+  .order("created_at");
+
+// Determine active challenge from query param or default to latest
+const queryChallenge = Astro.url.searchParams.get("challenge");
+const activeChallengeId =
+  queryChallenge && challenges?.some((c) => c.id === queryChallenge)
+    ? queryChallenge
+    : challenges?.[challenges.length - 1]?.id ?? "";
+
+// Filter messages by active challenge
+const challengeMessages = (messages ?? []).filter(
+  (m) => m.challenge_id === activeChallengeId,
+);
+
+const showSkeleton = challengeMessages.filter((m) => m.role === "interviewer").length === 0;
 
 // Check if active challenge is completed
 const { data: activeChallenge } = await supabase
@@ -57,7 +78,7 @@ const { data: activeChallenge } = await supabase
 const challengeCompleted = !!activeChallenge;
 
 // Parse role + domain from system message (when messages exist)
-const systemMsg = messages?.find((m) => m.role === "system");
+const systemMsg = challengeMessages.find((m) => m.role === "system");
 let role: string | undefined;
 let domain: string | undefined;
 if (systemMsg) {
@@ -95,7 +116,8 @@ const evaluationError = error ? (errorMessages[error] ?? "An unexpected error oc
       {showSkeleton ? (
         <GenerationSkeleton sessionId={sessionId!} client:load />
       ) : (
-        <>
+        <div class="flex gap-0">
+          <div class="flex-1">
           <SessionHeader role={role} domain={domain} sessionId={sessionId!} status={session.status} />
           {session.status !== "active" && (
             <div class="mx-auto max-w-3xl px-4 pt-4">
@@ -108,9 +130,9 @@ const evaluationError = error ? (errorMessages[error] ?? "An unexpected error oc
             </div>
           )}
           {session.status !== "active" && (
-            <PerformanceCard messages={messages!} />
+            <PerformanceCard messages={challengeMessages} />
           )}
-          <MessageThread messages={messages!} role={role} domain={domain} />
+          <MessageThread messages={challengeMessages} role={role} domain={domain} />
           {challengeCompleted && activeChallenge?.summary ? (
             <ChallengeComplete summary={activeChallenge.summary} sessionId={sessionId!} />
           ) : session.status === "active" && (
@@ -121,7 +143,15 @@ const evaluationError = error ? (errorMessages[error] ?? "An unexpected error oc
               client:load
             />
           )}
-        </>
+          </div>
+          {(challenges ?? []).length > 1 && (
+            <ChallengeTabs
+              challenges={challenges!}
+              activeId={activeChallengeId}
+              sessionId={sessionId!}
+            />
+          )}
+        </div>
       )}
     </div>
   </div>
