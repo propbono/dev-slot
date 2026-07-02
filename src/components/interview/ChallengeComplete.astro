@@ -49,9 +49,12 @@ const isStrong = quality === "strong";
     )}
 
     <div class="mt-6 text-center">
-      <a href={`/interview/${sessionId}`} class="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500">
-        New Challenge
-      </a>
+      <form method="POST" action="/api/interview/new-challenge">
+        <input type="hidden" name="sessionId" value={sessionId} />
+        <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500">
+          New Challenge
+        </button>
+      </form>
     </div>
   </div>
 </div>

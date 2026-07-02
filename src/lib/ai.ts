@@ -47,7 +47,15 @@ ${jdText}`,
   }
 }
 
-export async function generateChallenge(jdText: string, constraints: JDConstraints): Promise<string> {
+export async function generateChallenge(
+  jdText: string,
+  constraints: JDConstraints,
+  previousTopics?: string[],
+): Promise<string> {
+  const avoidSection = previousTopics?.length
+    ? `\n\nDo NOT generate a challenge about these topics (already covered):\n${previousTopics.map((t) => `- ${t}`).join("\n")}`
+    : "";
+
   const { text } = await generateText({
     model: deepseek("deepseek-chat"),
     system:
@@ -62,7 +70,7 @@ Generate a single, focused system design challenge that:
 - Is open-ended (no single right answer)
 - Requires architectural tradeoff reasoning
 - Is specific to the role's domain and tech stack
-- Is answerable in 15-20 minutes
+- Is answerable in 15-20 minutes${avoidSection}
 
 Return ONLY the challenge text.`,
   });
