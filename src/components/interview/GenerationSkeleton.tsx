@@ -75,6 +75,13 @@ export default function GenerationSkeleton({ sessionId }: Props) {
           >
             Return to New Session
           </a>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
