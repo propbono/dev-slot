@@ -6,11 +6,11 @@ Add usage limit checks to API routes based on user tier (Free/Pro/Unlimited). Fr
 
 ## Tier Limits
 
-| Tier | Interviews/mo | Turns/challenge | Challenges/session |
-|---|---|---|---|
-| Free | 1 | 3 | 1 |
-| Pro | 5 | Unlimited | 5 |
-| Unlimited | Unlimited | Unlimited | Unlimited |
+| Tier      | Interviews/mo | Turns/challenge | Challenges/session |
+| --------- | ------------- | --------------- | ------------------ |
+| Free      | 1             | 3               | 1                  |
+| Pro       | 5             | Unlimited       | 5                  |
+| Unlimited | Unlimited     | Unlimited       | Unlimited          |
 
 ## Changes
 

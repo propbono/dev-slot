@@ -15,6 +15,7 @@ Display a performance summary card on completed session pages, derived from the 
 ## Desired End State
 
 When viewing a completed session, a "Performance Summary" card appears above the conversation thread showing:
+
 - Overall quality: "Strong" (green) or "Needs Work" (amber)
 - Confidence level as a subtle bar
 - Evaluator's rationale as the "breakdown"
@@ -47,13 +48,14 @@ The session page already fetches all committed messages for the session. Each us
 **Intent**: Reads evaluation metadata from the session's user messages and renders a summary card with quality label, confidence bar, and rationale. Only renders when evaluation metadata exists (at least one user message with quality/confidence).
 
 **Contract**:
+
 - Props: `messages: Array<{ role: string; content: string; metadata?: Record<string, any> }>`
 - Filters user messages with `metadata.quality`
 - Takes the LATEST evaluation (most recent user message with metadata)
 - Renders a card with:
   - Heading: "Performance Summary"
   - Quality badge: green "Strong" or amber "Needs Work"
-  - Confidence bar: subtle horizontal bar, width = confidence * 100%
+  - Confidence bar: subtle horizontal bar, width = confidence \* 100%
   - Rationale text below
   - Disclaimer: "Reflection aid — not an authoritative score"
 - Dark cosmic theme styling

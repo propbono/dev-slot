@@ -18,7 +18,8 @@ Add a `max_rounds` default (5) to the auto-complete logic. Challenge completes a
 
 **Intent**: After the existing strong check, add a fallback: count total completed user answers for this challenge. If >= max_rounds, auto-complete.
 
-**Contract**: 
+**Contract**:
+
 ```ts
 const { count: totalRounds } = await supabase
   .from("session_messages")

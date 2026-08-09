@@ -1,6 +1,6 @@
 # Frame Brief: JD-to-Challenge — Perceived Brokenness
 
-> Framing step before /10x-plan. This document captures what is *actually*
+> Framing step before /10x-plan. This document captures what is _actually_
 > at issue, separated from what was initially assumed.
 
 ## Reported Observation
@@ -17,26 +17,26 @@ After submitting a job description, the user sees a spinning "Generating challen
 
 The observation could originate at any of these dimensions:
 
-1. **Navigation timing** — the redirect waits for the full LLM pipeline (extract + generate, ~6-10s) before the browser navigates. The session is created early but invisible.  ← user's initial framing
+1. **Navigation timing** — the redirect waits for the full LLM pipeline (extract + generate, ~6-10s) before the browser navigates. The session is created early but invisible. ← user's initial framing
 2. **Progress feedback** — the spinner says "Generating challenge..." but doesn't distinguish extraction vs generation stages. No evidence of forward progress.
-3. **Session visibility** — the session page (`[sessionId].astro`) returns a 404 `"Session not found or access denied"` when a session exists but has zero messages. The session is *real* but the page calls it *not found*.
+3. **Session visibility** — the session page (`[sessionId].astro`) returns a 404 `"Session not found or access denied"` when a session exists but has zero messages. The session is _real_ but the page calls it _not found_.
 4. **Error recovery** — if the LLM fails mid-pipeline, the orphaned session (status: `created`, no messages) is invisible. The user has to start over with a new JD paste.
 
 ## Hypothesis Investigation
 
-| Hypothesis | Evidence | Verdict |
-| --- | --- | --- |
-| Navigation timing: redirect too late | `generate.ts:48` — `context.redirect()` only fires after both LLM calls complete | STRONG |
-| Progress feedback: no stage indicator | `JDInput.tsx:53` — single static "Generating challenge..." message, no stage transitions | STRONG |
-| Session visibility: 404 on valid session | `[sessionId].astro:22-27` — `if (!messages \|\| messages.length === 0) return new Response("Session not found or access denied", { status: 404 })` | **STRONG — this is the key finding** |
-| Error recovery: orphaned sessions invisible | `generate.ts:28` — session created with status `created`, but no retry UI exists | WEAK — not the primary concern |
+| Hypothesis                                  | Evidence                                                                                                                                           | Verdict                              |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| Navigation timing: redirect too late        | `generate.ts:48` — `context.redirect()` only fires after both LLM calls complete                                                                   | STRONG                               |
+| Progress feedback: no stage indicator       | `JDInput.tsx:53` — single static "Generating challenge..." message, no stage transitions                                                           | STRONG                               |
+| Session visibility: 404 on valid session    | `[sessionId].astro:22-27` — `if (!messages \|\| messages.length === 0) return new Response("Session not found or access denied", { status: 404 })` | **STRONG — this is the key finding** |
+| Error recovery: orphaned sessions invisible | `generate.ts:28` — session created with status `created`, but no retry UI exists                                                                   | WEAK — not the primary concern       |
 
 ## Narrowing Signals
 
 Decisive observations from the investigation:
 
 - **The session page returns a 404 for the exact scenario the redirect+stream fix would create.** Redirecting immediately after session creation sends the user to `"Session not found or access denied"` — which is worse UX than the current spinner. This means the session page MUST be fixed before any redirect-timing change.
-- **The user's "feels broken" diagnosis is accurate** but the root cause is on the *receiving page*, not the sending API. The API creates the session correctly; the page denies its existence.
+- **The user's "feels broken" diagnosis is accurate** but the root cause is on the _receiving page_, not the sending API. The API creates the session correctly; the page denies its existence.
 - **The spinner has no stage indicator** — the user has zero evidence of progress during the longest wait in the product.
 
 ## Cross-System Convention
@@ -47,7 +47,7 @@ The existing session page pattern (created for S-02) already handles a rich stat
 
 > **The actual problem to plan around is**: The session page denies the existence of a valid session that has no messages yet, so the app cannot safely navigate to the session page before the LLM completes — which forces the POST to block and creates the "feels broken" wait.
 
-The fix has two parts: (1) the session page must handle the empty/loading state gracefully with a progress skeleton, and (2) the generate API must redirect early so the user sees that skeleton. Streaming the challenge delivery is the natural mechanism to populate the skeleton but is *secondary* — the skeleton is what solves "feels broken."
+The fix has two parts: (1) the session page must handle the empty/loading state gracefully with a progress skeleton, and (2) the generate API must redirect early so the user sees that skeleton. Streaming the challenge delivery is the natural mechanism to populate the skeleton but is _secondary_ — the skeleton is what solves "feels broken."
 
 ## Confidence
 

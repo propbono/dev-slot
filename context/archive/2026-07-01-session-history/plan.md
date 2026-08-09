@@ -105,6 +105,7 @@ Create the `/history` page listing completed and abandoned sessions with role/do
 **Intent**: Server-side rendered page that fetches completed and abandoned sessions for the authenticated user, extracts role/domain from each session's system message, and displays them in a chronological list with message counts and status badges. Clicking a row navigates to `/interview/<sessionId>` for the transcript.
 
 **Contract**:
+
 - Auth guard via `createClient` + `getUser()`
 - Query `sessions WHERE user_id = auth.uid() AND status IN ('completed', 'abandoned') ORDER BY created_at DESC`
 - For each session, fetch one system message to extract `role_level` and `domain`
@@ -135,6 +136,7 @@ Create the `/history` page listing completed and abandoned sessions with role/do
 **Intent**: When the session status is `completed` or `abandoned`, hide the AnswerEditor and show a "Session Complete" banner above the thread. The thread itself renders identically — all messages are read-only by nature.
 
 **Contract**:
+
 - After fetching the session, check `session.status`
 - If status is `completed` or `abandoned`: hide `<AnswerEditor />`, show a banner above `MessageThread`: "Session Complete — {date}" with a subtle green accent
 - If status is `active`: show the editor as before

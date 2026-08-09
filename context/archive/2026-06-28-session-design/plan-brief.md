@@ -16,11 +16,11 @@ Sticky header bar with session title + single "New Session" button. Conversation
 
 ## Key Decisions Made
 
-| Decision | Choice | Why | Source |
-|---|---|---|---|
-| Visual distinction | Left-aligned purple (interviewer), right-aligned blue (user) | Chat-thread pattern — instantly readable as dialogue | Plan |
-| "New Session" placement | Sticky header bar | Always accessible, never duplicated | Plan |
-| Implementation | Single phase, Tailwind-only | No logic changes, pure class-name swaps | Plan |
+| Decision                | Choice                                                       | Why                                                  | Source |
+| ----------------------- | ------------------------------------------------------------ | ---------------------------------------------------- | ------ |
+| Visual distinction      | Left-aligned purple (interviewer), right-aligned blue (user) | Chat-thread pattern — instantly readable as dialogue | Plan   |
+| "New Session" placement | Sticky header bar                                            | Always accessible, never duplicated                  | Plan   |
+| Implementation          | Single phase, Tailwind-only                                  | No logic changes, pure class-name swaps              | Plan   |
 
 ## Scope
 
@@ -41,8 +41,8 @@ SessionHeader (sticky top)
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
+| Phase              | What it delivers                                       | Key risk                                                            |
+| ------------------ | ------------------------------------------------------ | ------------------------------------------------------------------- |
 | 1. Header + Thread | Sticky header, chat-style lanes, no duplicated buttons | Layout regression — ensure existing sessions still render correctly |
 
 **Prerequisites:** Session page functioning, all existing components in place  

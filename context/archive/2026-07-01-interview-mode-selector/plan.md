@@ -38,10 +38,11 @@ JDInput gets a tab state that swaps between the textarea (JD mode) and three fie
 **Intent**: Add two tab buttons at the top: "Job Description" (default) and "Tech Stack". Tech stack mode shows three input fields instead of the textarea. Form validation adapts: JD mode requires ≥50 chars, tech stack mode requires technologies + role selected.
 
 **Contract**:
+
 - State: `mode` ("jd" | "tech-stack"), `technologies` (string), `role` (string), `domain` (string)
 - Tabs: two buttons styled as tabs, active tab has purple highlight
 - JD mode: same as current (textarea with 50-char minimum)
-- Tech stack mode: 
+- Tech stack mode:
   - Technologies: text input "e.g., React, AWS, Kafka"
   - Role level: `<select>` with Junior, Mid, Senior, Staff, Principal
   - Domain: text input "e.g., Fintech, Healthcare, SaaS"
@@ -56,6 +57,7 @@ JDInput gets a tab state that swaps between the textarea (JD mode) and three fie
 **Intent**: Read `mode` from form data. Store differently based on mode. For tech-stack mode, store `{ mode: "tech-stack", technologies, role, domain }` in the system message. For JD mode, same as before `{ raw_jd, status: "pending", mode: "jd" }`.
 
 **Contract**:
+
 - Read `mode` from form data, default to `"jd"`
 - If mode is `"tech-stack"`: read `technologies`, `role`, `domain`. Validate technologies not empty + role selected. Store as system message: `{ mode: "tech-stack", technologies, role, domain }`
 - If mode is `"jd"`: same as current
@@ -68,8 +70,9 @@ JDInput gets a tab state that swaps between the textarea (JD mode) and three fie
 **Intent**: When the system message has `mode: "tech-stack"`, skip `extractConstraints()` and use the provided technologies/role/domain directly. Build a `JDConstraints` object from the input and call `generateChallenge()` with a constructed JD text.
 
 **Contract**:
+
 - Read system message
-- If `mode === "tech-stack"`: 
+- If `mode === "tech-stack"`:
   - Build `JDConstraints = { tech_stack: technologies.split(",").map(s => s.trim()), role_level: role, domain }`
   - Construct a synthetic JD text: "Targeting a {role} role in {domain} with experience in {technologies}"
   - Call `generateChallenge(syntheticJd, constraints)` directly (skip extraction)

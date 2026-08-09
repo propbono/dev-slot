@@ -10,6 +10,7 @@ archived_at: 2026-07-02T18:17:00Z
 ## Notes
 
 Fix 64 ESLint errors across 14 files. Main sources:
+
 - Supabase queries return `any` — need to cast or add type generation
 - `no-unnecessary-condition` — optional chains on non-nullish values
 - `no-unsafe-assignment/member-access` — `any` values from Supabase

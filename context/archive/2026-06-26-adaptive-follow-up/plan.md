@@ -24,6 +24,7 @@ Upgrade the interview session page with a markdown answer editor, add a DeepSeek
 ## Desired End State
 
 A signed-in user visits `/interview/<sessionId>`, sees the original challenge, a markdown answer editor below it, types their architectural solution (with live preview toggle), and submits. The system:
+
 1. Posts the answer to the evaluation API
 2. Evaluates answer quality (strong vs weak) based on coverage of role-relevant constraints
 3. Generates one adaptive follow-up — escalating for strong answers, diagnosing for weak answers
@@ -69,10 +70,11 @@ Add a `status` column to `session_messages` for draft tracking, and build the ma
 
 **Intent**: Add a `status` column to `session_messages` to distinguish drafts from committed messages. Default `committed` for existing rows. CHECK constraint limits to `draft | committed`.
 
-**Contract**: 
+**Contract**:
+
 ```sql
-ALTER TABLE session_messages 
-ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'committed' 
+ALTER TABLE session_messages
+ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'committed'
 CHECK (status IN ('draft', 'committed'));
 ```
 
@@ -83,6 +85,7 @@ CHECK (status IN ('draft', 'committed'));
 **Intent**: Large textarea with a toggle between edit (monospace textarea) and preview (rendered markdown). Submits to evaluation API. Auto-saves drafts via debounced fetch to a draft endpoint. Client-side validation: minimum 20 characters.
 
 **Contract**:
+
 - Props: `sessionId: string`, `initialDraft?: string`
 - State: `content` (string), `mode` ("edit" | "preview"), `submitting` (boolean)
 - Renders: textarea in edit mode, `react-markdown` in preview mode, toggle button, submit button
@@ -157,10 +160,11 @@ export async function evaluateAnswer(
   constraints: JDConstraints,
   challenge: string,
   answer: string,
-): Promise<EvaluationResult>
+): Promise<EvaluationResult>;
 ```
 
 The function constructs a prompt that includes:
+
 - The role context: "You evaluated a {role_level} engineer for a {domain} role with tech stack {tech_stack}"
 - The challenge text
 - The user's submitted answer
@@ -177,6 +181,7 @@ Uses the same markdown fence stripping pattern as `extractConstraints()`.
 Error handling: 3 retries with 1s delay between. If all retries fail, redirect to `/dashboard?error=evaluation_failed`.
 
 **Contract**:
+
 - POST: reads `{ sessionId, answer }` from form data
 - Auth guard + session ownership check (user must own the session)
 - Fetch draft message → update status to `committed`
@@ -220,6 +225,7 @@ Upgrade the session page from a single challenge display to a full conversation 
 **Intent**: Rewrite to fetch all messages for the session and render them as a chronological thread. The challenge + any answers + any follow-ups appear in order. The answer editor renders below the thread when the session is `active` and the latest message is not a user-submitted answer awaiting evaluation (i.e., no "pending evaluation" state — evaluation is synchronous in the POST, so the page always shows the complete state after redirect).
 
 **Contract**:
+
 - Fetch session + all messages with `status = 'committed'` (skip drafts) ordered by `created_at`
 - Render each message based on role:
   - `interviewer`: challenge/follow-up card (reuse `ChallengeDisplay.astro` concept — rename/generalize or add a variant)

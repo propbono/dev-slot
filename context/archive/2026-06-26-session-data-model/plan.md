@@ -22,9 +22,9 @@ Create the `sessions` and `session_messages` tables with per-user row-level secu
 
 Two tables live in the `public` schema on the cloud Supabase project:
 
-| Table | Columns | RLS policies |
-|---|---|---|
-| `sessions` | id, user_id, status, created_at, updated_at | SELECT, INSERT, UPDATE per owner |
+| Table              | Columns                                             | RLS policies                             |
+| ------------------ | --------------------------------------------------- | ---------------------------------------- |
+| `sessions`         | id, user_id, status, created_at, updated_at         | SELECT, INSERT, UPDATE per owner         |
 | `session_messages` | id, session_id, role, content, metadata, created_at | SELECT, INSERT, UPDATE per session owner |
 
 `auth.users` cascading delete ensures NFR-7 (account deletion erases data within 30 days). Every downstream slice can create sessions and append messages knowing RLS prevents cross-user access.

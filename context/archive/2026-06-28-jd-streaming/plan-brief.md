@@ -17,12 +17,12 @@ User submits JD → within 200ms, browser redirects to `/interview/<uuid>` → l
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-|---|---|---|---|
-| Delivery mechanism | Polling, not SSE/streamText() | Simpler HTTP, works with Vercel serverless, reuses existing generateText(). | Plan |
-| Error handling | Skeleton shows error card with dashboard link | User sees failure immediately with a clear path to retry. | Plan |
-| JD storage | System message with `{ raw_jd, status: "pending" }` | No migration needed — reuses existing session_messages schema. | Plan |
-| Redirect timing | Immediately after session INSERT | Within 200ms — the session page skeleton handles the rest. | Frame |
+| Decision           | Choice                                              | Why (1 sentence)                                                            | Source |
+| ------------------ | --------------------------------------------------- | --------------------------------------------------------------------------- | ------ |
+| Delivery mechanism | Polling, not SSE/streamText()                       | Simpler HTTP, works with Vercel serverless, reuses existing generateText(). | Plan   |
+| Error handling     | Skeleton shows error card with dashboard link       | User sees failure immediately with a clear path to retry.                   | Plan   |
+| JD storage         | System message with `{ raw_jd, status: "pending" }` | No migration needed — reuses existing session_messages schema.              | Plan   |
+| Redirect timing    | Immediately after session INSERT                    | Within 200ms — the session page skeleton handles the rest.                  | Frame  |
 
 ## Scope
 
@@ -45,10 +45,10 @@ GET /interview/[sessionId]
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
-| 1. API Split | create.ts + generate.ts rewrite | generate endpoint must be idempotent (re-poll safe) |
-| 2. Session Page | GenerationSkeleton + 404 removal | Page reload UX — skeleton → flash → content |
+| Phase           | What it delivers                 | Key risk                                            |
+| --------------- | -------------------------------- | --------------------------------------------------- |
+| 1. API Split    | create.ts + generate.ts rewrite  | generate endpoint must be idempotent (re-poll safe) |
+| 2. Session Page | GenerationSkeleton + 404 removal | Page reload UX — skeleton → flash → content         |
 
 **Prerequisites:** S-01 jd-to-challenge complete, DeepSeek API key active  
 **Estimated effort:** ~1 session across 2 phases

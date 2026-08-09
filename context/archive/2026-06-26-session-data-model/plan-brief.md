@@ -22,13 +22,13 @@ RLS prevents any user from seeing another user's interview data. Account deletio
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-|---|---|---|---|
-| Session lifecycle | created → active → completed → abandoned | Explicit creation state + abandoned for timeout detection; adds audit trail without complexity overhead. | Plan |
-| Message roles | system \| interviewer \| user | Maps directly to the PRD's 3 logical actors — clean display filtering for transcripts. | Plan |
-| Metadata column | JSONB with evaluation + confidence + tokens | Enables metrics (S-04) without a second schema migration; roadmap's "flexible JSONB" strategy. | Plan |
-| RLS granularity | SELECT + INSERT + UPDATE per table (6 policies) | Matches AGENTS.md "per-operation, per-role" mandate exactly; prevents accidental deletes. | Plan |
-| Migration deployment | Write SQL manually, apply via dashboard | Docker unavailable — no `db diff` or local Supabase; dashboard SQL editor is the reliable path. | Plan |
+| Decision             | Choice                                          | Why (1 sentence)                                                                                         | Source |
+| -------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------ |
+| Session lifecycle    | created → active → completed → abandoned        | Explicit creation state + abandoned for timeout detection; adds audit trail without complexity overhead. | Plan   |
+| Message roles        | system \| interviewer \| user                   | Maps directly to the PRD's 3 logical actors — clean display filtering for transcripts.                   | Plan   |
+| Metadata column      | JSONB with evaluation + confidence + tokens     | Enables metrics (S-04) without a second schema migration; roadmap's "flexible JSONB" strategy.           | Plan   |
+| RLS granularity      | SELECT + INSERT + UPDATE per table (6 policies) | Matches AGENTS.md "per-operation, per-role" mandate exactly; prevents accidental deletes.                | Plan   |
+| Migration deployment | Write SQL manually, apply via dashboard         | Docker unavailable — no `db diff` or local Supabase; dashboard SQL editor is the reliable path.          | Plan   |
 
 ## Scope
 
@@ -41,9 +41,9 @@ Single migration file (`supabase/migrations/20260626140000_create_sessions_and_m
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
-| 1. Migration File | `sessions` + `session_messages` SQL with RLS | Manual SQL errors — mitigated by validating syntax before applying |
+| Phase                        | What it delivers                                | Key risk                                                              |
+| ---------------------------- | ----------------------------------------------- | --------------------------------------------------------------------- |
+| 1. Migration File            | `sessions` + `session_messages` SQL with RLS    | Manual SQL errors — mitigated by validating syntax before applying    |
 | 2. Verification & Deployment | Tables live on cloud, RLS tested with two users | Cross-user isolation failure — caught by manual RLS verification step |
 
 **Prerequisites:** Cloud Supabase project accessible ([supabase.com/dashboard](https://supabase.com/dashboard)), project ref `igxikicoplbllvdibmha`  

@@ -125,6 +125,7 @@ Acknowledged on 2026-06-02: 6-week MVP requires sustained dedication; user accep
 - **Then** the system displays an active evaluation state and returns a foundational, diagnostic follow-up question about tracking code changes via dependency graphs instead of escalating the difficulty
 
 #### Acceptance Criteria
+
 - The user sees a visible evaluation state after submitting their answer
 - The follow-up reflects the pasted job description context rather than a generic system design prompt
 - A weak answer causes the next question to become more foundational rather than more advanced
@@ -132,6 +133,7 @@ Acknowledged on 2026-06-02: 6-week MVP requires sustained dedication; user accep
 ## Functional Requirements
 
 ### Authentication
+
 - FR-001: User can sign in using OAuth or magic link. Priority: must-have
   > Socrates: No counter-argument selected; kept as written.
 - FR-002: Signed-in user can sign out of the active session. Priority: must-have
@@ -140,6 +142,7 @@ Acknowledged on 2026-06-02: 6-week MVP requires sustained dedication; user accep
   > Socrates: Counter-argument considered: "Account-linked persistence adds data/privacy complexity before the core loop is proven." Resolution: kept as written.
 
 ### Interview setup
+
 - FR-004: User can choose whether to start an interview from a pasted job description or from explicit tech stack input. Priority: nice-to-have
   > Socrates: No counter-argument selected; kept as written.
 - FR-005: User can paste raw, unformatted text into a job description input. Priority: must-have
@@ -154,6 +157,7 @@ Acknowledged on 2026-06-02: 6-week MVP requires sustained dedication; user accep
   > Socrates: No counter-argument selected; kept as written.
 
 ### Active simulation
+
 - FR-010: User can view an interview workspace that shows the interviewer prompt and a solution editor. Priority: must-have
   > Socrates: Counter-argument considered: "The product needs a clear place to read the prompt and write the answer, even if layout changes later." Resolution: kept as written.
 - FR-011: User can type an architectural solution into a multi-line input. Priority: must-have
@@ -164,10 +168,12 @@ Acknowledged on 2026-06-02: 6-week MVP requires sustained dedication; user accep
   > Socrates: Counter-argument considered: "Without visible evaluation state, the interview flow may feel broken or laggy." Resolution: kept as written.
 
 ### Adaptive feedback
+
 - FR-014: User can receive one adaptive follow-up question that becomes more advanced after a strong answer or more foundational after a weak answer. Priority: must-have
   > Socrates: Counter-argument considered: "This adaptive branch is the product’s core differentiator and must stay." Resolution: kept as written.
 
 ### Session history
+
 - FR-015: User can end an active interview session manually. Priority: must-have
   > Socrates: Counter-argument considered: "Users may still expect a clear way to exit and save state." Resolution: kept as written.
 - FR-016: User can view a list of completed interview sessions. Priority: must-have
@@ -188,6 +194,7 @@ The rule outputs a contextual change in interview direction rather than a flat s
 The user encounters the result immediately after submitting an answer to an active challenge. After a brief evaluation state, the interviewer feed updates with either a targeted counter-challenge or a diagnostic rescue prompt, which is the moment the experience shifts from a static prompt into a responsive sparring session.
 
 Additional supporting rules:
+
 - The app derives interview constraints from the pasted job description before generating the challenge.
 - The app distinguishes strong versus weak answers based on coverage of role-relevant constraints rather than keyword matching alone.
 
@@ -278,11 +285,11 @@ DevSlot has a flat user model (no roles), auth via Supabase, and no payment inte
 
 ### Subscription Tiers
 
-| Tier | Price | Interviews/mo | Max turns/challenge | Max challenges | History retention |
-|---|---|---|---|---|---|
-| Free | $0 | 1 | 3 | 1 | 7 days |
-| Pro | $10/mo | 5 | Unlimited | 5 | Forever |
-| Unlimited | $15/mo | Unlimited | Unlimited | Unlimited | Forever |
+| Tier      | Price  | Interviews/mo | Max turns/challenge | Max challenges | History retention |
+| --------- | ------ | ------------- | ------------------- | -------------- | ----------------- |
+| Free      | $0     | 1             | 3                   | 1              | 7 days            |
+| Pro       | $10/mo | 5             | Unlimited           | 5              | Forever           |
+| Unlimited | $15/mo | Unlimited     | Unlimited           | Unlimited      | Forever           |
 
 ### What changes
 

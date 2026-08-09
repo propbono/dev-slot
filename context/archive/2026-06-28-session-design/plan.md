@@ -49,6 +49,7 @@ Add a sticky header bar, refactor ChallengeDisplay into a pure message card, res
 **Intent**: Sticky top bar showing the session context and a "New Session" button. Pinned to the top of the viewport so it's always accessible. Replaces the duplicated footer buttons.
 
 **Contract**:
+
 - Sticky header: `sticky top-0 z-10` with cosmic bg
 - Left: session title ("Interview — {role} {domain}" or "Interview Session")
 - Right: "New Session" link styled as a small button
@@ -61,6 +62,7 @@ Add a sticky header bar, refactor ChallengeDisplay into a pure message card, res
 **Intent**: Remove the footer section (placeholder text + "New Session" link). This component becomes a pure message card — just the heading + challenge text. Keep the role/domain heading for the first card, omit for follow-ups (existing logic).
 
 **Contract**:
+
 - Remove lines 27-42 (footer div + "New Session" link)
 - Change background: `bg-purple-500/10 border-purple-500/20` for interviewer messages (purple tint)
 - Keep the heading + prose content
@@ -73,6 +75,7 @@ Add a sticky header bar, refactor ChallengeDisplay into a pure message card, res
 **Intent**: Right-align user messages with a blue-tinted background. The "Your Answer" label stays but moves to the right side. The quality badge stays on the right.
 
 **Contract**:
+
 - Container: `ml-auto max-w-[85%]` (right-aligned, slightly narrower for readability)
 - Card background: `bg-blue-500/10 border-blue-500/20` (blue tint)
 - Label + badge: right-aligned (`text-right`, `justify-end`)
@@ -85,6 +88,7 @@ Add a sticky header bar, refactor ChallengeDisplay into a pure message card, res
 **Intent**: Replace the full `ChallengeDisplay` import with inline message cards. Interviewer messages render directly as left-aligned cards (formerly the ChallengeDisplay content, now just heading + prose). User messages use the updated AnswerCard. No more duplicated footers.
 
 **Contract**:
+
 - Interviewer messages: render inline div with `bg-purple-500/10 border-purple-500/20` + heading + prose (same content as ChallengeDisplay but no footer)
 - User messages: use the updated `AnswerCard` (already right-aligned)
 - Space between messages: `space-y-6` (more breathing room than `space-y-4`)
@@ -98,6 +102,7 @@ Add a sticky header bar, refactor ChallengeDisplay into a pure message card, res
 **Intent**: Add the `SessionHeader` at the top of the page content area. Remove any residual "New Session" references from other components. The header stays visible as the user scrolls through the conversation thread.
 
 **Contract**:
+
 - Add `<SessionHeader />` before `MessageThread`
 - Pass `role` and `domain` to the header for the title
 - No other structural changes

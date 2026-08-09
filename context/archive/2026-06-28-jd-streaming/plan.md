@@ -38,6 +38,7 @@ User pastes a JD → submits → within ~200ms, the browser redirects to `/inter
 Two phases, top-to-bottom: API split (endpoint changes), session page upgrade (UI changes).
 
 The generate flow splits into two endpoints:
+
 1. `POST /api/interview/create` — validates auth + JD, creates session, **redirects immediately**
 2. `GET /api/interview/generate?sessionId=X` — fetches the JD from the session row, runs extraction + challenge generation, saves messages, updates session status
 
@@ -114,6 +115,7 @@ Upgrade `[sessionId].astro` to handle the empty/initializing state. Replace the 
 **Intent**: Replace the `if (!messages || messages.length === 0)` 404 check with a loading state. If the session has zero committed interviewer messages, render a loading skeleton instead of a 404. If messages exist, render the existing thread view + editor.
 
 **Contract**:
+
 - Fetch session messages with `status = 'committed'` as before
 - If `messages.length === 0` → render the `GenerationSkeleton` component (new) instead of 404
 - If messages exist → render `MessageThread` + `AnswerEditor` as before
@@ -129,6 +131,7 @@ Upgrade `[sessionId].astro` to handle the empty/initializing state. Replace the 
 On error: shows "Generation failed. Return to dashboard and try again." with a link to `/dashboard`.
 
 **Contract**:
+
 - Props: `sessionId: string`
 - State: `stage` (string), `error` (string | null)
 - Polls every 2 seconds with `setInterval`
