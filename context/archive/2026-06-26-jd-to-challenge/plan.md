@@ -26,6 +26,7 @@ Build the end-to-end pipeline where a signed-in user pastes a job description, t
 ## Desired End State
 
 A signed-in user navigates to `/dashboard`, sees a JD input form (textarea with 50-char minimum), pastes a job description, submits. The system:
+
 1. Creates a session row (`status: created`)
 2. Calls DeepSeek to extract `{ tech_stack, role_level, domain }` from the JD
 3. Calls DeepSeek to generate a tailored architecture challenge
@@ -48,6 +49,7 @@ A signed-in user navigates to `/dashboard`, sees a JD input form (textarea with 
 Three phases, top-to-bottom: foundation (SDK + config), pipeline (API route), UI (form + display). Each phase is independently testable.
 
 Vercel AI SDK with `@ai-sdk/deepseek` for LLM calls. Two sequential calls per session:
+
 1. **Extraction** — structured JSON from JD (`tech_stack`, `role_level`, `domain`)
 2. **Generation** — challenge prompt fed with extraction + original JD
 
@@ -86,6 +88,7 @@ Install the Vercel AI SDK packages, wire up the DeepSeek provider, add environme
 **Intent**: Register `DEEPSEEK_API_KEY` in Astro's server-side env schema so `astro:env/server` can resolve it. Must be server-only and secret.
 
 **Contract**: Add to the existing `env.schema` object:
+
 ```js
 DEEPSEEK_API_KEY: envField.string({ context: "server", access: "secret" }),
 ```
@@ -98,7 +101,7 @@ DEEPSEEK_API_KEY: envField.string({ context: "server", access: "secret" }),
 
 **Contract**:
 
-```ts
+````ts
 import { createDeepSeek } from "@ai-sdk/deepseek";
 import { generateText } from "ai";
 import { DEEPSEEK_API_KEY } from "astro:env/server";
@@ -112,7 +115,10 @@ export interface JDConstraints {
 }
 
 export class ExtractionError extends Error {
-  constructor(message: string, public readonly rawText: string) {
+  constructor(
+    message: string,
+    public readonly rawText: string,
+  ) {
     super(message);
     this.name = "ExtractionError";
   }
@@ -121,13 +127,15 @@ export class ExtractionError extends Error {
 export async function extractConstraints(jdText: string): Promise<JDConstraints> {
   const { text } = await generateText({
     model: deepseek("deepseek-chat"),
-    system:
-      "You extract structured information from job descriptions. Return ONLY valid JSON, no other text.",
+    system: "You extract structured information from job descriptions. Return ONLY valid JSON, no other text.",
     prompt: `Extract from the following job description:\n1. Tech stack (technologies, frameworks, platforms)\n2. Role level (Junior, Mid, Senior, Staff, Principal)\n3. Domain (Fintech, Healthcare, E-commerce, SaaS, etc.)\n\nReturn JSON: {"tech_stack": [...], "role_level": "...", "domain": "..."}\n\nJob description:\n${jdText}`,
   });
 
   // Strip markdown fences and whitespace in case the LLM wraps the JSON
-  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
+  const cleaned = text
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/, "")
+    .trim();
   try {
     return JSON.parse(cleaned) as JDConstraints;
   } catch {
@@ -135,10 +143,7 @@ export async function extractConstraints(jdText: string): Promise<JDConstraints>
   }
 }
 
-export async function generateChallenge(
-  jdText: string,
-  constraints: JDConstraints,
-): Promise<string> {
+export async function generateChallenge(jdText: string, constraints: JDConstraints): Promise<string> {
   const { text } = await generateText({
     model: deepseek("deepseek-chat"),
     system:
@@ -147,7 +152,7 @@ export async function generateChallenge(
   });
   return text;
 }
-```
+````
 
 ### Success Criteria:
 
@@ -190,13 +195,14 @@ export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) return context.redirect("/dashboard?error=not_configured");
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return context.redirect("/auth/signin");
 
   const form = await context.request.formData();
   const jd = (form.get("jd") as string)?.trim();
-  if (!jd || jd.length < 50)
-    return context.redirect("/dashboard?error=jd_too_short");
+  if (!jd || jd.length < 50) return context.redirect("/dashboard?error=jd_too_short");
 
   // Create session
   const { data: session, error: sessionErr } = await supabase
@@ -205,8 +211,7 @@ export const POST: APIRoute = async (context) => {
     .select("id")
     .single();
 
-  if (sessionErr || !session)
-    return context.redirect("/dashboard?error=session_failed");
+  if (sessionErr || !session) return context.redirect("/dashboard?error=session_failed");
 
   try {
     // Step 1: Extract constraints
@@ -226,10 +231,7 @@ export const POST: APIRoute = async (context) => {
     });
 
     // Mark session active
-    await supabase
-      .from("sessions")
-      .update({ status: "active" })
-      .eq("id", session.id);
+    await supabase.from("sessions").update({ status: "active" }).eq("id", session.id);
 
     return context.redirect(`/interview/${session.id}`);
   } catch {
@@ -261,6 +263,7 @@ export const POST: APIRoute = async (context) => {
 ### Overview
 
 Two UI changes:
+
 1. Upgrade the dashboard page to include the JD input form (replacing the current static welcome content) with client-side validation and a loading state
 2. Create the session display page at `/interview/[sessionId]` showing the generated challenge with a placeholder for the S-02 answer workspace
 
@@ -273,6 +276,7 @@ Two UI changes:
 **Intent**: Replace the current static welcome card with a JD input section. The page retains the user email + sign-out in a top bar but the main content area becomes a form: `<textarea>` for the JD, a character counter, and a submit button. Client-side validation prevents submission under 50 characters. On submit, posts to `/api/interview/generate` and shows a loading state while the redirect is in flight.
 
 **Contract**: Astro page with a React island for the form component. The form:
+
 - Displays user email in a thin top bar
 - Shows a `<textarea>` with placeholder "Paste a full job description (minimum 50 characters)..."
 - Shows live character count below the textarea (turns red under 50)
@@ -287,7 +291,8 @@ Two UI changes:
 
 **Intent**: Client-side interactive form with validation, character counter, and loading state. Uses shadcn/ui button and Tailwind for styling. Dark theme (matching `bg-cosmic`).
 
-**Contract**: 
+**Contract**:
+
 - Props: `error?: string`
 - State: `jd` (string), `submitting` (boolean)
 - Renders: textarea, char counter (`{jd.length}/50 minimum`), submit button
@@ -302,6 +307,7 @@ Two UI changes:
 **Intent**: Server-side rendered page that fetches the session's interviewer message (the challenge) from Supabase and displays it. Auth-guarded: redirects to `/auth/signin` if no user; shows "Session not found" if the session doesn't exist or belongs to another user (RLS blocks the query). Includes a "New Session" button linking back to `/dashboard`.
 
 **Contract**:
+
 - Props: `sessionId` from URL param
 - Server-side: `createClient()` → `supabase.from("session_messages").select("role, content").eq("session_id", sessionId).order("created_at")`
 - Filters for `role === "interviewer"` messages (the challenge)
@@ -318,6 +324,7 @@ Two UI changes:
 **Intent**: Astro component that renders the challenge text with appropriate typography. Dark background card with the interviewer's prompt formatted for readability.
 
 **Contract**:
+
 - Props: `challenge: string`
 - Renders: `<div class="...">` with prose-safe whitespace-pre-wrap, scrollable for long challenges
 - Semantic heading: the role/domain extracted from the system message (if available), otherwise generic "Your Challenge"

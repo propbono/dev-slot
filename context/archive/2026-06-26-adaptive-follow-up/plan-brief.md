@@ -17,16 +17,16 @@ Session page shows a chronological thread: challenge → user's submitted answer
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-|---|---|---|---|
-| Evaluation approach | Single LLM call: evaluate + follow-up together | Fewer tokens, faster — the LLM has full context for coherent follow-ups. | Plan |
-| Evaluation criteria | Coverage of role-relevant constraints | Directly matches PRD business logic — defensible, concrete. | Plan |
-| Follow-up display | Chronological thread view | Feels like a real interview transcript unfolding. | Plan |
-| Session after follow-up | Stays active — user can continue responding | More natural interview feel; MVP supports multi-turn within active session. | Plan |
-| Evaluation metadata | `{ quality, confidence, rationale }` | Rich enough for S-04 metrics, readable in transcripts. | Plan |
-| Draft persistence | DB-backed via `status` column on messages | Matches PRD NFR for cross-device/browser persistence. | Plan |
-| Error handling | Retry 3x → save session + redirect | User keeps their work; no dead-end loops. | Plan |
-| Answer editor | Markdown textarea with live preview toggle | Lightweight (react-markdown only), matches architecture prose use-case. | Plan |
+| Decision                | Choice                                         | Why (1 sentence)                                                            | Source |
+| ----------------------- | ---------------------------------------------- | --------------------------------------------------------------------------- | ------ |
+| Evaluation approach     | Single LLM call: evaluate + follow-up together | Fewer tokens, faster — the LLM has full context for coherent follow-ups.    | Plan   |
+| Evaluation criteria     | Coverage of role-relevant constraints          | Directly matches PRD business logic — defensible, concrete.                 | Plan   |
+| Follow-up display       | Chronological thread view                      | Feels like a real interview transcript unfolding.                           | Plan   |
+| Session after follow-up | Stays active — user can continue responding    | More natural interview feel; MVP supports multi-turn within active session. | Plan   |
+| Evaluation metadata     | `{ quality, confidence, rationale }`           | Rich enough for S-04 metrics, readable in transcripts.                      | Plan   |
+| Draft persistence       | DB-backed via `status` column on messages      | Matches PRD NFR for cross-device/browser persistence.                       | Plan   |
+| Error handling          | Retry 3x → save session + redirect             | User keeps their work; no dead-end loops.                                   | Plan   |
+| Answer editor           | Markdown textarea with live preview toggle     | Lightweight (react-markdown only), matches architecture prose use-case.     | Plan   |
 
 ## Scope
 
@@ -51,11 +51,11 @@ Three phases: schema + editor, evaluation pipeline, session page integration.
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
-| 1. Foundation | Migration + AnswerEditor + draft API | Markdown rendering matches cosmic theme |
-| 2. Evaluation Pipeline | evaluateAnswer() + evaluate API route | Prompt quality — distinguishing strong/weak reliably |
-| 3. Session Page | Thread view + full flow + error handling | Edge cases: empty sessions, missing messages, retry UX |
+| Phase                  | What it delivers                         | Key risk                                               |
+| ---------------------- | ---------------------------------------- | ------------------------------------------------------ |
+| 1. Foundation          | Migration + AnswerEditor + draft API     | Markdown rendering matches cosmic theme                |
+| 2. Evaluation Pipeline | evaluateAnswer() + evaluate API route    | Prompt quality — distinguishing strong/weak reliably   |
+| 3. Session Page        | Thread view + full flow + error handling | Edge cases: empty sessions, missing messages, retry UX |
 
 **Prerequisites:** S-01 complete, `react-markdown` for the editor, DeepSeek API key active  
 **Estimated effort:** ~2-3 sessions across 3 phases

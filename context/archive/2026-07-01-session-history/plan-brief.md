@@ -17,13 +17,13 @@ Sessions and messages exist in Supabase with RLS. The interview page renders act
 
 ## Key Decisions Made
 
-| Decision | Choice | Why | Source |
-|---|---|---|---|
-| History page | `/history` — own route | Clean separation from dashboard | Plan |
-| Transcript viewer | Reuse `/interview/[id]` with read-only mode | No new route, consistent layout | Plan |
-| End session UX | Button in header + confirm dialog | Clear affordance, no accidental endings | Plan |
-| History list content | Role, domain, date, count, status badge | Enough context to identify sessions | Plan |
-| Active sessions in history | No — only completed + abandoned | History means "done" | Plan |
+| Decision                   | Choice                                      | Why                                     | Source |
+| -------------------------- | ------------------------------------------- | --------------------------------------- | ------ |
+| History page               | `/history` — own route                      | Clean separation from dashboard         | Plan   |
+| Transcript viewer          | Reuse `/interview/[id]` with read-only mode | No new route, consistent layout         | Plan   |
+| End session UX             | Button in header + confirm dialog           | Clear affordance, no accidental endings | Plan   |
+| History list content       | Role, domain, date, count, status badge     | Enough context to identify sessions     | Plan   |
+| Active sessions in history | No — only completed + abandoned             | History means "done"                    | Plan   |
 
 ## Scope
 
@@ -44,9 +44,9 @@ GET /history → SELECT sessions WHERE status IN ('completed', 'abandoned')
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
-| 1. End Session | API + header button + confirmation | Session ownership check must be correct |
+| Phase                  | What it delivers                                   | Key risk                                                  |
+| ---------------------- | -------------------------------------------------- | --------------------------------------------------------- |
+| 1. End Session         | API + header button + confirmation                 | Session ownership check must be correct                   |
 | 2. History + Read-Only | History page + transcript viewer + dashboard links | N+1 query for role/domain per session (fine at MVP scale) |
 
 **Prerequisites:** S-01 + S-02 complete (sessions + messages exist)  

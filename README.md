@@ -1,8 +1,6 @@
-# 10x Astro Starter
+# DevSlot — AI-Powered Interview Practice
 
-![](./public/template.png)
-
-A modern, opinionated starter template for building fast, accessible web applications.
+Ace your architecture interview with adaptive AI challenges tailored to your target job description.
 
 ## Tech Stack
 
@@ -11,7 +9,7 @@ A modern, opinionated starter template for building fast, accessible web applica
 - [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
 - [Tailwind CSS](https://tailwindcss.com/) v4 - Utility-first CSS framework
 - [Supabase](https://supabase.com/) - Authentication and backend-as-a-service
-- [Cloudflare Workers](https://workers.cloudflare.com/) - Edge deployment runtime
+- [Vercel](https://vercel.com/) - Serverless deployment
 
 ## Prerequisites
 
@@ -23,8 +21,8 @@ A modern, opinionated starter template for building fast, accessible web applica
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
+git clone https://github.com/propbono/dev-slot.git
+cd dev-slot
 ```
 
 2. Install dependencies:
@@ -35,10 +33,10 @@ npm install
 
 3. Set up Supabase and configure environment variables — see [Supabase Configuration](#supabase-configuration) below.
 
-4. Create a `.dev.vars` file for local Cloudflare dev secrets:
+4. Create a `.env.local` file for local development secrets:
 
 ```bash
-cp .env.example .dev.vars
+cp .env.example .env.local
 ```
 
 5. Run the development server:
@@ -49,7 +47,7 @@ npm run dev
 
 ## Available Scripts
 
-- `npm run dev` - Start development server (Cloudflare workerd runtime)
+- `npm run dev` - Start development server (Vercel runtime)
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint with type-checked rules
@@ -67,7 +65,6 @@ npm run dev
 │ ├── components/ # UI components (Astro & React)
 │ └── assets/ # Static assets
 ├── public/ # Public assets
-├── wrangler.jsonc # Cloudflare Workers config
 ```
 
 ## Supabase Configuration
@@ -96,7 +93,7 @@ npx supabase init
 npx supabase start
 ```
 
-4. Copy the credentials printed by the CLI into your `.env` and `.dev.vars`:
+4. Copy the credentials printed by the CLI into your `.env` and `.env.local`:
 
 ```
 SUPABASE_URL=http://127.0.0.1:54321
@@ -111,11 +108,11 @@ npx supabase stop
 
 The local Studio UI is available at `http://localhost:54323`.
 
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
+The project includes RLS-enabled database tables and migrations in `supabase/migrations/`. Apply them with `npx supabase db push` after starting the local stack.
 
 ### Using a cloud Supabase project instead
 
-If you prefer to use a hosted Supabase project, add these variables to your `.env` and `.dev.vars` files:
+If you prefer to use a hosted Supabase project, add these variables to your `.env` and `.env.local` files:
 
 | Variable       | Description                                                |
 | -------------- | ---------------------------------------------------------- |
@@ -150,25 +147,23 @@ Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_
 
 ## Deployment
 
-This project deploys to [Cloudflare Workers](https://workers.cloudflare.com/).
+This project deploys to [Vercel](https://vercel.com/).
 
-1. Build the project:
+1. Connect your repository to Vercel (automatic via GitHub integration).
 
-```bash
-npm run build
-```
-
-2. Deploy with Wrangler:
+2. Set environment variables in the Vercel dashboard or via CLI:
 
 ```bash
-npx wrangler deploy
+vercel env add SUPABASE_URL
+vercel env add SUPABASE_KEY
+vercel env add DEEPSEEK_API_KEY
 ```
 
-Set `SUPABASE_URL` and `SUPABASE_KEY` as secrets in your Cloudflare dashboard or via `npx wrangler secret put`.
+3. Push to `main` — Vercel auto-deploys on push.
 
 ## CI
 
-GitHub Actions runs lint + build on every push and PR to `master`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
+GitHub Actions (`.github/workflows/ci.yml`) runs typecheck + lint + build + test on every push and PR to `main`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
 
 ## License
 

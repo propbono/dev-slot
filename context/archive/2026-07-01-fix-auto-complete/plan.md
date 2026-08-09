@@ -25,9 +25,7 @@ const { data: lastThree } = await supabase
   .order("created_at", { ascending: false })
   .limit(3);
 
-const strongCount = (lastThree ?? []).filter(
-  (a) => a.metadata && a.metadata.quality === "strong",
-).length;
+const strongCount = (lastThree ?? []).filter((a) => a.metadata && a.metadata.quality === "strong").length;
 
 const allStrong = lastThree?.length === 3 && strongCount === 3;
 ```

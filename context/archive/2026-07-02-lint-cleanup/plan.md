@@ -13,27 +13,37 @@ Fix 64 ESLint errors across 14 files. Two categories: Supabase `any` types (requ
 ## Phase 1: Code Quality
 
 ### evaluate.ts — 12 errors
+
 **File**: `src/pages/api/interview/evaluate.ts`
+
 - Remove unused `inserted` variable
 - `||` → `??` for nullish checks
 - Cast Supabase results with known shapes
 
-### new-challenge.ts — 22 errors  
+### new-challenge.ts — 22 errors
+
 **File**: `src/pages/api/interview/new-challenge.ts`
+
 - Cast parsed JSON and Supabase results
 - Remove explicit `any` annotations
 - `||` → `??`
 
 ### Other API routes — 11 errors
+
 **Files**: `create.ts`, `draft.ts`, `end.ts`, `generate.ts`
+
 - Same patterns: type assertions, nullish coalescing
 
 ### Test files — 7 errors
+
 **Files**: `ai.test.ts`, `PerformanceCard.test.ts`
+
 - Cast mock return values properly
 
 ### Components — 12 errors
+
 **Files**: `AnswerEditor.tsx`, `JDInput.tsx`, `GenerationSkeleton.tsx`, `ChallengeTabs.astro`, `history.astro`, `[sessionId].astro`
+
 - `||` → `??`, unnecessary condition fixes
 
 ## Success Criteria

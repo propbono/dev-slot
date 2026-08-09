@@ -35,14 +35,14 @@ Architecture rule: Astro components for static content and layout; React compone
 
 ## Commands
 
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Start dev server (Vercel runtime) |
-| `npm run build` | Production build (SSR) |
-| `npm run lint` | ESLint with type-checked rules |
-| `npm run lint:fix` | Auto-fix lint issues |
-| `npm run typecheck` | TypeScript type checking (`astro check`) |
-| `npm run format` | Prettier (includes Astro + Tailwind plugins) |
+| Command             | Purpose                                      |
+| ------------------- | -------------------------------------------- |
+| `npm run dev`       | Start dev server (Vercel runtime)            |
+| `npm run build`     | Production build (SSR)                       |
+| `npm run lint`      | ESLint with type-checked rules               |
+| `npm run lint:fix`  | Auto-fix lint issues                         |
+| `npm run typecheck` | TypeScript type checking (`astro check`)     |
+| `npm run format`    | Prettier (includes Astro + Tailwind plugins) |
 
 Pre-commit: husky + lint-staged auto-runs ESLint on `*.{ts,tsx,astro}` and Prettier on `*.{json,css,md}`.
 

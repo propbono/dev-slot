@@ -7,6 +7,7 @@
 **File**: `src/lib/ai.test.ts` (add to existing)
 
 Mock `generateText` to return controlled responses. Test:
+
 - Strong answer parsing (quality:"strong", confidence, rationale)
 - Weak answer parsing
 - Markdown fence stripping in response
@@ -17,6 +18,7 @@ Mock `generateText` to return controlled responses. Test:
 **File**: `src/lib/ai.test.ts` (add to existing)
 
 Test:
+
 - Challenge text returned
 - previousTopics included in prompt when provided
 - No "return ONLY" preamble in output
@@ -26,6 +28,7 @@ Test:
 **File**: `src/lib/ai.test.ts` (add to existing)
 
 Test:
+
 - Parsing strengths/improvement_areas as arrays
 - quality field ("strong"|"mixed")
 - Empty improvement_areas allowed
@@ -35,6 +38,7 @@ Test:
 **File**: `src/lib/auto-complete.test.ts` (new)
 
 Extract the consecutive-strong check into a pure function, then test:
+
 - 3 consecutive strong → true
 - 2 strong + 1 weak → false
 - Less than 3 answers → false

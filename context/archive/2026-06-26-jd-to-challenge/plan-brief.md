@@ -17,15 +17,15 @@ Signed-in user sees a JD input form on `/dashboard`. Pastes a real JD (50+ chars
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-|---|---|---|---|
-| LLM provider | DeepSeek V4 via `@ai-sdk/deepseek` | Dedicated provider package; OpenAI-compatible API with `generateText()`. | Plan |
-| LLM pipeline | Two calls: extract → generate | Separation of concerns — can debug whether extraction or generation failed. | Plan |
-| Challenge display | Redirect to `/interview/[sessionId]` | Clean RESTful pattern; S-02 appends the answer workspace on the same route. | Plan |
-| Session creation timing | Before LLM calls (status: `created`) | Session ID available for redirect immediately; orphaned `created` rows are harmless. | Plan |
-| Extraction format | Structured JSON `{ tech_stack, role_level, domain }` | Machine-readable for S-02 (evaluation) and S-04 (metrics). | Plan |
-| JD validation | Client-side 50-char min + server-side guard | Prevents wasted LLM calls on junk input; 50 chars catches "test" while allowing real JDs. | Plan |
-| API key | `DEEPSEEK_API_KEY` in Astro env schema | Server-only, secret, consistent with existing `SUPABASE_*` pattern. | Plan |
+| Decision                | Choice                                               | Why (1 sentence)                                                                          | Source |
+| ----------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------ |
+| LLM provider            | DeepSeek V4 via `@ai-sdk/deepseek`                   | Dedicated provider package; OpenAI-compatible API with `generateText()`.                  | Plan   |
+| LLM pipeline            | Two calls: extract → generate                        | Separation of concerns — can debug whether extraction or generation failed.               | Plan   |
+| Challenge display       | Redirect to `/interview/[sessionId]`                 | Clean RESTful pattern; S-02 appends the answer workspace on the same route.               | Plan   |
+| Session creation timing | Before LLM calls (status: `created`)                 | Session ID available for redirect immediately; orphaned `created` rows are harmless.      | Plan   |
+| Extraction format       | Structured JSON `{ tech_stack, role_level, domain }` | Machine-readable for S-02 (evaluation) and S-04 (metrics).                                | Plan   |
+| JD validation           | Client-side 50-char min + server-side guard          | Prevents wasted LLM calls on junk input; 50 chars catches "test" while allowing real JDs. | Plan   |
+| API key                 | `DEEPSEEK_API_KEY` in Astro env schema               | Server-only, secret, consistent with existing `SUPABASE_*` pattern.                       | Plan   |
 
 ## Scope
 
@@ -52,11 +52,11 @@ Vercel AI SDK (`ai` + `@ai-sdk/deepseek`) handles LLM calls. All API logic in `s
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
-| 1. AI Foundation | Packages installed, env vars, `src/lib/ai.ts` | `@ai-sdk/deepseek` API compatibility with DeepSeek V4 |
-| 2. API Route | `POST /api/interview/generate` — full pipeline | Prompt quality — extraction may misread unusual JDs |
-| 3. UI | JD form on dashboard + `/interview/[sessionId]` display | Loading UX during 6-10s LLM calls |
+| Phase            | What it delivers                                        | Key risk                                              |
+| ---------------- | ------------------------------------------------------- | ----------------------------------------------------- |
+| 1. AI Foundation | Packages installed, env vars, `src/lib/ai.ts`           | `@ai-sdk/deepseek` API compatibility with DeepSeek V4 |
+| 2. API Route     | `POST /api/interview/generate` — full pipeline          | Prompt quality — extraction may misread unusual JDs   |
+| 3. UI            | JD form on dashboard + `/interview/[sessionId]` display | Loading UX during 6-10s LLM calls                     |
 
 **Prerequisites:** `DEEPSEEK_API_KEY` from DeepSeek platform, F-01 tables deployed  
 **Estimated effort:** ~2-3 sessions across 3 phases

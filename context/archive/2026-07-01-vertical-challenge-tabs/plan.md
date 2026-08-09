@@ -20,7 +20,8 @@ Add a right-side vertical tab bar showing all challenges in a session. Each tab 
 
 **Intent**: Query all challenges for the session. Default to the latest challenge. Filter messages by active challenge_id. Render ChallengeTabs sidebar + MessageThread for active challenge.
 
-**Contract**: 
+**Contract**:
+
 - Query `challenges WHERE session_id = X ORDER BY created_at`
 - Default active challenge = the last one (latest)
 - Read `?challenge=X` query param for tab switching

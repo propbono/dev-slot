@@ -30,6 +30,7 @@ Single phase. evaluate.ts gets the consecutive-tracking logic. ai.ts gets `gener
 **Intent**: After evaluation, if quality is "strong", query the last 2 user messages for this challenge and check if they were also strong. If 3 consecutive strong → trigger summary generation and auto-complete.
 
 **Contract**: After storing evaluation metadata:
+
 - If quality !== "strong" → skip, redirect normally
 - If quality === "strong":
   - Query `SELECT metadata, role FROM session_messages WHERE challenge_id = X AND role = 'user' ORDER BY created_at DESC LIMIT 3`
@@ -44,6 +45,7 @@ Single phase. evaluate.ts gets the consecutive-tracking logic. ai.ts gets `gener
 **Intent**: Synthesize the full conversation (system message, challenge, all user answers, all interviewer responses) into a comprehensive summary.
 
 **Contract**:
+
 ```ts
 export interface ChallengeSummary {
   quality: "strong" | "mixed";
@@ -53,9 +55,7 @@ export interface ChallengeSummary {
   improvement_areas: string[];
 }
 
-export async function generateSummary(
-  conversation: string
-): Promise<ChallengeSummary>
+export async function generateSummary(conversation: string): Promise<ChallengeSummary>;
 ```
 
 Prompt: "You are evaluating a completed interview challenge. Given the full conversation below, provide a comprehensive summary. Return JSON: { quality: 'strong'|'mixed', confidence: 0-1, rationale: '...', strengths: [...], improvement_areas: [...] }"
@@ -67,6 +67,7 @@ Prompt: "You are evaluating a completed interview challenge. Given the full conv
 **Intent**: When the active challenge is completed, hide the editor and show a "Challenge Complete" card with the summary + "New Challenge" button.
 
 **Contract**:
+
 - Query challenges table for active challenge status
 - If active challenge status is "completed":
   - Hide AnswerEditor

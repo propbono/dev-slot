@@ -25,31 +25,31 @@ Senior engineers targeting staff roles use DevSlot to simulate live architecture
 
 ## At a glance
 
-| ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
-|---|---|---|---|---|---|
-| F-01 | session-data-model | (foundation) interview session schema landed; sessions + messages tables, RLS policies, migration file | — | NFR privacy | done |
-| S-01 | jd-to-challenge | paste a job description and receive a tailored architecture challenge informed by the role | F-01 | US-01, FR-005, FR-007, FR-008, FR-009 | blocked |
-| S-02 | adaptive-follow-up | submit an architectural solution and receive one adaptive follow-up that escalates or de-escalates based on answer quality | F-01, S-01 | US-01, FR-010, FR-011, FR-012, FR-013, FR-014 | blocked |
-| S-03 | session-history | end a session, browse completed sessions, and review a full chronological transcript | F-01, S-01 | FR-003, FR-015, FR-016, FR-017 | proposed |
-| S-04 | performance-metrics | view performance metrics and a categorized engineering breakdown for a completed session | F-01, S-01, S-02 | FR-018 | done |
-| F-02 | challenges-data-model | (foundation) challenges table with summary column + challenge_id FK on session_messages | — | FR-027, FR-028 | proposed |
-| S-05 | multi-turn-loop | submit answers and receive follow-up questions in a continuous turn-based loop with evaluative feedback | F-02, S-02 | US-02, FR-019, FR-020 | proposed |
-| S-06 | auto-complete-summaries | challenge auto-completes after 2-3 consecutive strong answers with comprehensive summary | S-05 | US-02, FR-021, FR-022 | proposed |
-| S-07 | new-challenge-from-stack | generate a new architecture challenge from the same JD/tech stack within a session | F-02, S-01, S-06 | US-02, FR-023, FR-024 | proposed |
-| S-08 | vertical-challenge-tabs | multiple challenges displayed as vertical tabs within a session | F-02, S-07 | US-02, FR-025, FR-026 | done |
-| F-03 | user-roles-usage | (foundation) user role column + usage counters table | — | FR-039, FR-040 | proposed |
-| S-09 | tier-enforcement | API checks interview/turn/challenge limits, upgrade prompt for free tier | F-03 | US-03, FR-035, FR-036 | proposed |
-| S-10 | stripe-integration | Stripe Checkout + webhook + subscription management page | F-03 | US-03, FR-032, FR-033, FR-034 | proposed |
-| S-11 | admin-dashboard | admin dashboard with user list, billing overview, usage analytics | F-03 | US-04, FR-037, FR-038 | proposed |
+| ID   | Change ID                | Outcome (user can …)                                                                                                       | Prerequisites    | PRD refs                                      | Status   |
+| ---- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------- | ---------------- | --------------------------------------------- | -------- |
+| F-01 | session-data-model       | (foundation) interview session schema landed; sessions + messages tables, RLS policies, migration file                     | —                | NFR privacy                                   | done     |
+| S-01 | jd-to-challenge          | paste a job description and receive a tailored architecture challenge informed by the role                                 | F-01             | US-01, FR-005, FR-007, FR-008, FR-009         | blocked  |
+| S-02 | adaptive-follow-up       | submit an architectural solution and receive one adaptive follow-up that escalates or de-escalates based on answer quality | F-01, S-01       | US-01, FR-010, FR-011, FR-012, FR-013, FR-014 | blocked  |
+| S-03 | session-history          | end a session, browse completed sessions, and review a full chronological transcript                                       | F-01, S-01       | FR-003, FR-015, FR-016, FR-017                | proposed |
+| S-04 | performance-metrics      | view performance metrics and a categorized engineering breakdown for a completed session                                   | F-01, S-01, S-02 | FR-018                                        | done     |
+| F-02 | challenges-data-model    | (foundation) challenges table with summary column + challenge_id FK on session_messages                                    | —                | FR-027, FR-028                                | proposed |
+| S-05 | multi-turn-loop          | submit answers and receive follow-up questions in a continuous turn-based loop with evaluative feedback                    | F-02, S-02       | US-02, FR-019, FR-020                         | proposed |
+| S-06 | auto-complete-summaries  | challenge auto-completes after 2-3 consecutive strong answers with comprehensive summary                                   | S-05             | US-02, FR-021, FR-022                         | proposed |
+| S-07 | new-challenge-from-stack | generate a new architecture challenge from the same JD/tech stack within a session                                         | F-02, S-01, S-06 | US-02, FR-023, FR-024                         | proposed |
+| S-08 | vertical-challenge-tabs  | multiple challenges displayed as vertical tabs within a session                                                            | F-02, S-07       | US-02, FR-025, FR-026                         | done     |
+| F-03 | user-roles-usage         | (foundation) user role column + usage counters table                                                                       | —                | FR-039, FR-040                                | proposed |
+| S-09 | tier-enforcement         | API checks interview/turn/challenge limits, upgrade prompt for free tier                                                   | F-03             | US-03, FR-035, FR-036                         | proposed |
+| S-10 | stripe-integration       | Stripe Checkout + webhook + subscription management page                                                                   | F-03             | US-03, FR-032, FR-033, FR-034                 | proposed |
+| S-11 | admin-dashboard          | admin dashboard with user list, billing overview, usage analytics                                                          | F-03             | US-04, FR-037, FR-038                         | proposed |
 
 ## Streams
 
 Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
 
-| Stream | Theme | Chain | Note |
-|---|---|---|---|
-| A | Core loop | `F-01` → `S-01` → `S-02` → `S-04` | The critical path from data model through to the adaptive follow-up and its metrics. Contains the north star (S-02). Biased toward market-feedback: ship the differentiator as fast as Prerequisites allow. |
-| B | Review loop | `S-03` | Runs parallel with S-02 after S-01 lands. Joins Stream A at S-01. Buildable in any order relative to S-02. |
+| Stream | Theme       | Chain                             | Note                                                                                                                                                                                                        |
+| ------ | ----------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A      | Core loop   | `F-01` → `S-01` → `S-02` → `S-04` | The critical path from data model through to the adaptive follow-up and its metrics. Contains the north star (S-02). Biased toward market-feedback: ship the differentiator as fast as Prerequisites allow. |
+| B      | Review loop | `S-03`                            | Runs parallel with S-02 after S-01 lands. Joins Stream A at S-01. Buildable in any order relative to S-02.                                                                                                  |
 
 ## Baseline
 
@@ -249,22 +249,22 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
-|---|---|---|---|---|
-| F-01 | session-data-model | Create interview sessions schema with RLS | yes | Done |
-| S-01 | jd-to-challenge | JD input → challenge generation pipeline | yes | Done |
-| S-02 | adaptive-follow-up | Adaptive follow-up — evaluation + branching | yes | Done |
-| S-03 | session-history | Session history — list, end, transcript review | yes | Done |
-| S-04 | performance-metrics | Performance metrics and engineering breakdown | yes | Done |
-| F-02 | challenges-data-model | Create challenges table with FK | yes | Done |
-| S-05 | multi-turn-loop | Continuous turn-based interview loop | yes | Done |
-| S-06 | auto-complete-summaries | Auto-complete after strong answers | yes | Done |
-| S-07 | new-challenge-from-stack | New challenge from same JD/stack | yes | Done |
-| S-08 | vertical-challenge-tabs | Vertical challenge tabs in session page | yes | Done |
-| F-03 | user-roles-usage | Add role column + usage counters | no | First; /10x-plan user-roles-usage |
-| S-09 | tier-enforcement | Enforce tier limits in API routes | no | Depends on F-03 |
-| S-10 | stripe-integration | Stripe Checkout + webhook + subscriptions | no | Stripe setup first |
-| S-11 | admin-dashboard | Admin user list + billing + analytics | no | Depends on F-03 |
+| Roadmap ID | Change ID                | Suggested issue title                          | Ready for `/10x-plan` | Notes                             |
+| ---------- | ------------------------ | ---------------------------------------------- | --------------------- | --------------------------------- |
+| F-01       | session-data-model       | Create interview sessions schema with RLS      | yes                   | Done                              |
+| S-01       | jd-to-challenge          | JD input → challenge generation pipeline       | yes                   | Done                              |
+| S-02       | adaptive-follow-up       | Adaptive follow-up — evaluation + branching    | yes                   | Done                              |
+| S-03       | session-history          | Session history — list, end, transcript review | yes                   | Done                              |
+| S-04       | performance-metrics      | Performance metrics and engineering breakdown  | yes                   | Done                              |
+| F-02       | challenges-data-model    | Create challenges table with FK                | yes                   | Done                              |
+| S-05       | multi-turn-loop          | Continuous turn-based interview loop           | yes                   | Done                              |
+| S-06       | auto-complete-summaries  | Auto-complete after strong answers             | yes                   | Done                              |
+| S-07       | new-challenge-from-stack | New challenge from same JD/stack               | yes                   | Done                              |
+| S-08       | vertical-challenge-tabs  | Vertical challenge tabs in session page        | yes                   | Done                              |
+| F-03       | user-roles-usage         | Add role column + usage counters               | no                    | First; /10x-plan user-roles-usage |
+| S-09       | tier-enforcement         | Enforce tier limits in API routes              | no                    | Depends on F-03                   |
+| S-10       | stripe-integration       | Stripe Checkout + webhook + subscriptions      | no                    | Stripe setup first                |
+| S-11       | admin-dashboard          | Admin user list + billing + analytics          | no                    | Depends on F-03                   |
 
 ## Open Roadmap Questions
 

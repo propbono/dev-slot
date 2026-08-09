@@ -49,6 +49,7 @@ Mock strategy: mock `generateText` from `ai` package. Test verifies that valid J
 **Intent**: Configure Vitest to resolve the `@/*` path alias (matching tsconfig.json), use jsdom environment for React components, and discover co-located `*.test.ts` files.
 
 **Contract**:
+
 ```ts
 import { defineConfig } from "vitest/config";
 import path from "path";
@@ -73,7 +74,8 @@ export default defineConfig({
 **Intent**: Unit test for `extractConstraints()`. Mock `generateText` from `ai` to return a controlled JSON response. Test happy path (valid JSON parsing), markdown fence stripping, and the `ExtractionError` thrown on invalid JSON.
 
 **Contract**:
-```ts
+
+````ts
 import { describe, it, expect, vi } from "vitest";
 import { extractConstraints } from "./ai";
 
@@ -116,7 +118,7 @@ describe("extractConstraints", () => {
     await expect(extractConstraints("Fake JD")).rejects.toThrow("Failed to parse extraction JSON");
   });
 });
-```
+````
 
 #### 4. Update AGENTS.md
 
@@ -125,6 +127,7 @@ describe("extractConstraints", () => {
 **Intent**: Replace the placeholder "No test runner configured yet" with actual test commands and conventions.
 
 **Contract**: Update the Testing section to:
+
 ```
 - `npm test` — Run all tests (Vitest)
 - `npm run test:watch` — Watch mode
@@ -160,6 +163,7 @@ describe("extractConstraints", () => {
 ## Testing Strategy
 
 The test itself is the deliverable. Running `npm test` verifies:
+
 - Extract works with clean JSON
 - Markdown fences are stripped
 - Invalid JSON throws ExtractionError

@@ -20,14 +20,14 @@ DevSlot is an adaptive AI interview simulator — a single-region SSR web app wi
 
 ### Scoring Matrix
 
-| Platform | CLI-first | Managed/Serverless | Agent-readable docs | Stable deploy API | MCP / Integration | Score |
-|---|---|---|---|---|---|---|
-| **Cloudflare Workers** | Pass | Pass | Pass | Pass | Pass | 5/5 |
-| **Vercel** | Pass | Pass | Pass | Pass | Partial (MCP beta) | 4.5/5 |
-| Netlify | Pass | Pass | Partial | Pass | Pass | 4/5 |
-| Fly.io | Pass | Pass | Pass | Pass | Partial | 4/5 |
-| Railway | Pass | Pass | Partial | Pass | Pass | 4/5 |
-| Render | Partial | Pass | Fail | Partial | Fail | 2/5 |
+| Platform               | CLI-first | Managed/Serverless | Agent-readable docs | Stable deploy API | MCP / Integration  | Score |
+| ---------------------- | --------- | ------------------ | ------------------- | ----------------- | ------------------ | ----- |
+| **Cloudflare Workers** | Pass      | Pass               | Pass                | Pass              | Pass               | 5/5   |
+| **Vercel**             | Pass      | Pass               | Pass                | Pass              | Partial (MCP beta) | 4.5/5 |
+| Netlify                | Pass      | Pass               | Partial             | Pass              | Pass               | 4/5   |
+| Fly.io                 | Pass      | Pass               | Pass                | Pass              | Partial            | 4/5   |
+| Railway                | Pass      | Pass               | Partial             | Pass              | Pass               | 4/5   |
+| Render                 | Partial   | Pass               | Fail                | Partial           | Fail               | 2/5   |
 
 ### Platform Notes
 
@@ -93,29 +93,32 @@ Best MCP story (GA server), generous free tier, and familiar ecosystem. Dropped 
 
 ## Risk Register
 
-| Risk | Source | Likelihood | Impact | Mitigation |
-|---|---|---|---|---|
-| Free tier 100k function invocations exhausted | Devil's advocate | Medium | High | Monitor usage via Vercel dashboard; upgrade to Pro ($20/mo) before hitting the limit. Set up a usage alert. |
-| Cold start latency feels broken to users | Devil's advocate | High | Medium | Add a "connecting..." UI state with a spinner + estimated wait time. Consider a keep-alive cron job (paid feature) on Pro. |
-| Serverless lock-in with Vercel services | Devil's advocate | Low | Medium | Keep Supabase as the primary database (already decided). Use Vercel services only if truly needed. Document export paths. |
-| Vercel MCP beta instability | Devil's advocate | Medium | Low | Use CLI (`vercel`) as the primary agent tool. MCP is a convenience, not a dependency. |
-| Accidentally choosing Edge Runtime over Serverless Functions | Devil's advocate | Medium | High | In `astro.config.mjs`, explicitly set `output: 'server'` with the serverless adapter (not edge). Document in AGENTS.md. |
-| 402 errors at scale during beta | Pre-mortem | Medium | Critical | Set up Vercel spend notifications. Budget $20/mo for Pro before opening beta. Use supabase for auth (free tier generous). |
-| 72h log retention insufficient for debugging | Unknown unknowns | Medium | High | Ship structured logs to an external service (Better Stack, Logtail, or Axiom) from day one. Both have generous free tiers. |
-| Exposed API keys in client bundle | Pre-mortem | Low | Critical | Audit Vite/Astro config to ensure `SUPABASE_KEY` is server-only (`context: "server"` in env schema — already configured in astro.config.mjs). |
-| Bandwidth overage on Hobby tier | Unknown unknowns | Low | Low | 100GB is generous for text-heavy SSR app. Monitor monthly. Upgrade to Pro adds 1TB bandwidth. |
-| PR previews publicly expose landing page | Unknown unknowns | Medium | Low | Acceptable for MVP — landing page is public content. Auth wall protects core features. |
+| Risk                                                         | Source           | Likelihood | Impact   | Mitigation                                                                                                                                    |
+| ------------------------------------------------------------ | ---------------- | ---------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Free tier 100k function invocations exhausted                | Devil's advocate | Medium     | High     | Monitor usage via Vercel dashboard; upgrade to Pro ($20/mo) before hitting the limit. Set up a usage alert.                                   |
+| Cold start latency feels broken to users                     | Devil's advocate | High       | Medium   | Add a "connecting..." UI state with a spinner + estimated wait time. Consider a keep-alive cron job (paid feature) on Pro.                    |
+| Serverless lock-in with Vercel services                      | Devil's advocate | Low        | Medium   | Keep Supabase as the primary database (already decided). Use Vercel services only if truly needed. Document export paths.                     |
+| Vercel MCP beta instability                                  | Devil's advocate | Medium     | Low      | Use CLI (`vercel`) as the primary agent tool. MCP is a convenience, not a dependency.                                                         |
+| Accidentally choosing Edge Runtime over Serverless Functions | Devil's advocate | Medium     | High     | In `astro.config.mjs`, explicitly set `output: 'server'` with the serverless adapter (not edge). Document in AGENTS.md.                       |
+| 402 errors at scale during beta                              | Pre-mortem       | Medium     | Critical | Set up Vercel spend notifications. Budget $20/mo for Pro before opening beta. Use supabase for auth (free tier generous).                     |
+| 72h log retention insufficient for debugging                 | Unknown unknowns | Medium     | High     | Ship structured logs to an external service (Better Stack, Logtail, or Axiom) from day one. Both have generous free tiers.                    |
+| Exposed API keys in client bundle                            | Pre-mortem       | Low        | Critical | Audit Vite/Astro config to ensure `SUPABASE_KEY` is server-only (`context: "server"` in env schema — already configured in astro.config.mjs). |
+| Bandwidth overage on Hobby tier                              | Unknown unknowns | Low        | Low      | 100GB is generous for text-heavy SSR app. Monitor monthly. Upgrade to Pro adds 1TB bandwidth.                                                 |
+| PR previews publicly expose landing page                     | Unknown unknowns | Medium     | Low      | Acceptable for MVP — landing page is public content. Auth wall protects core features.                                                        |
 
 ## Getting Started
 
 1. **Remove the Cloudflare adapter and install the Vercel adapter:**
+
    ```bash
    npm uninstall @astrojs/cloudflare
    npx astro add vercel
    ```
+
    This installs `@astrojs/vercel@^11.0.0` and updates `astro.config.mjs`.
 
 2. **Update `astro.config.mjs`** — ensure it looks like this after the adapter switch:
+
    ```js
    import vercel from "@astrojs/vercel/serverless";
 
@@ -127,14 +130,17 @@ Best MCP story (GA server), generous free tier, and familiar ecosystem. Dropped 
    ```
 
 3. **Remove the `wrangler.jsonc` file** (no longer needed):
+
    ```bash
    rm wrangler.jsonc
    ```
 
 4. **Link the project to Vercel:**
+
    ```bash
    npx vercel link
    ```
+
    Follow the CLI prompts to connect to your Vercel account and create a new project.
 
 5. **Add environment variables** in the Vercel dashboard (or via `vercel env add`):
@@ -151,6 +157,7 @@ Best MCP story (GA server), generous free tier, and familiar ecosystem. Dropped 
 ## Out of Scope
 
 The following were not evaluated in this research:
+
 - Docker image configuration
 - CI/CD pipeline setup (beyond Vercel's native Git integration)
 - Production-scale architecture (multi-region, HA, DR)

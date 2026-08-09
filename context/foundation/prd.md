@@ -52,6 +52,7 @@ A Senior Software Engineer targeting staff-level roles. They reach for DevSlot w
 - **Then** the system displays an active evaluation state and returns a foundational, diagnostic follow-up question about tracking code changes via dependency graphs instead of escalating the difficulty
 
 #### Acceptance Criteria
+
 - The user sees a visible evaluation state after submitting their answer
 - The follow-up reflects the pasted job description context rather than a generic system design prompt
 - A weak answer causes the next question to become more foundational rather than more advanced
@@ -59,6 +60,7 @@ A Senior Software Engineer targeting staff-level roles. They reach for DevSlot w
 ## Functional Requirements
 
 ### Authentication
+
 - FR-001: User can sign in using OAuth or magic link. Priority: must-have
   > Socrates: No counter-argument selected; kept as written.
 - FR-002: Signed-in user can sign out of the active session. Priority: must-have
@@ -67,6 +69,7 @@ A Senior Software Engineer targeting staff-level roles. They reach for DevSlot w
   > Socrates: Counter-argument considered: "Account-linked persistence adds data/privacy complexity before the core loop is proven." Resolution: kept as written.
 
 ### Interview setup
+
 - FR-004: User can choose whether to start an interview from a pasted job description or from explicit tech stack input. Priority: nice-to-have
   > Socrates: No counter-argument selected; kept as written.
 - FR-005: User can paste raw, unformatted text into a job description input. Priority: must-have
@@ -81,6 +84,7 @@ A Senior Software Engineer targeting staff-level roles. They reach for DevSlot w
   > Socrates: No counter-argument selected; kept as written.
 
 ### Active simulation
+
 - FR-010: User can view an interview workspace that shows the interviewer prompt and a solution editor. Priority: must-have
   > Socrates: Counter-argument considered: "The product needs a clear place to read the prompt and write the answer, even if layout changes later." Resolution: kept as written.
 - FR-011: User can type an architectural solution into a multi-line input. Priority: must-have
@@ -91,10 +95,12 @@ A Senior Software Engineer targeting staff-level roles. They reach for DevSlot w
   > Socrates: Counter-argument considered: "Without visible evaluation state, the interview flow may feel broken or laggy." Resolution: kept as written.
 
 ### Adaptive feedback
+
 - FR-014: User can receive one adaptive follow-up question that becomes more advanced after a strong answer or more foundational after a weak answer. Priority: must-have
   > Socrates: Counter-argument considered: "This adaptive branch is the product’s core differentiator and must stay." Resolution: kept as written.
 
 ### Session history
+
 - FR-015: User can end an active interview session manually. Priority: must-have
   > Socrates: Counter-argument considered: "Users may still expect a clear way to exit and save state." Resolution: kept as written.
 - FR-016: User can view a list of completed interview sessions. Priority: must-have
@@ -126,6 +132,7 @@ The rule outputs a contextual change in interview direction rather than a flat s
 The user encounters the result immediately after submitting an answer to an active challenge. After a brief evaluation state, the interviewer feed updates with either a targeted counter-challenge or a diagnostic rescue prompt, which is the moment the experience shifts from a static prompt into a responsive sparring session.
 
 Additional supporting rules:
+
 - The app derives interview constraints from the pasted job description before generating the challenge.
 - The app distinguishes strong versus weak answers based on coverage of role-relevant constraints rather than keyword matching alone.
 
@@ -168,6 +175,7 @@ No open questions currently.
 - **And** the user can generate a new architecture challenge from the same JD/tech stack without starting a new session
 
 #### Acceptance Criteria
+
 - The conversation flows turn-by-turn with no hard limit on exchanges
 - The interviewer's tone is evaluative and coaching — pointing out gaps and praising depth
 - Auto-complete triggers after 2-3 consecutive strong answers
@@ -178,22 +186,27 @@ No open questions currently.
 ### Functional Requirements
 
 #### Multi-turn
+
 - FR-019: User can submit answers and receive follow-up questions in a continuous turn-based loop. Priority: must-have
 - FR-020: The interviewer's response includes specific feedback — pointing out weak points, challenging assumptions, and reinforcing strengths. Priority: must-have
 
 #### Auto-complete
+
 - FR-021: Challenge auto-completes after 2-3 consecutive "strong" evaluations. Priority: must-have
 - FR-022: On auto-complete, the system generates a comprehensive summary including: quality label, confidence score, rationale, strengths (string[]), and improvement areas (string[]). Priority: must-have
 
 #### New challenges
+
 - FR-023: User can generate a new architecture challenge from the same JD/tech stack as the current session. Priority: must-have
 - FR-024: The new challenge must be substantively different from previous challenges in the same session. Priority: must-have
 
 #### Challenge organization
+
 - FR-025: Multiple challenges within a session are displayed as vertical tabs, with each tab showing that challenge's full conversation thread. Priority: must-have
 - FR-026: User can switch between challenges in a session. Switching hides the current challenge's thread and shows the selected one. Priority: must-have
 
 #### Data model
+
 - FR-027: A `challenges` table stores challenge metadata (session_id, status, summary). Priority: must-have
 - FR-028: `session_messages` includes a `challenge_id` foreign key to group messages per challenge. Priority: must-have
 
@@ -228,6 +241,7 @@ No open questions currently.
 - **And** they can select a plan, enter payment via Stripe, and immediately continue
 
 #### Acceptance Criteria
+
 - Upgrade prompt appears when the free user exhausts their interview
 - Stripe Checkout collects payment
 - Subscription activates immediately after payment
@@ -241,6 +255,7 @@ No open questions currently.
 - **And** they see billing overview: MRR, active subscribers per tier, churn
 
 #### Acceptance Criteria
+
 - Admin dashboard protected by role check (non-admin redirected)
 - User list shows email, tier, interviews used this month
 - Billing overview shows aggregate metrics
@@ -248,25 +263,30 @@ No open questions currently.
 ### Functional Requirements
 
 #### Subscription tiers
+
 - FR-029: User defaults to Free tier on signup (1 interview/mo, 3 turns, 1 challenge, 7-day history). Priority: must-have
 - FR-030: Pro tier ($10/mo): 5 interviews/mo, unlimited turns, 5 challenges, forever history. Priority: must-have
 - FR-031: Unlimited tier ($15/mo): unlimited interviews, turns, challenges, forever history. Priority: must-have
 
 #### Payment
+
 - FR-032: Stripe Checkout integration for subscription signup and management. Priority: must-have
 - FR-033: User can view current plan, upgrade/downgrade, and billing history on a Subscription page. Priority: must-have
 - FR-034: Tier limits reset on the monthly billing cycle. Priority: must-have
 
 #### Tier enforcement
+
 - FR-035: API routes check user tier limits before allowing new sessions (interview count), new turns (turn count), and new challenges (challenge count). Priority: must-have
 - FR-036: Free tier users see an upgrade prompt when they exhaust their single interview. Priority: must-have
 
 #### Admin dashboard
+
 - FR-037: Admin dashboard at `/admin` with user management (list, status, tier, usage). Priority: must-have
 - FR-038: Billing overview showing MRR, subscribers per tier, churn rate. Priority: must-have
 - FR-039: Admin role stored on user profile. Existing users default to `user`. Priority: must-have
 
 #### Usage tracking
+
 - FR-040: Per-user counters: interviews this month, turns this challenge, challenges this session. Priority: must-have
 
 ### Business Logic

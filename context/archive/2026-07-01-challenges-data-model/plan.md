@@ -17,11 +17,11 @@ Create the `challenges` table and add a `challenge_id` foreign key to `session_m
 
 ## Key Decisions
 
-| Decision | Choice |
-|---|---|
-| Existing messages | Default challenge per session during migration |
-| Statuses | active, completed |
-| Summary schema | { quality, confidence, rationale, strengths: string[], improvement_areas: string[] } |
+| Decision          | Choice                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Existing messages | Default challenge per session during migration                                       |
+| Statuses          | active, completed                                                                    |
+| Summary schema    | { quality, confidence, rationale, strengths: string[], improvement_areas: string[] } |
 
 ## Phase 1: Migration
 

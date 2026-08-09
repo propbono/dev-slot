@@ -12,6 +12,6 @@ archived_at: null
 Grouped UX fixes for the session page:
 
 3. End session modal not centered — dialog position wrong
-5. Session name too trivial — show "Staff — Fintech" instead of "Interview Session"  
-6. No "New Challenge" button in tabs — add manual trigger
-8. End session only in header — sticky header was broken by overflow-hidden
+4. Session name too trivial — show "Staff — Fintech" instead of "Interview Session"
+5. No "New Challenge" button in tabs — add manual trigger
+6. End session only in header — sticky header was broken by overflow-hidden
