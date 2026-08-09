@@ -1,5 +1,7 @@
 ---
 import Topbar from "@/components/Topbar.astro";
+
+const CheckmarkIcon = `<svg class="mt-0.5 h-4 w-4 shrink-0 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>`;
 ---
 
 <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
@@ -201,33 +203,15 @@ import Topbar from "@/components/Topbar.astro";
           </div>
           <ul class="mb-6 space-y-2 text-sm text-blue-100/60">
             <li class="flex items-start gap-2">
-              <svg
-                class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg
-              >
+              <Fragment set:html={CheckmarkIcon} />
               1 interview per month
             </li>
             <li class="flex items-start gap-2">
-              <svg
-                class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg
-              >
+              <Fragment set:html={CheckmarkIcon} />
               3 turns per challenge
             </li>
             <li class="flex items-start gap-2">
-              <svg
-                class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg
-              >
+              <Fragment set:html={CheckmarkIcon} />
               1 challenge per session
             </li>
           </ul>
@@ -255,33 +239,15 @@ import Topbar from "@/components/Topbar.astro";
           </div>
           <ul class="mb-6 space-y-2 text-sm text-blue-100/60">
             <li class="flex items-start gap-2">
-              <svg
-                class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg
-              >
+              <Fragment set:html={CheckmarkIcon} />
               5 interviews per month
             </li>
             <li class="flex items-start gap-2">
-              <svg
-                class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg
-              >
+              <Fragment set:html={CheckmarkIcon} />
               Unlimited turns per challenge
             </li>
             <li class="flex items-start gap-2">
-              <svg
-                class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg
-              >
+              <Fragment set:html={CheckmarkIcon} />
               5 challenges per session
             </li>
           </ul>
@@ -294,7 +260,14 @@ import Topbar from "@/components/Topbar.astro";
         </div>
 
         <!-- Unlimited -->
-        <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+        <div class="relative rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+            <span
+              class="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-600/90 px-3 py-0.5 text-xs font-medium text-white backdrop-blur-sm"
+            >
+              Coming Soon
+            </span>
+          </div>
           <h3 class="mb-1 text-lg font-semibold text-white">Unlimited</h3>
           <div class="mb-4">
             <span class="text-3xl font-bold text-white">$15</span>
@@ -302,33 +275,15 @@ import Topbar from "@/components/Topbar.astro";
           </div>
           <ul class="mb-6 space-y-2 text-sm text-blue-100/60">
             <li class="flex items-start gap-2">
-              <svg
-                class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg
-              >
+              <Fragment set:html={CheckmarkIcon} />
               Unlimited interviews
             </li>
             <li class="flex items-start gap-2">
-              <svg
-                class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg
-              >
+              <Fragment set:html={CheckmarkIcon} />
               Unlimited turns
             </li>
             <li class="flex items-start gap-2">
-              <svg
-                class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg
-              >
+              <Fragment set:html={CheckmarkIcon} />
               Unlimited challenges
             </li>
           </ul>
