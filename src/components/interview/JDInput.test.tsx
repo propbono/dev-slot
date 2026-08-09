@@ -52,9 +52,7 @@ describe("JDInput", () => {
 
   it("shows upgrade prompt when error is upgrade_required", () => {
     render(<JDInput error="upgrade_required" />);
-    expect(
-      screen.getAllByText(/reached your free tier limit/i)[0],
-    ).toBeInTheDocument();
+    expect(screen.getAllByText(/reached your free tier limit/i)[0]).toBeInTheDocument();
     expect(screen.getAllByText(/View Plans/i)[0]).toBeInTheDocument();
   });
 });

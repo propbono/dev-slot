@@ -46,11 +46,7 @@ export const POST: APIRoute = async (context) => {
   if (!challenge) return context.redirect("/new-session?error=no_active_challenge");
 
   // Check turn limit
-  const { allowed: turnAllowed, message: turnMsg } = await checkTurnLimit(
-    supabase,
-    user.id,
-    challenge.id,
-  );
+  const { allowed: turnAllowed, message: turnMsg } = await checkTurnLimit(supabase, user.id, challenge.id);
   if (!turnAllowed) {
     return context.redirect(`/interview/${sessionId}?error=${turnMsg}`);
   }

@@ -13,24 +13,14 @@ const TIERS: Record<string, TierLimits> = {
   admin: { interviewsPerMonth: null, turnsPerChallenge: null, challengesPerSession: null },
 };
 
-async function getTier(
-  supabase: ReturnType<typeof createClient>,
-  userId: string,
-): Promise<TierLimits> {
-  const { data } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .single();
+async function getTier(supabase: ReturnType<typeof createClient>, userId: string): Promise<TierLimits> {
+  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).single();
 
   const role = (data?.role as string) ?? "user";
-  return TIERS[role] ?? TIERS["user"];
+  return TIERS[role] ?? TIERS.user;
 }
 
-async function ensureCounters(
-  supabase: ReturnType<typeof createClient>,
-  userId: string,
-) {
+async function ensureCounters(supabase: ReturnType<typeof createClient>, userId: string) {
   const { data } = await supabase
     .from("usage_counters")
     .select("interviews_this_month, billing_cycle_start")
@@ -77,23 +67,13 @@ export async function checkInterviewLimit(
   return { allowed: true };
 }
 
-export async function incrementInterviewCounter(
-  supabase: ReturnType<typeof createClient>,
-  userId: string,
-) {
-  const { data } = await supabase
-    .from("usage_counters")
-    .select("interviews_this_month")
-    .eq("user_id", userId)
-    .single();
+export async function incrementInterviewCounter(supabase: ReturnType<typeof createClient>, userId: string) {
+  const { data } = await supabase.from("usage_counters").select("interviews_this_month").eq("user_id", userId).single();
 
-  const current = data?.interviews_this_month ?? 0;
+  const current: number = data?.interviews_this_month ?? 0;
   await supabase
     .from("usage_counters")
-    .upsert(
-      { user_id: userId, interviews_this_month: current + 1 },
-      { onConflict: "user_id" },
-    );
+    .upsert({ user_id: userId, interviews_this_month: current + 1 }, { onConflict: "user_id" });
 }
 
 export async function checkTurnLimit(

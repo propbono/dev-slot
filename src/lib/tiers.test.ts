@@ -5,13 +5,18 @@ import { describe, it, expect, vi } from "vitest";
 
 describe("tiers", () => {
   const makeSupabase = (overrides: Record<string, unknown> = {}) => {
-    const chain: Record<string, unknown> = {};
+    const _chain: Record<string, unknown> = {};
     return {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
             single: vi.fn().mockResolvedValue({
-              data: { role: "user", interviews_this_month: 0, billing_cycle_start: new Date().toISOString(), ...overrides },
+              data: {
+                role: "user",
+                interviews_this_month: 0,
+                billing_cycle_start: new Date().toISOString(),
+                ...overrides,
+              },
               error: null,
             }),
           }),

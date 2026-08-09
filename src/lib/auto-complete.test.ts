@@ -1,10 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 // Extract the consecutive-strong check as a pure function for testing
-function hasConsecutiveStrong(
-  answers: Array<{ metadata: Record<string, unknown> | null }>,
-  threshold = 3,
-): boolean {
+function hasConsecutiveStrong(answers: { metadata: Record<string, unknown> | null }[], threshold = 3): boolean {
   if (answers.length < threshold) return false;
   const lastN = answers.slice(-threshold);
   return lastN.every((a) => a.metadata?.quality === "strong");
@@ -30,10 +27,7 @@ describe("hasConsecutiveStrong", () => {
   });
 
   it("returns false for less than 3 answers", () => {
-    const answers = [
-      { metadata: { quality: "strong" } },
-      { metadata: { quality: "strong" } },
-    ];
+    const answers = [{ metadata: { quality: "strong" } }, { metadata: { quality: "strong" } }];
     expect(hasConsecutiveStrong(answers)).toBe(false);
   });
 
@@ -53,11 +47,7 @@ describe("hasConsecutiveStrong", () => {
   });
 
   it("returns false when metadata is missing", () => {
-    const answers = [
-      { metadata: { quality: "strong" } },
-      { metadata: null },
-      { metadata: { quality: "strong" } },
-    ];
+    const answers = [{ metadata: { quality: "strong" } }, { metadata: null }, { metadata: { quality: "strong" } }];
     expect(hasConsecutiveStrong(answers)).toBe(false);
   });
 });

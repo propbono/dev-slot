@@ -21,8 +21,8 @@ Ace your architecture interview with adaptive AI challenges tailored to your tar
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
+git clone https://github.com/propbono/dev-slot.git
+cd dev-slot
 ```
 
 2. Install dependencies:
