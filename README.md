@@ -1,8 +1,6 @@
-# 10x Astro Starter
+# DevSlot — AI-Powered Interview Practice
 
-![](./public/template.png)
-
-A modern, opinionated starter template for building fast, accessible web applications.
+Ace your architecture interview with adaptive AI challenges tailored to your target job description.
 
 ## Tech Stack
 
