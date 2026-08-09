@@ -7,7 +7,7 @@ type Props = {
   title?: string;
 };
 
-const { title = "10x Astro Starter" } = Astro.props;
+const { title = "DevSlot — AI Interview Practice" } = Astro.props;
 ---
 
 <!doctype html>
@@ -15,7 +15,12 @@ const { title = "10x Astro Starter" } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/png" href="/favicon.png" />
+    <meta
+      name="description"
+      content="DevSlot — AI-powered technical interview practice. Ace your architecture interview with adaptive system design challenges tailored to your target job description."
+    />
     <title>{title}</title>
   </head>
   <body>
