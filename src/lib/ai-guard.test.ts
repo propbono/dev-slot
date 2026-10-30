@@ -22,7 +22,10 @@ beforeEach(() => {
 });
 
 /** Minimal fake Supabase: count queries return counts[callIndex], insert records the row. */
-function makeSupabase(counts: number[]) {
+function makeSupabase(
+  counts: number[],
+  opts: { insertError?: unknown; countErrors?: Array<unknown | null> } = {},
+) {
   let callIndex = 0;
   const inserted: unknown[] = [];
   const supabase = {
@@ -33,14 +36,15 @@ function makeSupabase(counts: number[]) {
           eq: () => ({
             gte: () => {
               const count = counts[callIndex] ?? 0;
+              const error = opts.countErrors?.[callIndex] ?? null;
               callIndex += 1;
-              return Promise.resolve({ count, error: null });
+              return Promise.resolve({ count, error });
             },
           }),
         }),
         insert: (row: unknown) => {
           inserted.push(row);
-          return Promise.resolve({ error: null });
+          return Promise.resolve({ error: opts.insertError ?? null });
         },
       };
     },
@@ -53,22 +57,26 @@ describe("decideAiCall", () => {
     expect(decideAiCall({ window: 1, daily: 1, monthly: 1 }, TEST_LIMITS)).toEqual({ allowed: true });
   });
 
+  it("allows exactly at each limit (reservation is inclusive)", () => {
+    expect(decideAiCall({ window: 10, daily: 100, monthly: 500 }, TEST_LIMITS)).toEqual({ allowed: true });
+  });
+
   it("blocks on per-user window", () => {
-    expect(decideAiCall({ window: 10, daily: 0, monthly: 0 }, TEST_LIMITS)).toEqual({
+    expect(decideAiCall({ window: 11, daily: 0, monthly: 0 }, TEST_LIMITS)).toEqual({
       allowed: false,
       reason: "rate_limited",
     });
   });
 
   it("blocks on daily ceiling", () => {
-    expect(decideAiCall({ window: 0, daily: 100, monthly: 0 }, TEST_LIMITS)).toEqual({
+    expect(decideAiCall({ window: 0, daily: 101, monthly: 0 }, TEST_LIMITS)).toEqual({
       allowed: false,
       reason: "daily_limit",
     });
   });
 
   it("blocks on monthly ceiling", () => {
-    expect(decideAiCall({ window: 0, daily: 0, monthly: 500 }, TEST_LIMITS)).toEqual({
+    expect(decideAiCall({ window: 0, daily: 0, monthly: 501 }, TEST_LIMITS)).toEqual({
       allowed: false,
       reason: "monthly_limit",
     });
@@ -93,10 +101,22 @@ describe("guardAiCall", () => {
     expect(inserted[0]).toMatchObject({ user_id: "u1", ip: "1.2.3.4", operation: "evaluate" });
   });
 
-  it("blocks on per-user rate limit without logging", async () => {
-    const { supabase, inserted } = makeSupabase([10, 0, 0]);
+  it("blocks on per-user rate limit once the reservation exceeds the window", async () => {
+    const { supabase, inserted } = makeSupabase([11, 0, 0]);
     const result = await guardAiCall(supabase, { userId: "u1", operation: "evaluate" }, TEST_LIMITS);
     expect(result).toEqual({ allowed: false, reason: "rate_limited" });
-    expect(inserted).toHaveLength(0);
+    expect(inserted).toHaveLength(1);
+  });
+
+  it("fails closed when the audit insert errors", async () => {
+    const { supabase } = makeSupabase([0, 0, 0], { insertError: new Error("insert failed") });
+    const result = await guardAiCall(supabase, { userId: "u1", operation: "evaluate" }, TEST_LIMITS);
+    expect(result).toEqual({ allowed: false, reason: "internal_error" });
+  });
+
+  it("fails closed when the usage count query errors", async () => {
+    const { supabase } = makeSupabase([0, 0, 0], { countErrors: [new Error("count failed"), null, null] });
+    const result = await guardAiCall(supabase, { userId: "u1", operation: "evaluate" }, TEST_LIMITS);
+    expect(result).toEqual({ allowed: false, reason: "internal_error" });
   });
 });
