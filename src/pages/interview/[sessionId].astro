@@ -104,6 +104,14 @@ const errorMessages: Record<string, string> = {
   missing_fields: "Please provide both a session and an answer.",
   missing_context: "Could not load interview context. Please try again.",
   invalid_context: "Session data is corrupted. Start a new session.",
+  upgrade_required: "You've reached your free tier limit for this challenge. Upgrade to continue.",
+  rate_limited: "You're going a little fast — please wait a moment and try again.",
+  daily_limit: "You've reached today's usage limit. Please try again tomorrow.",
+  monthly_limit: "You've reached your monthly usage limit.",
+  evaluation_failed: "Evaluation failed. Your answer was saved as a draft — please try submitting again.",
+  challenge_failed: "Could not generate a new challenge. Please try again.",
+  session_not_found: "Session not found or access denied.",
+  no_active_challenge: "No active challenge found. Start a new session.",
 };
 const evaluationError = error ? (errorMessages[error] ?? "An unexpected error occurred. Please try again.") : undefined;
 ---

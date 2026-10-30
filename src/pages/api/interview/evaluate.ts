@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { evaluateAnswer, generateSummary, type JDConstraints } from "@/lib/ai";
 import { checkTurnLimit } from "@/lib/tiers";
+import { guardAiCall } from "@/lib/ai-guard";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
@@ -51,6 +52,22 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`/interview/${sessionId}?error=${turnMsg}`);
   }
 
+  // Idempotency guard: if this exact answer is already the latest committed
+  // user message (i.e. a concurrent submit or a just-failed evaluation),
+  // don't evaluate it twice.
+  const { data: latestMsgs } = await supabase
+    .from("session_messages")
+    .select("id, role, content")
+    .eq("challenge_id", challenge.id)
+    .eq("status", "committed")
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const latestMsg = latestMsgs?.[0];
+  if (latestMsg?.role === "user" && latestMsg.content === answer) {
+    return context.redirect(`/interview/${sessionId}`);
+  }
+
   // Flip draft to committed (or insert if no draft exists)
   const { data: draft } = await supabase
     .from("session_messages")
@@ -60,15 +77,14 @@ export const POST: APIRoute = async (context) => {
     .eq("status", "draft")
     .single();
 
-  const answerId = draft?.id;
-  if (answerId) {
+  let answerRowId: string | undefined = draft?.id;
+  if (answerRowId) {
     await supabase
       .from("session_messages")
       .update({ content: answer, status: "committed", metadata: {} })
-      .eq("id", answerId);
+      .eq("id", answerRowId);
   } else {
-    // No draft existed — insert committed directly
-    const { data: _inserted } = await supabase
+    const { data: inserted } = await supabase
       .from("session_messages")
       .insert({
         session_id: sessionId,
@@ -79,7 +95,7 @@ export const POST: APIRoute = async (context) => {
       })
       .select("id")
       .single();
-    // Assign for metadata update below
+    answerRowId = inserted?.id;
   }
 
   // Fetch context for evaluation
@@ -105,14 +121,29 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`/interview/${sessionId}?error=invalid_context`);
   }
 
-  // Retry loop for evaluation
+  const revertAnswerToDraft = async () => {
+    if (answerRowId) {
+      await supabase.from("session_messages").update({ status: "draft", metadata: {} }).eq("id", answerRowId);
+    }
+  };
+
+  // Retry loop for evaluation. Each attempt is an AI call and is guarded.
   let lastError: unknown;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    const evalGuard = await guardAiCall(supabase, {
+      userId: user.id,
+      ip: context.clientAddress,
+      operation: "evaluate",
+    });
+    if (!evalGuard.allowed) {
+      await revertAnswerToDraft();
+      return context.redirect(`/interview/${sessionId}?error=${evalGuard.reason}`);
+    }
+
     try {
       const result = await evaluateAnswer(constraints, challengeMsg.content, answerMsg.content);
 
       // Update answer message with evaluation metadata
-      const answerRowId = answerMsg.id ?? answerId;
       if (answerRowId) {
         await supabase
           .from("session_messages")
@@ -192,6 +223,17 @@ export const POST: APIRoute = async (context) => {
 
         const conversation = (allMsgs ?? []).map((m) => `${m.role}: ${m.content}`).join("\n\n");
 
+        const summaryGuard = await guardAiCall(supabase, {
+          userId: user.id,
+          ip: context.clientAddress,
+          operation: "summary",
+        });
+        if (!summaryGuard.allowed) {
+          // The evaluation itself succeeded; leave the challenge active and
+          // surface the limit without losing the transcript.
+          return context.redirect(`/interview/${sessionId}?error=${summaryGuard.reason}`);
+        }
+
         const summary = await generateSummary(constraints, conversation);
         await supabase.from("challenges").update({ status: "completed", summary }).eq("id", challenge.id);
       }
@@ -205,7 +247,8 @@ export const POST: APIRoute = async (context) => {
     }
   }
 
-  // All retries exhausted
+  // All retries exhausted — revert the answer so the user can retry.
   console.error("Evaluation failed after retries:", lastError);
-  return context.redirect("/new-session?error=evaluation_failed");
+  await revertAnswerToDraft();
+  return context.redirect(`/interview/${sessionId}?error=evaluation_failed`);
 };

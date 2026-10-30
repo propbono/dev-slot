@@ -13,6 +13,7 @@ import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { generateChallenge, type JDConstraints } from "@/lib/ai";
 import { checkChallengeLimit } from "@/lib/tiers";
+import { guardAiCall } from "@/lib/ai-guard";
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -89,6 +90,15 @@ export const POST: APIRoute = async (context) => {
   const previousTopics = (prevChallenges ?? []).map((m) => m.content.substring(0, 100));
 
   try {
+    const generateGuard = await guardAiCall(supabase, {
+      userId: user.id,
+      ip: context.clientAddress,
+      operation: "generate",
+    });
+    if (!generateGuard.allowed) {
+      return context.redirect(`/interview/${sessionId}?error=${generateGuard.reason}`);
+    }
+
     const challenge = await generateChallenge(jd, constraints, previousTopics);
 
     // Get previous challenge max_rounds to inherit
