@@ -1,5 +1,7 @@
 import { createClient } from "./supabase";
 
+type Supabase = NonNullable<ReturnType<typeof createClient>>;
+
 type TierLimits = {
   interviewsPerMonth: number | null; // null = unlimited
   turnsPerChallenge: number | null;
@@ -13,14 +15,14 @@ const TIERS: Record<string, TierLimits> = {
   admin: { interviewsPerMonth: null, turnsPerChallenge: null, challengesPerSession: null },
 };
 
-async function getTier(supabase: ReturnType<typeof createClient>, userId: string): Promise<TierLimits> {
+async function getTier(supabase: Supabase, userId: string): Promise<TierLimits> {
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).single();
 
   const role = (data?.role as string) ?? "user";
   return TIERS[role] ?? TIERS.user;
 }
 
-async function ensureCounters(supabase: ReturnType<typeof createClient>, userId: string) {
+async function ensureCounters(supabase: Supabase, userId: string) {
   const { data } = await supabase
     .from("usage_counters")
     .select("interviews_this_month, billing_cycle_start")
@@ -53,7 +55,7 @@ async function ensureCounters(supabase: ReturnType<typeof createClient>, userId:
 }
 
 export async function checkInterviewLimit(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Supabase,
   userId: string,
 ): Promise<{ allowed: boolean; message?: string }> {
   const tier = await getTier(supabase, userId);
@@ -67,7 +69,7 @@ export async function checkInterviewLimit(
   return { allowed: true };
 }
 
-export async function incrementInterviewCounter(supabase: ReturnType<typeof createClient>, userId: string) {
+export async function incrementInterviewCounter(supabase: Supabase, userId: string) {
   const { data } = await supabase.from("usage_counters").select("interviews_this_month").eq("user_id", userId).single();
 
   const current: number = data?.interviews_this_month ?? 0;
@@ -77,7 +79,7 @@ export async function incrementInterviewCounter(supabase: ReturnType<typeof crea
 }
 
 export async function checkTurnLimit(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Supabase,
   userId: string,
   challengeId: string,
 ): Promise<{ allowed: boolean; message?: string }> {
@@ -99,7 +101,7 @@ export async function checkTurnLimit(
 }
 
 export async function checkChallengeLimit(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Supabase,
   userId: string,
   sessionId: string,
 ): Promise<{ allowed: boolean; message?: string }> {

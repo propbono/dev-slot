@@ -36,6 +36,11 @@ export default function JDInput({ error }: Props) {
     upgrade_required: "You have reached your free tier limit. Upgrade to continue.",
     missing_fields: "Please fill in all required fields.",
     missing_tech_stack: "Please enter technologies and select a role level.",
+    rate_limited: "You're going a little fast — please wait a moment and try again.",
+    daily_limit: "You've reached today's usage limit. Please try again tomorrow.",
+    monthly_limit: "You've reached your monthly usage limit.",
+    challenge_failed: "Could not generate a new challenge. Please try again.",
+    no_stack: "Could not load your tech stack. Start a new session.",
   };
 
   const errorText = error && (errorMessages[error] ?? "An unexpected error occurred.");

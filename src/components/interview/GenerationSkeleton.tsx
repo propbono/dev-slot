@@ -9,6 +9,12 @@ type Props = {
 const STAGES = ["Creating your interview session...", "Analyzing job description...", "Crafting your challenge..."];
 const POLL_INTERVAL = 2000;
 
+const GENERATION_ERRORS: Record<string, string> = {
+  rate_limited: "You're going a little fast — please wait a moment and try again.",
+  daily_limit: "You've reached today's usage limit. Please try again tomorrow.",
+  monthly_limit: "You've reached your monthly usage limit.",
+};
+
 export default function GenerationSkeleton({ sessionId }: Props) {
   const [stage, setStage] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +48,7 @@ export default function GenerationSkeleton({ sessionId }: Props) {
             if (pollRef.current) clearInterval(pollRef.current);
             window.location.reload();
           } else if (data.error) {
-            setError("Generation failed. Return to dashboard and try again.");
+            setError(GENERATION_ERRORS[data.error] ?? "Generation failed. Return to dashboard and try again.");
             if (pollRef.current) clearInterval(pollRef.current);
           }
         } catch {
