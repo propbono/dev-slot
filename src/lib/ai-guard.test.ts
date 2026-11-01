@@ -22,10 +22,7 @@ beforeEach(() => {
 });
 
 /** Minimal fake Supabase: count queries return counts[callIndex], insert records the row. */
-function makeSupabase(
-  counts: number[],
-  opts: { insertError?: unknown; countErrors?: Array<unknown | null> } = {},
-) {
+function makeSupabase(counts: number[], opts: { insertError?: unknown; countErrors?: unknown[] } = {}) {
   let callIndex = 0;
   const inserted: unknown[] = [];
   const supabase = {

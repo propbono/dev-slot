@@ -181,11 +181,7 @@ export const GET: APIRoute = async (context) => {
 
     return Response.json({ ready: true });
   } catch {
-    await supabase
-      .from("session_messages")
-      .delete()
-      .eq("id", markerId)
-      .eq("status", "generating");
+    await supabase.from("session_messages").delete().eq("id", markerId).eq("status", "generating");
     return Response.json({ ready: false, error: "generation_failed" });
   }
 };

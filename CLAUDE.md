@@ -43,10 +43,13 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 
 DeepSeek V4 via `@ai-sdk/deepseek` and Vercel AI SDK. AI service at `src/lib/ai.ts` with `extractConstraints()`, `generateChallenge()`, `evaluateAnswer()`. Use `generateText()` for non-streaming generation.
 
+All model calls flow through `src/lib/ai.ts`. Abuse/spend protection lives in `src/lib/ai-guard.ts` — every AI-calling route must `guardAiCall()` before each model call. See `AGENTS.md` → AI / LLM for the full contract.
+
 ### Environment
 
 - Node.js v22.14.0 (see `.nvmrc`)
 - Env vars in `.env.local`: `SUPABASE_URL`, `SUPABASE_KEY`, `DEEPSEEK_API_KEY`
+- Optional AI protection env vars (`AI_RATE_LIMIT_*`, `AI_GLOBAL_RATE_LIMIT_PER_WINDOW`, `AI_DAILY_CALL_LIMIT`, `AI_MONTHLY_CALL_LIMIT`) — defaults in `astro.config.mjs` `env.schema`
 - Vercel env vars: managed via `vercel env add` or dashboard
 
 ## CI

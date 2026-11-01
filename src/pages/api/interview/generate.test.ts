@@ -49,7 +49,7 @@ function makeFakeSupabase(opts: FakeSupabaseOptions) {
   };
 
   return {
-    auth: { getUser: async () => ({ data: { user: opts.user } }) },
+    auth: { getUser: () => ({ data: { user: opts.user } }) },
     from: (table: string) => ({
       select: () => {
         if (table === "sessions") return selectChain({ data: opts.session ?? null });
@@ -63,7 +63,7 @@ function makeFakeSupabase(opts: FakeSupabaseOptions) {
       },
       insert: () => ({
         select: () => ({
-          single: async () => ({ data: { id: opts.markerId ?? "marker-1" }, error: null }),
+          single: () => ({ data: { id: opts.markerId ?? "marker-1" }, error: null }),
         }),
       }),
       update: () => writeChain(),
@@ -81,7 +81,8 @@ function makeContext(sessionId: string) {
   };
 }
 
-const JD = "We are hiring a senior backend engineer for a fintech platform. You will design distributed systems, work with PostgreSQL and Kafka, and own reliability. Strong system design fundamentals required. This is a long enough job description to pass validation.";
+const JD =
+  "We are hiring a senior backend engineer for a fintech platform. You will design distributed systems, work with PostgreSQL and Kafka, and own reliability. Strong system design fundamentals required. This is a long enough job description to pass validation.";
 
 beforeEach(() => {
   vi.clearAllMocks();
