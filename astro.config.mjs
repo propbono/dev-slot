@@ -1,17 +1,29 @@
 // @ts-check
+/* global process */
 import { defineConfig, envField } from "astro/config";
 
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import vercel from "@astrojs/vercel";
+import { sentryAstro } from "@sentry/astro/integration";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://archdrill.com",
   output: "server",
   adapter: vercel(),
-  integrations: [react(), sitemap()],
+  integrations: [
+    react(),
+    sitemap(),
+    sentryAstro({
+      // Build-time source maps + release. Org/project/authToken come from env.
+      release: { name: process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.SENTRY_RELEASE },
+      // Disable source-map upload deterministically when no auth token is set
+      // (local + CI/PR builds), so builds skip cleanly without Sentry config.
+      sourcemaps: process.env.SENTRY_AUTH_TOKEN ? undefined : { disable: true },
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
@@ -21,6 +33,8 @@ export default defineConfig({
       SUPABASE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
       DEEPSEEK_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
       DEEPSEEK_MODEL: envField.string({ context: "server", access: "secret", default: "deepseek-flash" }),
+      SENTRY_DSN: envField.string({ context: "server", access: "secret", optional: true }),
+      PUBLIC_SENTRY_DSN: envField.string({ context: "client", access: "public", optional: true }),
       // AI abuse/spend protection. Server-side knobs with sensible defaults;
       // override via Vercel env vars to tune for real traffic.
       AI_RATE_LIMIT_WINDOW_SECONDS: envField.number({ context: "server", access: "secret", default: 60 }),

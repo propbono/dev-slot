@@ -94,6 +94,10 @@ src/
     ai.test.ts        ← co-located test
 ```
 
+## Error tracking (Sentry)
+
+`@sentry/astro` wired via `sentryAstro()` in `astro.config.mjs`; runtime init in root `sentry.server.config.ts` / `sentry.client.config.ts` (auto-discovered). Optional env: `SENTRY_DSN` (server/secret) + `PUBLIC_SENTRY_DSN` (client/public); `SENTRY_ORG`/`SENTRY_PROJECT`/`SENTRY_AUTH_TOKEN` are build-time only (read from `process.env`, not `env.schema`). PII-safe by design: no request body/header/cookie/IP capture, Session Replay OFF. AI calls (`src/lib/ai.ts`) are wrapped in `Sentry.startSpan` with static names only — never attach prompts/answers/JD text.
+
 ## Maintaining this file
 
 Keep this file for knowledge useful to almost every future agent session in this project.
