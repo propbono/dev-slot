@@ -1,8 +1,17 @@
 import { createDeepSeek } from "@ai-sdk/deepseek";
 import { generateText } from "ai";
-import { DEEPSEEK_API_KEY } from "astro:env/server";
+import { DEEPSEEK_API_KEY, DEEPSEEK_MODEL } from "astro:env/server";
 
 const deepseek = createDeepSeek({ apiKey: DEEPSEEK_API_KEY });
+
+/**
+ * DeepSeek V4 reasoning models (e.g. `deepseek-flash`) default to thinking ON,
+ * which emits reasoning output around the actual answer. Disable thinking so
+ * these prompts return clean JSON/text output.
+ */
+const JSON_OUTPUT_PROVIDER_OPTIONS = {
+  deepseek: { thinking: { type: "disabled" } },
+};
 
 export type JDConstraints = {
   tech_stack: string[];
@@ -22,7 +31,8 @@ export class ExtractionError extends Error {
 
 export async function extractConstraints(jdText: string): Promise<JDConstraints> {
   const { text } = await generateText({
-    model: deepseek("deepseek-chat"),
+    model: deepseek(DEEPSEEK_MODEL),
+    providerOptions: JSON_OUTPUT_PROVIDER_OPTIONS,
     system: "You extract structured information from job descriptions. Return ONLY valid JSON, no other text.",
     prompt: `Extract from the following job description:
 1. Tech stack (technologies, frameworks, platforms)
@@ -57,7 +67,8 @@ export async function generateChallenge(
     : "";
 
   const { text } = await generateText({
-    model: deepseek("deepseek-chat"),
+    model: deepseek(DEEPSEEK_MODEL),
+    providerOptions: JSON_OUTPUT_PROVIDER_OPTIONS,
     system:
       "You are an expert technical interviewer conducting system design interviews. Return ONLY the challenge text — no preamble, no labels.",
     prompt: `You are interviewing a ${constraints.role_level} engineer for a ${constraints.domain} role.
@@ -90,7 +101,8 @@ export async function evaluateAnswer(
   answer: string,
 ): Promise<EvaluationResult> {
   const { text } = await generateText({
-    model: deepseek("deepseek-chat"),
+    model: deepseek(DEEPSEEK_MODEL),
+    providerOptions: JSON_OUTPUT_PROVIDER_OPTIONS,
     system:
       "You are an expert technical interviewer evaluating answers. Be direct and constructive — like a real interviewer giving feedback. Point out what the candidate missed or got right. Return ONLY valid JSON, no other text.",
     prompt: `You are evaluating a ${constraints.role_level} engineer for a ${constraints.domain} role.
@@ -128,7 +140,8 @@ export type ChallengeSummary = {
 
 export async function generateSummary(constraints: JDConstraints, conversation: string): Promise<ChallengeSummary> {
   const { text } = await generateText({
-    model: deepseek("deepseek-chat"),
+    model: deepseek(DEEPSEEK_MODEL),
+    providerOptions: JSON_OUTPUT_PROVIDER_OPTIONS,
     system:
       "You are evaluating a completed interview challenge. Provide an honest, constructive summary of the candidate's performance. Return ONLY valid JSON.",
     prompt: `You evaluated a ${constraints.role_level} engineer for a ${constraints.domain} role.\nTech stack: ${constraints.tech_stack.join(", ")}.\n\nFull conversation:\n${conversation}\n\nProvide a comprehensive summary:\n- Overall quality: "strong" (consistently high-quality answers) or "mixed" (some strong, some weak)\n- Confidence score (0-1)\n- One-sentence rationale\n- 2-4 specific strengths\n- 1-3 specific areas for improvement (if any, otherwise empty array)\n\nReturn JSON: {"quality": "strong"|"mixed", "confidence": <0-1>, "rationale": "...", "strengths": [...], "improvement_areas": [...]}`,

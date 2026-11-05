@@ -1,25 +1,32 @@
 import { describe, it, expect, vi } from "vitest";
 
+const { modelMock, generateTextMock } = vi.hoisted(() => ({
+  modelMock: vi.fn(),
+  generateTextMock: vi.fn(),
+}));
+
 vi.mock("ai", () => ({
-  generateText: vi.fn(),
+  generateText: generateTextMock,
 }));
 
 vi.mock("@ai-sdk/deepseek", () => ({
-  createDeepSeek: vi.fn(() => vi.fn()),
+  createDeepSeek: vi.fn(() => modelMock),
 }));
 
 vi.mock("astro:env/server", () => ({
   DEEPSEEK_API_KEY: "test-key",
+  DEEPSEEK_MODEL: "deepseek-flash",
 }));
 
 import { extractConstraints, evaluateAnswer, generateChallenge, generateSummary } from "./ai";
 
+const mockText = (text: string) => generateTextMock.mockResolvedValue({ text });
+
+const constraints = { tech_stack: ["React", "AWS"], role_level: "Staff", domain: "Fintech" };
+
 describe("extractConstraints", () => {
   it("parses valid JSON response", async () => {
-    const { generateText } = await import("ai");
-    vi.mocked(generateText).mockResolvedValue({
-      text: '{"tech_stack":["React","AWS"],"role_level":"Staff","domain":"Fintech"}',
-    } as any);
+    mockText('{"tech_stack":["React","AWS"],"role_level":"Staff","domain":"Fintech"}');
 
     const result = await extractConstraints("Fake JD");
     expect(result).toEqual({
@@ -30,34 +37,26 @@ describe("extractConstraints", () => {
   });
 
   it("strips markdown fences", async () => {
-    const { generateText } = await import("ai");
-    vi.mocked(generateText).mockResolvedValue({
-      text: '```json\n{"tech_stack":["Go"],"role_level":"Senior","domain":"SaaS"}\n```',
-    } as any);
+    mockText('```json\n{"tech_stack":["Go"],"role_level":"Senior","domain":"SaaS"}\n```');
 
     const result = await extractConstraints("Fake JD");
     expect(result.tech_stack).toEqual(["Go"]);
   });
 
   it("throws ExtractionError on invalid JSON", async () => {
-    const { generateText } = await import("ai");
-    vi.mocked(generateText).mockResolvedValue({
-      text: "not json at all",
-    } as any);
+    mockText("not json at all");
 
     await expect(extractConstraints("Fake JD")).rejects.toThrow("Failed to parse extraction JSON");
   });
 });
 
 describe("evaluateAnswer", () => {
-  const constraints = { tech_stack: ["React", "AWS"], role_level: "Staff", domain: "Fintech" };
   const challengeText = "Design a system...";
 
   it("parses strong evaluation JSON", async () => {
-    const { generateText } = await import("ai");
-    vi.mocked(generateText).mockResolvedValue({
-      text: '{"quality":"strong","confidence":0.85,"rationale":"Covers scaling well","followUp":"What about failure modes?"}',
-    } as never);
+    mockText(
+      '{"quality":"strong","confidence":0.85,"rationale":"Covers scaling well","followUp":"What about failure modes?"}',
+    );
 
     const result = await evaluateAnswer(constraints, challengeText, "My answer");
     expect(result.quality).toBe("strong");
@@ -66,20 +65,16 @@ describe("evaluateAnswer", () => {
   });
 
   it("parses weak evaluation JSON", async () => {
-    const { generateText } = await import("ai");
-    vi.mocked(generateText).mockResolvedValue({
-      text: '{"quality":"weak","confidence":0.3,"rationale":"Missing tradeoffs","followUp":"How would you handle scale?"}',
-    } as never);
+    mockText(
+      '{"quality":"weak","confidence":0.3,"rationale":"Missing tradeoffs","followUp":"How would you handle scale?"}',
+    );
 
     const result = await evaluateAnswer(constraints, challengeText, "Short answer");
     expect(result.quality).toBe("weak");
   });
 
   it("strips markdown fences from evaluation JSON", async () => {
-    const { generateText } = await import("ai");
-    vi.mocked(generateText).mockResolvedValue({
-      text: '```json\n{"quality":"strong","confidence":0.9,"rationale":"Great","followUp":"Edge cases?"}\n```',
-    } as never);
+    mockText('```json\n{"quality":"strong","confidence":0.9,"rationale":"Great","followUp":"Edge cases?"}\n```');
 
     const result = await evaluateAnswer(constraints, challengeText, "Answer");
     expect(result.quality).toBe("strong");
@@ -87,39 +82,28 @@ describe("evaluateAnswer", () => {
 });
 
 describe("generateChallenge", () => {
-  const constraints = { tech_stack: ["Go"], role_level: "Senior", domain: "SaaS" };
-
   it("returns challenge text", async () => {
-    const { generateText } = await import("ai");
-    vi.mocked(generateText).mockResolvedValue({
-      text: "Design a multi-tenant architecture for a SaaS platform.",
-    } as never);
+    mockText("Design a multi-tenant architecture for a SaaS platform.");
 
     const result = await generateChallenge("Fake JD", constraints);
     expect(result).toContain("multi-tenant");
   });
 
   it("includes previousTopics in prompt when provided", async () => {
-    const { generateText } = await import("ai");
-    vi.mocked(generateText).mockResolvedValue({
-      text: "Design a caching strategy.",
-    } as never);
+    mockText("Design a caching strategy.");
 
     await generateChallenge("Fake JD", constraints, ["scaling", "database"]);
-    const promptArg = vi.mocked(generateText).mock.calls.at(-1)?.[0] as { prompt?: string };
+    const promptArg = generateTextMock.mock.calls.at(-1)?.[0] as { prompt?: string };
     expect(promptArg?.prompt).toContain("Do NOT generate");
     expect(promptArg?.prompt).toContain("scaling");
   });
 });
 
 describe("generateSummary", () => {
-  const constraints = { tech_stack: ["React"], role_level: "Staff", domain: "Fintech" };
-
   it("parses summary with strengths and improvement areas", async () => {
-    const { generateText } = await import("ai");
-    vi.mocked(generateText).mockResolvedValue({
-      text: '{"quality":"strong","confidence":0.9,"rationale":"Excellent analysis","strengths":["Scaling","Tradeoffs"],"improvement_areas":["Edge cases"]}',
-    } as never);
+    mockText(
+      '{"quality":"strong","confidence":0.9,"rationale":"Excellent analysis","strengths":["Scaling","Tradeoffs"],"improvement_areas":["Edge cases"]}',
+    );
 
     const result = await generateSummary(constraints, "conversation text");
     expect(result.quality).toBe("strong");
@@ -128,12 +112,26 @@ describe("generateSummary", () => {
   });
 
   it("allows empty improvement_areas", async () => {
-    const { generateText } = await import("ai");
-    vi.mocked(generateText).mockResolvedValue({
-      text: '{"quality":"strong","confidence":0.95,"rationale":"Perfect","strengths":["Everything"],"improvement_areas":[]}',
-    } as never);
+    mockText(
+      '{"quality":"strong","confidence":0.95,"rationale":"Perfect","strengths":["Everything"],"improvement_areas":[]}',
+    );
 
     const result = await generateSummary(constraints, "conv");
     expect(result.improvement_areas).toEqual([]);
+  });
+});
+
+describe("model configuration", () => {
+  it("uses the configured DeepSeek model with thinking disabled", async () => {
+    mockText("ok");
+
+    await generateChallenge("Fake JD", constraints);
+
+    expect(modelMock).toHaveBeenCalledWith("deepseek-flash");
+    expect(generateTextMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        providerOptions: { deepseek: { thinking: { type: "disabled" } } },
+      }),
+    );
   });
 });

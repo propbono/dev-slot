@@ -1,6 +1,7 @@
 export const SUPABASE_URL = "https://test.supabase.co";
 export const SUPABASE_KEY = "test-key";
 export const DEEPSEEK_API_KEY = "test-key";
+export const DEEPSEEK_MODEL = "deepseek-flash";
 
 export const AI_RATE_LIMIT_WINDOW_SECONDS = 60;
 export const AI_RATE_LIMIT_PER_USER = 10;
