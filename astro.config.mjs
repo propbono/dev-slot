@@ -8,7 +8,7 @@ import vercel from "@astrojs/vercel";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://dev-slot.vercel.app",
+  site: "https://archdrill.com",
   output: "server",
   adapter: vercel(),
   integrations: [react(), sitemap()],
