@@ -44,6 +44,10 @@ export default defineConfig({
       STRIPE_SECRET_KEY: envField.string({ context: "server", access: "secret", optional: true }),
       STRIPE_WEBHOOK_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
       STRIPE_PUBLISHABLE_KEY: envField.string({ context: "client", access: "public", optional: true }),
+      // Stable Price IDs for plan changes (subscriptions.update cannot reuse
+      // inline price_data). Required only when an existing subscriber switches.
+      STRIPE_PRICE_ID_PRO: envField.string({ context: "server", access: "secret", optional: true }),
+      STRIPE_PRICE_ID_UNLIMITED: envField.string({ context: "server", access: "secret", optional: true }),
       // AI abuse/spend protection. Server-side knobs with sensible defaults;
       // override via Vercel env vars to tune for real traffic.
       AI_RATE_LIMIT_WINDOW_SECONDS: envField.number({ context: "server", access: "secret", default: 60 }),

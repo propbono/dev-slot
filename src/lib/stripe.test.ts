@@ -8,7 +8,7 @@ vi.mock("stripe", () => ({
   },
 }));
 
-import { isPlanTier, PLANS, verifyWebhook } from "./stripe";
+import { getPriceId, isPlanTier, PLANS, verifyWebhook } from "./stripe";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -26,6 +26,11 @@ describe("stripe lib", () => {
     expect(isPlanTier("admin")).toBe(false);
     expect(isPlanTier("user")).toBe(false);
     expect(isPlanTier(undefined)).toBe(false);
+  });
+
+  it("resolves stable Price IDs for plan changes", () => {
+    expect(getPriceId("pro")).toBe("test-price-pro");
+    expect(getPriceId("unlimited")).toBe("test-price-unlimited");
   });
 
   it("rejects a missing signature", () => {

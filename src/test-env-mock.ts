@@ -5,6 +5,8 @@ export const DEEPSEEK_API_KEY = "test-key";
 export const DEEPSEEK_MODEL = "deepseek-flash";
 export const STRIPE_SECRET_KEY = "test-stripe-secret";
 export const STRIPE_WEBHOOK_SECRET = "test-webhook-secret";
+export const STRIPE_PRICE_ID_PRO = "test-price-pro";
+export const STRIPE_PRICE_ID_UNLIMITED = "test-price-unlimited";
 
 export const AI_RATE_LIMIT_WINDOW_SECONDS = 60;
 export const AI_RATE_LIMIT_PER_USER = 10;

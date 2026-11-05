@@ -15,9 +15,19 @@ function customerIdOf(customer: string | Stripe.Customer | Stripe.DeletedCustome
   return customer?.id ?? null;
 }
 
-async function downgradeToUser(supabase: ServiceSupabase, customerId: string | null): Promise<void> {
-  if (!customerId) return;
-  await supabase.from("user_roles").update({ role: "user" }).eq("stripe_customer_id", customerId);
+function subscriptionIdOf(subscription: string | Stripe.Subscription | null | undefined): string | null {
+  if (typeof subscription === "string") return subscription;
+  return subscription?.id ?? null;
+}
+
+async function updateRoleBySubscription(
+  supabase: ServiceSupabase,
+  subscriptionId: string | null,
+  role: "user" | "pro" | "unlimited",
+): Promise<boolean> {
+  if (!subscriptionId) return true;
+  const { error } = await supabase.from("user_roles").update({ role }).eq("stripe_subscription_id", subscriptionId);
+  return !error;
 }
 
 export const POST: APIRoute = async (context) => {
@@ -43,21 +53,35 @@ export const POST: APIRoute = async (context) => {
       if (session.mode !== "subscription") break;
       const userId = session.client_reference_id;
       const customerId = customerIdOf(session.customer);
+      const subscriptionId = subscriptionIdOf(session.subscription);
       const tier = session.metadata?.tier;
       if (!userId || !customerId || !isPlanTier(tier)) break;
 
-      await supabase
+      const { error } = await supabase
         .from("user_roles")
-        .upsert({ user_id: userId, role: tier, stripe_customer_id: customerId }, { onConflict: "user_id" });
+        .upsert(
+          { user_id: userId, role: tier, stripe_customer_id: customerId, stripe_subscription_id: subscriptionId },
+          { onConflict: "user_id" },
+        );
+      if (error) return Response.json({ error: "db_error" }, { status: 500 });
       break;
     }
     case "customer.subscription.deleted": {
-      await downgradeToUser(supabase, customerIdOf(event.data.object.customer));
+      const ok = await updateRoleBySubscription(supabase, event.data.object.id, "user");
+      if (!ok) return Response.json({ error: "db_error" }, { status: 500 });
       break;
     }
     case "customer.subscription.updated": {
-      if (DOWNGRADE_STATUSES.has(event.data.object.status)) {
-        await downgradeToUser(supabase, customerIdOf(event.data.object.customer));
+      const subscription = event.data.object;
+      if (DOWNGRADE_STATUSES.has(subscription.status)) {
+        const ok = await updateRoleBySubscription(supabase, subscription.id, "user");
+        if (!ok) return Response.json({ error: "db_error" }, { status: 500 });
+        break;
+      }
+      const tier = subscription.metadata?.tier;
+      if (isPlanTier(tier)) {
+        const ok = await updateRoleBySubscription(supabase, subscription.id, tier);
+        if (!ok) return Response.json({ error: "db_error" }, { status: 500 });
       }
       break;
     }

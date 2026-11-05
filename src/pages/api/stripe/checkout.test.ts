@@ -1,22 +1,38 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockSessionsCreate } = vi.hoisted(() => ({ mockSessionsCreate: vi.fn() }));
+const { mockSessionsCreate, mockSubscriptionsRetrieve, mockSubscriptionsUpdate } = vi.hoisted(() => ({
+  mockSessionsCreate: vi.fn(),
+  mockSubscriptionsRetrieve: vi.fn(),
+  mockSubscriptionsUpdate: vi.fn(),
+}));
 
 vi.mock("@/lib/supabase", () => ({ createClient: vi.fn() }));
 
 vi.mock("stripe", () => ({
   default: function Stripe() {
-    return { checkout: { sessions: { create: mockSessionsCreate } } };
+    return {
+      checkout: { sessions: { create: mockSessionsCreate } },
+      subscriptions: { retrieve: mockSubscriptionsRetrieve, update: mockSubscriptionsUpdate },
+    };
   },
 }));
 
 import { POST } from "./checkout";
 import { createClient } from "@/lib/supabase";
 
-function mockSupabaseUser(user: { id: string; email?: string } | null) {
-  vi.mocked(createClient).mockReturnValue({
+function makeSupabase(user: { id: string; email?: string } | null, roleRow: unknown = null) {
+  const single = vi.fn().mockResolvedValue({ data: roleRow, error: null });
+  const eq = vi.fn().mockReturnValue({ single });
+  const select = vi.fn().mockReturnValue({ eq });
+  const from = vi.fn().mockReturnValue({ select });
+  return {
     auth: { getUser: () => Promise.resolve({ data: { user } }) },
-  } as never);
+    from,
+  };
+}
+
+function mockSupabaseUser(user: { id: string; email?: string } | null, roleRow: unknown = null) {
+  vi.mocked(createClient).mockReturnValue(makeSupabase(user, roleRow) as never);
 }
 
 function makeContext(body: unknown) {
@@ -81,6 +97,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
       success_url: "http://localhost:3000/new-session?checkout=success",
       cancel_url: "http://localhost:3000/new-session?checkout=cancelled",
       metadata: { tier: "pro", userId: "user-1" },
+      subscription_data: { metadata: { tier: "pro" } },
     });
   });
 
@@ -97,5 +114,37 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     expect(args.line_items[0].price_data.unit_amount).toBe(1500);
     expect(args.line_items[0].price_data.product_data.name).toBe("DevSlot Unlimited");
     expect(args.metadata.tier).toBe("unlimited");
+  });
+
+  it("updates the existing subscription instead of creating a second one", async () => {
+    mockSupabaseUser({ id: "user-1", email: "a@b.com" }, { stripe_subscription_id: "sub_123" });
+    mockSubscriptionsRetrieve.mockResolvedValue({
+      status: "active",
+      items: { data: [{ id: "si_123" }] },
+    });
+    mockSubscriptionsUpdate.mockResolvedValue({ id: "sub_123" });
+
+    const res = await POST(makeContext({ tier: "unlimited" }) as never);
+
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toEqual({ url: null });
+    expect(mockSubscriptionsUpdate).toHaveBeenCalledWith("sub_123", {
+      items: [{ id: "si_123", price: "test-price-unlimited" }],
+      proration_behavior: "create_prorations",
+      metadata: { tier: "unlimited" },
+    });
+    expect(mockSessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("creates a fresh checkout when the stored subscription is no longer changeable", async () => {
+    mockSupabaseUser({ id: "user-1", email: "a@b.com" }, { stripe_subscription_id: "sub_old" });
+    mockSubscriptionsRetrieve.mockResolvedValue({ status: "canceled", items: { data: [{ id: "si_old" }] } });
+    mockSessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.com/c/pay/test_pro" });
+
+    const res = await POST(makeContext({ tier: "pro" }) as never);
+
+    expect(res.status).toBe(200);
+    expect(mockSubscriptionsUpdate).not.toHaveBeenCalled();
+    expect(mockSessionsCreate).toHaveBeenCalled();
   });
 });

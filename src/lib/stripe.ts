@@ -1,5 +1,10 @@
 import Stripe from "stripe";
-import { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } from "astro:env/server";
+import {
+  STRIPE_PRICE_ID_PRO,
+  STRIPE_PRICE_ID_UNLIMITED,
+  STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET,
+} from "astro:env/server";
 
 export type PlanTier = "pro" | "unlimited";
 
@@ -21,6 +26,18 @@ export const PLANS: Record<PlanTier, Plan> = {
 
 export function isPlanTier(value: unknown): value is PlanTier {
   return value === "pro" || value === "unlimited";
+}
+
+/**
+ * Stable Stripe Price ID used to change an existing subscription's plan. The
+ * initial checkout uses inline `price_data`, but `subscriptions.update` cannot
+ * reuse that, so it needs a Price ID created in the Stripe dashboard. Null when
+ * not configured (which only blocks plan changes, never first-time checkout).
+ */
+export function getPriceId(tier: PlanTier): string | null {
+  const priceId = tier === "pro" ? STRIPE_PRICE_ID_PRO : STRIPE_PRICE_ID_UNLIMITED;
+  if (!priceId) return null;
+  return priceId;
 }
 
 /** Stripe API client for the checkout endpoint. Null when not configured. */

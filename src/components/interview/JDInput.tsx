@@ -56,14 +56,18 @@ export default function JDInput({ error }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tier }),
       });
-      const data = (await res.json()) as { url?: string; error?: string };
-      if (!res.ok || !data.url) {
+      const data = (await res.json()) as { url?: string | null; error?: string };
+      if (!res.ok) {
         setCheckoutError(
           data.error === "unauthorized" ? "Please sign in to upgrade." : "Could not start checkout. Please try again.",
         );
         return;
       }
-      window.location.href = data.url;
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      window.location.reload();
     } catch {
       setCheckoutError("Could not start checkout. Please try again.");
     } finally {
