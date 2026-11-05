@@ -9,3 +9,9 @@ export const AI_RATE_LIMIT_PER_IP = 30;
 export const AI_GLOBAL_RATE_LIMIT_PER_WINDOW = 120;
 export const AI_DAILY_CALL_LIMIT = 100;
 export const AI_MONTHLY_CALL_LIMIT = 500;
+
+// Empty key keeps PostHog in no-op mode across the test suite (the helper
+// treats an unset/empty key as disabled). Tests that need a live path mock
+// `posthog-node` + `astro:env/server` directly.
+export const POSTHOG_API_KEY = "";
+export const POSTHOG_API_HOST = "https://us.i.posthog.com";

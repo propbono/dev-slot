@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { extractConstraints, generateChallenge, type JDConstraints } from "@/lib/ai";
 import { guardAiCall } from "@/lib/ai-guard";
+import { captureEvent, flush } from "@/lib/posthog";
 
 // If a "generating" lock is older than this, the request that created it is
 // presumed dead and the lock is released so generation can be retried.
@@ -171,13 +172,29 @@ export const GET: APIRoute = async (context) => {
       await supabase.from("session_messages").delete().eq("id", markerId);
       return Response.json({ ready: false, error: generateGuard.reason }, { status: 429 });
     }
+    const generateStartedAt = Date.now();
     const challengeText = await generateChallenge(jd, constraints);
+    const generationMs = Date.now() - generateStartedAt;
 
     // Promote the marker to a committed interviewer message.
     await supabase.from("session_messages").update({ content: challengeText, status: "committed" }).eq("id", markerId);
 
     // Mark session active.
     await supabase.from("sessions").update({ status: "active" }).eq("id", sessionId);
+
+    // First challenge in a session is always index 1.
+    captureEvent({
+      distinctId: user.id,
+      event: "challenge_generated",
+      properties: {
+        mode,
+        role_level: constraints.role_level,
+        domain: constraints.domain,
+        challenge_index: 1,
+        generation_ms: generationMs,
+      },
+    });
+    await flush();
 
     return Response.json({ ready: true });
   } catch {

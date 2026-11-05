@@ -29,6 +29,23 @@ export default defineConfig({
       AI_GLOBAL_RATE_LIMIT_PER_WINDOW: envField.number({ context: "server", access: "secret", default: 120 }),
       AI_DAILY_CALL_LIMIT: envField.number({ context: "server", access: "secret", default: 100 }),
       AI_MONTHLY_CALL_LIMIT: envField.number({ context: "server", access: "secret", default: 500 }),
+      // PostHog product analytics (optional; analytics silently no-ops when unset).
+      // The client key is the public `phc_…` project key; the server copy mirrors it
+      // so it can be rotated independently. Host defaults to the US cloud.
+      POSTHOG_KEY: envField.string({ context: "client", access: "public", optional: true }),
+      POSTHOG_HOST: envField.string({
+        context: "client",
+        access: "public",
+        optional: true,
+        default: "https://us.i.posthog.com",
+      }),
+      POSTHOG_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      POSTHOG_API_HOST: envField.string({
+        context: "server",
+        access: "secret",
+        optional: true,
+        default: "https://us.i.posthog.com",
+      }),
     },
   },
 });

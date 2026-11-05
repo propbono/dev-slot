@@ -6,11 +6,13 @@ vi.mock("@/lib/ai", () => ({
   generateChallenge: vi.fn(),
 }));
 vi.mock("@/lib/ai-guard", () => ({ guardAiCall: vi.fn() }));
+vi.mock("@/lib/posthog", () => ({ captureEvent: vi.fn(), flush: vi.fn() }));
 
 import { GET } from "./generate";
 import { createClient } from "@/lib/supabase";
 import { extractConstraints, generateChallenge } from "@/lib/ai";
 import { guardAiCall } from "@/lib/ai-guard";
+import { captureEvent, flush } from "@/lib/posthog";
 
 type FakeSupabaseOptions = {
   user: { id: string } | null;
@@ -100,6 +102,7 @@ describe("generate.ts (challenge generation AI endpoint)", () => {
     expect(guardAiCall).not.toHaveBeenCalled();
     expect(extractConstraints).not.toHaveBeenCalled();
     expect(generateChallenge).not.toHaveBeenCalled();
+    expect(captureEvent).not.toHaveBeenCalled();
   });
 
   it("blocks the model call and returns 429 when the guard rejects", async () => {
@@ -159,5 +162,17 @@ describe("generate.ts (challenge generation AI endpoint)", () => {
     });
     expect(extractConstraints).toHaveBeenCalledTimes(1);
     expect(generateChallenge).toHaveBeenCalledTimes(1);
+    expect(captureEvent).toHaveBeenCalledWith({
+      distinctId: "user-1",
+      event: "challenge_generated",
+      properties: {
+        mode: "jd",
+        role_level: "Senior",
+        domain: "Fintech",
+        challenge_index: 1,
+        generation_ms: expect.any(Number),
+      },
+    });
+    expect(flush).toHaveBeenCalledTimes(1);
   });
 });

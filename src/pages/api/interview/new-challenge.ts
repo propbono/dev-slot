@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase";
 import { generateChallenge, type JDConstraints } from "@/lib/ai";
 import { checkChallengeLimit } from "@/lib/tiers";
 import { guardAiCall } from "@/lib/ai-guard";
+import { captureEvent, flush } from "@/lib/posthog";
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -58,6 +59,7 @@ export const POST: APIRoute = async (context) => {
   let constraints: JDConstraints;
   let jd: string;
   const content = JSON.parse(sysMsgs[0].content) as SystemContent;
+  const mode = content.mode === "tech-stack" ? "tech-stack" : "jd";
 
   if (content.mode === "tech-stack") {
     constraints = {
@@ -99,7 +101,9 @@ export const POST: APIRoute = async (context) => {
       return context.redirect(`/interview/${sessionId}?error=${generateGuard.reason}`);
     }
 
+    const generateStartedAt = Date.now();
     const challenge = await generateChallenge(jd, constraints, previousTopics);
+    const generationMs = Date.now() - generateStartedAt;
 
     // Get previous challenge max_rounds to inherit
     const { data: prevChallenge } = await supabase
@@ -129,6 +133,26 @@ export const POST: APIRoute = async (context) => {
       status: "committed",
       challenge_id: newChallenge?.id,
     });
+
+    // The new challenge is the session's latest row, so its 1-based index
+    // equals the session's total challenge count.
+    const { count } = await supabase
+      .from("challenges")
+      .select("*", { count: "exact", head: true })
+      .eq("session_id", sessionId);
+
+    captureEvent({
+      distinctId: user.id,
+      event: "challenge_generated",
+      properties: {
+        mode,
+        role_level: constraints.role_level,
+        domain: constraints.domain,
+        challenge_index: count ?? 0,
+        generation_ms: generationMs,
+      },
+    });
+    await flush();
 
     return context.redirect(`/interview/${sessionId}`);
   } catch {

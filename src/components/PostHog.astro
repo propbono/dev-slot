@@ -1,0 +1,14 @@
+---
+// Client-side PostHog bootstrap. `astro:env/client` values are resolved at
+// build time and inlined into the bundle; when `POSTHOG_KEY` is unset the
+// script renders but no-ops at runtime.
+---
+
+<script>
+  import { POSTHOG_KEY, POSTHOG_HOST } from "astro:env/client";
+  import { initPostHog } from "../lib/posthog-client";
+
+  if (POSTHOG_KEY) {
+    initPostHog(POSTHOG_KEY, POSTHOG_HOST);
+  }
+</script>

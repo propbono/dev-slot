@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase";
 import { evaluateAnswer, generateSummary, type JDConstraints } from "@/lib/ai";
 import { checkTurnLimit } from "@/lib/tiers";
 import { guardAiCall } from "@/lib/ai-guard";
+import { captureEvent, flush } from "@/lib/posthog";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
@@ -97,6 +98,33 @@ export const POST: APIRoute = async (context) => {
       .single();
     answerRowId = inserted?.id;
   }
+
+  // Analytics: the answer is now durably committed for evaluation. `turn_index`
+  // is the committed user-message count for this challenge (this answer
+  // included); `challenge_index` is the session's total challenge count (the
+  // active challenge is always the latest).
+  const { count: turnIndex } = await supabase
+    .from("session_messages")
+    .select("*", { count: "exact", head: true })
+    .eq("challenge_id", challenge.id)
+    .eq("role", "user")
+    .eq("status", "committed");
+
+  const { count: challengeIndex } = await supabase
+    .from("challenges")
+    .select("*", { count: "exact", head: true })
+    .eq("session_id", sessionId);
+
+  captureEvent({
+    distinctId: user.id,
+    event: "answer_submitted",
+    properties: {
+      turn_index: turnIndex ?? 1,
+      answer_length: answer.length,
+      challenge_index: challengeIndex ?? 1,
+    },
+  });
+  await flush();
 
   // Fetch context for evaluation
   const { data: messages } = await supabase
@@ -211,6 +239,17 @@ export const POST: APIRoute = async (context) => {
           shouldComplete = true;
         }
       }
+
+      captureEvent({
+        distinctId: user.id,
+        event: "answer_evaluated",
+        properties: {
+          quality: result.quality,
+          confidence: result.confidence,
+          auto_completed: shouldComplete,
+        },
+      });
+      await flush();
 
       if (shouldComplete) {
         // Build conversation text for summary
