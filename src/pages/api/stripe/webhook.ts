@@ -7,8 +7,8 @@ export const prerender = false;
 
 type ServiceSupabase = NonNullable<ReturnType<typeof createServiceClient>>;
 
-/** Subscription statuses that mean the user has lost the paid tier. */
-const DOWNGRADE_STATUSES = new Set(["canceled", "unpaid", "incomplete_expired"]);
+/** Terminal subscription statuses that mean the user has permanently lost the paid tier. */
+const DOWNGRADE_STATUSES = new Set(["canceled", "incomplete_expired"]);
 
 function customerIdOf(customer: string | Stripe.Customer | Stripe.DeletedCustomer | null | undefined): string | null {
   if (typeof customer === "string") return customer;

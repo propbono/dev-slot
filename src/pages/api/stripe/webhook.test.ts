@@ -165,6 +165,42 @@ describe("webhook.ts (Stripe webhook handler)", () => {
     expect(supabase.eq).toHaveBeenCalledWith("stripe_subscription_id", "sub_123");
   });
 
+  it("reverts to the free tier when a subscription is incomplete_expired", async () => {
+    const supabase = makeServiceSupabase();
+    vi.mocked(createServiceClient).mockReturnValue(supabase as never);
+    mockVerifyWebhook.mockReturnValue({
+      ok: true,
+      event: {
+        type: "customer.subscription.updated",
+        data: { object: { id: "sub_123", customer: "cus_123", status: "incomplete_expired" } },
+      },
+    });
+
+    await POST(makeContext("t=1,v1=good", "{}") as never);
+
+    expect(supabase.update).toHaveBeenCalledWith({ role: "user", stripe_subscription_id: null });
+    expect(supabase.eq).toHaveBeenCalledWith("stripe_subscription_id", "sub_123");
+  });
+
+  it("leaves the tier unchanged on a recoverable unpaid update", async () => {
+    const supabase = makeServiceSupabase();
+    vi.mocked(createServiceClient).mockReturnValue(supabase as never);
+    mockVerifyWebhook.mockReturnValue({
+      ok: true,
+      event: {
+        type: "customer.subscription.updated",
+        data: { object: { id: "sub_123", customer: "cus_123", status: "unpaid" } },
+      },
+    });
+
+    const res = await POST(makeContext("t=1,v1=good", "{}") as never);
+
+    expect(res.status).toBe(200);
+    expect(supabase.update).not.toHaveBeenCalled();
+    expect(supabase.upsert).not.toHaveBeenCalled();
+  });
+
+
   it("propagates a plan change from subscription metadata on update", async () => {
     const supabase = makeServiceSupabase();
     vi.mocked(createServiceClient).mockReturnValue(supabase as never);
