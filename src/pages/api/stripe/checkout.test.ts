@@ -20,8 +20,8 @@ vi.mock("stripe", () => ({
 import { POST } from "./checkout";
 import { createClient } from "@/lib/supabase";
 
-function makeSupabase(user: { id: string; email?: string } | null, roleRow: unknown = null) {
-  const single = vi.fn().mockResolvedValue({ data: roleRow, error: null });
+function makeSupabase(user: { id: string; email?: string } | null, roleRow: unknown = null, roleError: unknown = null) {
+  const single = vi.fn().mockResolvedValue({ data: roleRow, error: roleError });
   const eq = vi.fn().mockReturnValue({ single });
   const select = vi.fn().mockReturnValue({ eq });
   const from = vi.fn().mockReturnValue({ select });
@@ -31,8 +31,8 @@ function makeSupabase(user: { id: string; email?: string } | null, roleRow: unkn
   };
 }
 
-function mockSupabaseUser(user: { id: string; email?: string } | null, roleRow: unknown = null) {
-  vi.mocked(createClient).mockReturnValue(makeSupabase(user, roleRow) as never);
+function mockSupabaseUser(user: { id: string; email?: string } | null, roleRow: unknown = null, roleError: unknown = null) {
+  vi.mocked(createClient).mockReturnValue(makeSupabase(user, roleRow, roleError) as never);
 }
 
 function makeContext(body: unknown) {
@@ -179,5 +179,25 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
 
     expect(res.status).toBe(502);
     await expect(res.json()).resolves.toEqual({ error: "checkout_error" });
+  });
+
+  it("returns a 503 when the user_roles read fails instead of treating it as no subscription", async () => {
+    mockSupabaseUser({ id: "user-1", email: "a@b.com" }, null, { code: "connection_error" });
+
+    const res = await POST(makeContext({ tier: "pro" }) as never);
+
+    expect(res.status).toBe(503);
+    await expect(res.json()).resolves.toEqual({ error: "subscription_error" });
+    expect(mockSessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("treats a missing user_roles row (PGRST116) as no subscription", async () => {
+    mockSupabaseUser({ id: "user-1", email: "a@b.com" }, null, { code: "PGRST116" });
+    mockSessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.com/c/pay/test_pro" });
+
+    const res = await POST(makeContext({ tier: "pro" }) as never);
+
+    expect(res.status).toBe(200);
+    expect(mockSessionsCreate).toHaveBeenCalled();
   });
 });

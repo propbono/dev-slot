@@ -33,11 +33,15 @@ export const POST: APIRoute = async (context) => {
   const plan = PLANS[tier];
   const origin = context.url.origin;
 
-  const { data: roleRow } = await supabase
+  const { data: roleRow, error: roleError } = await supabase
     .from("user_roles")
     .select("stripe_subscription_id")
     .eq("user_id", user.id)
     .single();
+
+  if (roleError && roleError.code !== "PGRST116") {
+    return Response.json({ error: "subscription_error" }, { status: 503 });
+  }
 
   const existingSubscriptionId = (roleRow?.stripe_subscription_id as string | undefined | null) ?? null;
 
