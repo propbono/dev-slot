@@ -231,7 +231,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** S-09
 - **Blockers:** —
 - **Unknowns:**
-  - Stripe product/price IDs — need to be created in Stripe dashboard before implementation — Owner: user. Block: yes.
+  - Stripe product/price IDs — resolved: checkout uses inline `price_data` (no pre-created products/prices needed); stable Price IDs (`STRIPE_PRICE_ID_PRO`/`STRIPE_PRICE_ID_UNLIMITED`) are only required for plan changes via `subscriptions.update`.
 - **Risk:** Stripe webhook must be secured with signature verification to prevent spoofed events.
 - **Status:** proposed
 
@@ -270,7 +270,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 1. **Summary prompt engineering for multi-turn conversations** — Owner: user. Block: S-06. How to synthesize a full conversation into strengths and improvement areas via a single LLM call.
 2. **"Substantively different" challenge heuristic** — Owner: user. Block: S-07. How to ensure new challenges from the same stack don't feel repetitive.
-3. **Stripe product/price IDs** — Owner: user. Block: S-10. Free, Pro, and Unlimited products and prices must be created in Stripe dashboard before implementation.
+3. **Stripe product/price IDs** — Resolved: first-time checkout uses inline `price_data`; stable Price IDs (`STRIPE_PRICE_ID_PRO`/`STRIPE_PRICE_ID_UNLIMITED`) are only needed for plan changes via `subscriptions.update`, not initial checkout.
 
 ## Parked
 

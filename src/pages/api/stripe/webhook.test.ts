@@ -200,7 +200,6 @@ describe("webhook.ts (Stripe webhook handler)", () => {
     expect(supabase.upsert).not.toHaveBeenCalled();
   });
 
-
   it("propagates a plan change from subscription metadata on update", async () => {
     const supabase = makeServiceSupabase();
     vi.mocked(createServiceClient).mockReturnValue(supabase as never);

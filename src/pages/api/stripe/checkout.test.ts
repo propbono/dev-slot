@@ -31,7 +31,11 @@ function makeSupabase(user: { id: string; email?: string } | null, roleRow: unkn
   };
 }
 
-function mockSupabaseUser(user: { id: string; email?: string } | null, roleRow: unknown = null, roleError: unknown = null) {
+function mockSupabaseUser(
+  user: { id: string; email?: string } | null,
+  roleRow: unknown = null,
+  roleError: unknown = null,
+) {
   vi.mocked(createClient).mockReturnValue(makeSupabase(user, roleRow, roleError) as never);
 }
 
