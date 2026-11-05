@@ -27,21 +27,38 @@ function getClient(): PostHog | null {
 }
 
 /**
+ * Whether server-side analytics is configured. Callers use this to skip
+ * analytics-only work (e.g. index `count` queries) when PostHog is unset.
+ */
+export function isPostHogEnabled(): boolean {
+  return Boolean(POSTHOG_API_KEY);
+}
+
+/**
  * Fire an event with the user's Supabase auth UUID as `distinctId`. `capture`
  * is fire-and-forget; call `flush()` before the route returns so Vercel
  * freezing the lambda does not drop the event.
  */
 export function captureEvent({ distinctId, event, properties }: AnalyticsEvent): void {
-  getClient()?.capture({ distinctId, event, properties });
+  try {
+    getClient()?.capture({ distinctId, event, properties });
+  } catch (err) {
+    console.error("PostHog capture failed:", err);
+  }
 }
 
 /**
  * Flush queued events. Must be awaited before each API route returns
- * (serverless may freeze immediately after the response). No-op when unset.
+ * (serverless may freeze immediately after the response). No-op when unset,
+ * and never throws so analytics failures cannot break the user flow.
  */
 export async function flush(): Promise<void> {
-  const c = getClient();
-  if (c) {
-    await c.flush();
+  try {
+    const c = getClient();
+    if (c) {
+      await c.flush();
+    }
+  } catch (err) {
+    console.error("PostHog flush failed:", err);
   }
 }

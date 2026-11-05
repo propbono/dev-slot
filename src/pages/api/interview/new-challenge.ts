@@ -14,7 +14,7 @@ import { createClient } from "@/lib/supabase";
 import { generateChallenge, type JDConstraints } from "@/lib/ai";
 import { checkChallengeLimit } from "@/lib/tiers";
 import { guardAiCall } from "@/lib/ai-guard";
-import { captureEvent, flush } from "@/lib/posthog";
+import { captureEvent, flush, isPostHogEnabled } from "@/lib/posthog";
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -136,10 +136,14 @@ export const POST: APIRoute = async (context) => {
 
     // The new challenge is the session's latest row, so its 1-based index
     // equals the session's total challenge count.
-    const { count } = await supabase
-      .from("challenges")
-      .select("*", { count: "exact", head: true })
-      .eq("session_id", sessionId);
+    let challengeIndex = 0;
+    if (isPostHogEnabled()) {
+      const { count } = await supabase
+        .from("challenges")
+        .select("*", { count: "exact", head: true })
+        .eq("session_id", sessionId);
+      challengeIndex = count ?? 0;
+    }
 
     captureEvent({
       distinctId: user.id,
@@ -148,7 +152,7 @@ export const POST: APIRoute = async (context) => {
         mode,
         role_level: constraints.role_level,
         domain: constraints.domain,
-        challenge_index: count ?? 0,
+        challenge_index: challengeIndex,
         generation_ms: generationMs,
       },
     });

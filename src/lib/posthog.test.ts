@@ -50,6 +50,31 @@ describe("posthog server helper", () => {
     expect(node.flush).not.toHaveBeenCalled();
   });
 
+  it("reports whether analytics is enabled", async () => {
+    const disabled = await loadHelper("");
+    const enabled = await loadHelper("phc_test_key");
+
+    expect(disabled.isPostHogEnabled()).toBe(false);
+    expect(enabled.isPostHogEnabled()).toBe(true);
+  });
+
+  it("swallows capture failures so analytics cannot break the user flow", async () => {
+    const { captureEvent } = await loadHelper("phc_test_key");
+    node.capture.mockImplementationOnce(() => {
+      throw new Error("boom");
+    });
+
+    expect(() => captureEvent({ distinctId: "u1", event: "sign_up", properties: {} })).not.toThrow();
+  });
+
+  it("swallows flush failures so analytics cannot break the user flow", async () => {
+    const { captureEvent, flush } = await loadHelper("phc_test_key");
+    node.flush.mockRejectedValueOnce(new Error("network down"));
+
+    captureEvent({ distinctId: "u1", event: "sign_up", properties: {} });
+    await expect(flush()).resolves.toBeUndefined();
+  });
+
   it("constructs the client with the host and flushes captured events", async () => {
     const { captureEvent, flush } = await loadHelper("phc_test_key");
 
