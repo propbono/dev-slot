@@ -1,0 +1,28 @@
+---
+type Props = {
+  class?: string;
+};
+
+const { class: className } = Astro.props;
+---
+
+<a href="/" class:list={["group inline-flex items-center gap-2.5", className]} aria-label="Archdrill — home">
+  <span
+    class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-600 shadow-lg ring-1 shadow-purple-950/40 ring-white/20"
+  >
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" aria-hidden="true">
+      <path d="M8 24 16 7l8 17" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      <path
+        d="m12.75 17.5 3.25 4 3.25-4"
+        stroke="white"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.9"></path>
+    </svg>
+  </span>
+  <span class="text-lg font-semibold tracking-tight">
+    <span class="text-white">Arch</span>
+    <span class="bg-gradient-to-r from-purple-300 to-fuchsia-300 bg-clip-text text-transparent">drill</span>
+  </span>
+</a>
