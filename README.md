@@ -1,4 +1,4 @@
-# DevSlot — AI-Powered Interview Practice
+# Archdrill — AI-Powered Interview Practice
 
 Ace your architecture interview with adaptive AI challenges tailored to your target job description.
 
