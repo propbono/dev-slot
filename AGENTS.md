@@ -51,6 +51,7 @@ Pre-commit: husky + lint-staged auto-runs ESLint on `*.{ts,tsx,astro}` and Prett
 - Node.js v22.14.0 (`.nvmrc`)
 - Use `.env.local` for local dev (gitignored). Astro reads from `.env.local` automatically.
 - Required: `SUPABASE_URL`, `SUPABASE_KEY`, `DEEPSEEK_API_KEY` (server-only, declared in `astro.config.mjs` `env.schema`).
+- Optional: `DEEPSEEK_MODEL` (default `deepseek-flash`) — overrides the model id in `src/lib/ai.ts`.
 - Optional AI protection knobs (defaults baked in): `AI_RATE_LIMIT_WINDOW_SECONDS`, `AI_RATE_LIMIT_PER_USER`, `AI_RATE_LIMIT_PER_IP`, `AI_GLOBAL_RATE_LIMIT_PER_WINDOW`, `AI_DAILY_CALL_LIMIT`, `AI_MONTHLY_CALL_LIMIT`.
 - Vercel environment variables: managed via `vercel env add` or dashboard.
 
@@ -64,7 +65,7 @@ Cookie-based sessions via `@supabase/ssr`. Middleware (`src/middleware.ts`) reso
 
 ## AI / LLM
 
-DeepSeek V4 via `@ai-sdk/deepseek` and Vercel AI SDK (`ai` v7). AI service module at `src/lib/ai.ts`. Functions: `extractConstraints()`, `generateChallenge()`, `evaluateAnswer()`. Use `generateText()` for non-streaming; polling pattern for async generation.
+DeepSeek V4 via `@ai-sdk/deepseek` and Vercel AI SDK (`ai` v7). AI service module at `src/lib/ai.ts`. Functions: `extractConstraints()`, `generateChallenge()`, `evaluateAnswer()`, `generateSummary()`. Model id is configurable via `DEEPSEEK_MODEL` (default `deepseek-flash`); thinking is disabled for JSON prompts (`providerOptions.deepseek.thinking.type = "disabled"`), so don't drop that when editing. Use `generateText()` for non-streaming; polling pattern for async generation.
 
 **All model calls flow through `src/lib/ai.ts`** — keep it that way so BYOK can be added later. Abuse/spend protection lives in `src/lib/ai-guard.ts`: every AI-calling route must `guardAiCall()` before each model call (per-user sliding-window rate limit, per-user daily/monthly spend ceilings, per-IP + global best-effort in-memory limiters, and an audit row in `ai_usage_log`). Limits are env-configurable (`AI_RATE_LIMIT_*`, `AI_GLOBAL_RATE_LIMIT_PER_WINDOW`, `AI_DAILY_CALL_LIMIT`, `AI_MONTHLY_CALL_LIMIT`; see `astro.config.mjs` `env.schema` for defaults).
 

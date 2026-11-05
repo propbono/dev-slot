@@ -20,6 +20,7 @@ export default defineConfig({
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),
       SUPABASE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
       DEEPSEEK_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      DEEPSEEK_MODEL: envField.string({ context: "server", access: "secret", default: "deepseek-flash" }),
       // AI abuse/spend protection. Server-side knobs with sensible defaults;
       // override via Vercel env vars to tune for real traffic.
       AI_RATE_LIMIT_WINDOW_SECONDS: envField.number({ context: "server", access: "secret", default: 60 }),
