@@ -64,7 +64,9 @@ describe("posthog server helper", () => {
       throw new Error("boom");
     });
 
-    expect(() => captureEvent({ distinctId: "u1", event: "sign_up", properties: {} })).not.toThrow();
+    expect(() => {
+      captureEvent({ distinctId: "u1", event: "sign_up", properties: {} });
+    }).not.toThrow();
   });
 
   it("swallows flush failures so analytics cannot break the user flow", async () => {
