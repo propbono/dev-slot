@@ -6,7 +6,7 @@ import { getPriceId, getStripe, isPlanTier, PLANS } from "@/lib/stripe";
 export const prerender = false;
 
 /** Statuses for which a stored subscription is still billed and changeable. */
-const CHANGEABLE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due", "incomplete"]);
+const CHANGEABLE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due", "unpaid", "paused", "incomplete"]);
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
