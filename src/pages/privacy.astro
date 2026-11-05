@@ -1,0 +1,128 @@
+---
+import LegalPage from "@/components/legal/LegalPage.astro";
+
+// TODO(lawyer): Review before launch — retention wording, international data
+// transfers, and the DeepSeek sub-processor disclosure should be confirmed
+// against the actual vendor terms (DPAs/privacy policies). This draft is written
+// for PIPEDA (Canada) with GDPR-awareness and does not claim GDPR/CCPA compliance.
+---
+
+<LegalPage title="Privacy Policy" lastUpdated="November 5, 2026">
+  <p>
+    Archdrill (“we”, “us”, “our”) is operated by <strong>Gabeyre Global Inc</strong>, a company based in Ontario,
+    Canada. This Privacy Policy explains what personal information we collect, how we use it, and the choices you have.
+    You can reach us at <a href="mailto:support@archdrill.com">support@archdrill.com</a>.
+  </p>
+
+  <h2>Information we collect</h2>
+
+  <h3>Account information</h3>
+  <p>
+    When you create an account, we collect your email address and a password. Passwords are stored in hashed form by our
+    authentication provider and are never visible to us in plain text.
+  </p>
+
+  <h3>Interview content</h3>
+  <p>
+    To provide the service, we store the job descriptions you paste, the AI-generated challenges and feedback, and your
+    written answers (together, your interview “transcripts”). This content is stored in our database, which is hosted by
+    Supabase.
+  </p>
+
+  <h3>Usage and log data</h3>
+  <p>
+    When you use AI features, our servers record each AI model call in an internal usage log (<code>ai_usage_log</code
+    >). Each record includes your account ID, the operation performed, the time, and your IP address. We use this solely
+    to enforce rate limits and to protect the service against abuse and excessive spend.
+  </p>
+
+  <h3>Analytics</h3>
+  <p>
+    We use PostHog for product analytics. PostHog is configured to run <strong>without cookies</strong> and processes data
+    in the United States. It helps us understand how the product is used in aggregate. See our{" "}
+    <a href="/cookies">Cookie Notice</a> for details and how to opt out.
+  </p>
+
+  <h3>Payment information</h3>
+  <p>
+    If you purchase a paid plan, payment processing is handled by Stripe. Stripe collects and processes your payment
+    details directly; we do not store your full card number. At the time of writing, paid plans are not yet live — this
+    section applies once payments are enabled.
+  </p>
+
+  <h2>How we use your information</h2>
+  <ul>
+    <li>To create and manage your account and to authenticate you.</li>
+    <li>To provide the core service: generating interview challenges, evaluating answers, and producing summaries.</li>
+    <li>To protect the service against abuse, fraud, and excessive use.</li>
+    <li>To understand and improve the product through aggregate analytics.</li>
+    <li>To process payments, when applicable.</li>
+    <li>To respond to your support requests.</li>
+  </ul>
+
+  <h2>AI processing (DeepSeek)</h2>
+  <p>
+    Our AI features are powered by DeepSeek. When you generate a challenge or receive feedback, the relevant content —
+    such as the job description you submitted, your answers, and the conversation so far — is transmitted to DeepSeek so
+    it can produce a response.
+  </p>
+  <p>
+    DeepSeek may store or otherwise process that input in accordance with its own privacy policy, which is outside our
+    control. By using the AI features, you acknowledge and consent to your inputs being sent to DeepSeek for processing.
+    Do not include information in a job description or answer that you are not comfortable sharing with a third-party AI
+    provider.
+  </p>
+
+  <h2>Service providers</h2>
+  <ul>
+    <li><strong>Supabase</strong> — authentication and database hosting.</li>
+    <li><strong>DeepSeek</strong> — AI model processing.</li>
+    <li><strong>PostHog</strong> — cookieless product analytics (United States).</li>
+    <li><strong>Stripe</strong> — payment processing (when payments are enabled).</li>
+  </ul>
+  <p>These providers may store and process data outside Canada, including in the United States.</p>
+
+  <h2>Cookies</h2>
+  <p>
+    We use strictly necessary session cookies to keep you signed in (managed by Supabase). We do not use advertising
+    cookies, and our analytics is cookieless. See our <a href="/cookies">Cookie Notice</a> for more detail.
+  </p>
+
+  <h2>How long we keep your information</h2>
+  <p>
+    We keep your account information and interview content for as long as your account is active, and afterwards for as
+    long as needed to meet legal, accounting, and security obligations. You can request deletion of your account and its
+    associated content by contacting us.
+  </p>
+
+  <h2>Your rights</h2>
+  <p>
+    Under Canadian privacy law (including PIPEDA where it applies), you generally have the right to access, correct, and
+    request deletion of your personal information, and to withdraw consent to its use. We aim to honour similar requests
+    from users in other jurisdictions, including GDPR-style requests where applicable.
+  </p>
+  <p>
+    To exercise any of these rights, email <a href="mailto:support@archdrill.com">support@archdrill.com</a> and we will respond
+    as required by law.
+  </p>
+
+  <h2>Children</h2>
+  <p>
+    Archdrill is not directed to children, and we do not knowingly collect personal information from children under 13.
+    If you believe a child has provided us personal information, please contact us and we will delete it.
+  </p>
+
+  <h2>Changes to this policy</h2>
+  <p>
+    We may update this policy from time to time. We will reflect material changes in the “Last updated” date and, where
+    required by law, notify you directly.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions about this policy or our data practices? Contact <strong>Gabeyre Global Inc</strong>, Ontario, Canada, at{
+      " "
+    }
+    <a href="mailto:support@archdrill.com">support@archdrill.com</a>.
+  </p>
+</LegalPage>

@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import Banner from "@/components/Banner.astro";
+import Logo from "@/components/Logo.astro";
 import { missingConfigs } from "@/lib/config-status";
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
 };
 
 const { title = "Archdrill — AI Interview Practice" } = Astro.props;
+const year = new Date().getFullYear();
 ---
 
 <!doctype html>
@@ -41,6 +43,37 @@ const { title = "Archdrill — AI Interview Practice" } = Astro.props;
       ))
     }
     <slot />
+
+    <footer class="bg-cosmic border-t border-white/10">
+      <div class="mx-auto max-w-5xl px-6 py-10">
+        <div class="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <Logo />
+            <p class="mt-3 max-w-xs text-sm text-blue-100/50">
+              AI-powered technical interview practice. Operated by Gabeyre Global Inc, Ontario, Canada.
+            </p>
+          </div>
+          <nav aria-label="Legal" class="grid grid-cols-2 gap-x-10 gap-y-2 text-sm sm:grid-cols-3">
+            <a href="/privacy" class="text-blue-100/60 transition-colors hover:text-purple-300">Privacy Policy</a>
+            <a href="/terms" class="text-blue-100/60 transition-colors hover:text-purple-300">Terms of Service</a>
+            <a href="/refund" class="text-blue-100/60 transition-colors hover:text-purple-300">Refund Policy</a>
+            <a href="/cookies" class="text-blue-100/60 transition-colors hover:text-purple-300">Cookie Notice</a>
+            <a href="/contact" class="text-blue-100/60 transition-colors hover:text-purple-300">Contact</a>
+            <a href="/accessibility" class="text-blue-100/60 transition-colors hover:text-purple-300">Accessibility</a>
+          </nav>
+        </div>
+        <div
+          class="mt-8 flex flex-col gap-1 border-t border-white/10 pt-6 text-xs text-blue-100/40 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p>© {year} Gabeyre Global Inc. All rights reserved.</p>
+          <p>
+            <a href="mailto:support@archdrill.com" class="transition-colors hover:text-purple-300">
+              support@archdrill.com
+            </a>
+          </p>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
 
