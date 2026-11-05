@@ -30,6 +30,15 @@ async function updateRoleBySubscription(
   return !error;
 }
 
+async function downgradeToUser(supabase: ServiceSupabase, subscriptionId: string | null): Promise<boolean> {
+  if (!subscriptionId) return true;
+  const { error } = await supabase
+    .from("user_roles")
+    .update({ role: "user", stripe_subscription_id: null })
+    .eq("stripe_subscription_id", subscriptionId);
+  return !error;
+}
+
 export const POST: APIRoute = async (context) => {
   const signature = context.request.headers.get("stripe-signature");
   const payload = await context.request.text();
@@ -55,7 +64,7 @@ export const POST: APIRoute = async (context) => {
       const customerId = customerIdOf(session.customer);
       const subscriptionId = subscriptionIdOf(session.subscription);
       const tier = session.metadata?.tier;
-      if (!userId || !customerId || !isPlanTier(tier)) break;
+      if (!userId || !customerId || !subscriptionId || !isPlanTier(tier)) break;
 
       const { error } = await supabase
         .from("user_roles")
@@ -67,14 +76,14 @@ export const POST: APIRoute = async (context) => {
       break;
     }
     case "customer.subscription.deleted": {
-      const ok = await updateRoleBySubscription(supabase, event.data.object.id, "user");
+      const ok = await downgradeToUser(supabase, event.data.object.id);
       if (!ok) return Response.json({ error: "db_error" }, { status: 500 });
       break;
     }
     case "customer.subscription.updated": {
       const subscription = event.data.object;
       if (DOWNGRADE_STATUSES.has(subscription.status)) {
-        const ok = await updateRoleBySubscription(supabase, subscription.id, "user");
+        const ok = await downgradeToUser(supabase, subscription.id);
         if (!ok) return Response.json({ error: "db_error" }, { status: 500 });
         break;
       }

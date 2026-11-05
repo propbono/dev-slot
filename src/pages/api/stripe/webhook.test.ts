@@ -80,6 +80,31 @@ describe("webhook.ts (Stripe webhook handler)", () => {
     );
   });
 
+  it("ignores checkout completion when the subscription id is missing", async () => {
+    const supabase = makeServiceSupabase();
+    vi.mocked(createServiceClient).mockReturnValue(supabase as never);
+    mockVerifyWebhook.mockReturnValue({
+      ok: true,
+      event: {
+        type: "checkout.session.completed",
+        data: {
+          object: {
+            mode: "subscription",
+            client_reference_id: "user-1",
+            customer: "cus_123",
+            subscription: null,
+            metadata: { tier: "pro" },
+          },
+        },
+      },
+    });
+
+    const res = await POST(makeContext("t=1,v1=good", "{}") as never);
+
+    expect(res.status).toBe(200);
+    expect(supabase.upsert).not.toHaveBeenCalled();
+  });
+
   it("returns 500 when the role upsert fails so Stripe retries", async () => {
     const supabase = makeServiceSupabase({ upsertError: new Error("db down") });
     vi.mocked(createServiceClient).mockReturnValue(supabase as never);
@@ -119,7 +144,7 @@ describe("webhook.ts (Stripe webhook handler)", () => {
     const res = await POST(makeContext("t=1,v1=good", "{}") as never);
 
     expect(res.status).toBe(200);
-    expect(supabase.update).toHaveBeenCalledWith({ role: "user" });
+    expect(supabase.update).toHaveBeenCalledWith({ role: "user", stripe_subscription_id: null });
     expect(supabase.eq).toHaveBeenCalledWith("stripe_subscription_id", "sub_123");
   });
 
@@ -136,7 +161,7 @@ describe("webhook.ts (Stripe webhook handler)", () => {
 
     await POST(makeContext("t=1,v1=good", "{}") as never);
 
-    expect(supabase.update).toHaveBeenCalledWith({ role: "user" });
+    expect(supabase.update).toHaveBeenCalledWith({ role: "user", stripe_subscription_id: null });
     expect(supabase.eq).toHaveBeenCalledWith("stripe_subscription_id", "sub_123");
   });
 

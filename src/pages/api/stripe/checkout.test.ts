@@ -147,4 +147,37 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     expect(mockSubscriptionsUpdate).not.toHaveBeenCalled();
     expect(mockSessionsCreate).toHaveBeenCalled();
   });
+
+  it("returns a clean error when retrieving the stored subscription fails", async () => {
+    mockSupabaseUser({ id: "user-1", email: "a@b.com" }, { stripe_subscription_id: "sub_stale" });
+    mockSubscriptionsRetrieve.mockRejectedValue(new Error("resource_missing"));
+
+    const res = await POST(makeContext({ tier: "pro" }) as never);
+
+    expect(res.status).toBe(502);
+    await expect(res.json()).resolves.toEqual({ error: "subscription_error" });
+    expect(mockSessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("returns a clean error when the plan change update fails", async () => {
+    mockSupabaseUser({ id: "user-1", email: "a@b.com" }, { stripe_subscription_id: "sub_123" });
+    mockSubscriptionsRetrieve.mockResolvedValue({ status: "active", items: { data: [{ id: "si_123" }] } });
+    mockSubscriptionsUpdate.mockRejectedValue(new Error("network"));
+
+    const res = await POST(makeContext({ tier: "unlimited" }) as never);
+
+    expect(res.status).toBe(502);
+    await expect(res.json()).resolves.toEqual({ error: "subscription_error" });
+    expect(mockSessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("returns a clean error when Checkout Session creation fails", async () => {
+    mockSupabaseUser({ id: "user-1", email: "a@b.com" });
+    mockSessionsCreate.mockRejectedValue(new Error("network"));
+
+    const res = await POST(makeContext({ tier: "pro" }) as never);
+
+    expect(res.status).toBe(502);
+    await expect(res.json()).resolves.toEqual({ error: "checkout_error" });
+  });
 });
