@@ -54,6 +54,7 @@ Pre-commit: husky + lint-staged auto-runs ESLint on `*.{ts,tsx,astro}` and Prett
 - Optional: `DEEPSEEK_MODEL` (default `deepseek-flash`) — overrides the model id in `src/lib/ai.ts`.
 - Optional AI protection knobs (defaults baked in): `AI_RATE_LIMIT_WINDOW_SECONDS`, `AI_RATE_LIMIT_PER_USER`, `AI_RATE_LIMIT_PER_IP`, `AI_GLOBAL_RATE_LIMIT_PER_WINDOW`, `AI_DAILY_CALL_LIMIT`, `AI_MONTHLY_CALL_LIMIT`.
 - Optional PostHog analytics (all `optional: true`; unset = silent no-op): `POSTHOG_KEY` + `POSTHOG_HOST` (client/public), `POSTHOG_API_KEY` + `POSTHOG_API_HOST` (server/secret). Hosts default to `https://us.i.posthog.com`.
+- Optional Stripe/service-role vars: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (see `## Payments / Stripe`).
 - Vercel environment variables: managed via `vercel env add` or dashboard.
 
 ## CI
@@ -69,6 +70,15 @@ Cookie-based sessions via `@supabase/ssr`. Middleware (`src/middleware.ts`) reso
 PostHog product analytics. Server events fire from API routes via `src/lib/posthog.ts` (`captureEvent()` + `await flush()` before each route returns; no-op when `POSTHOG_API_KEY` unset; `distinct_id` = Supabase `user.id`). Client snippet initializes once in `src/components/PostHog.astro` (rendered from `Layout.astro`) via `src/lib/posthog-client.ts`.
 
 Privacy posture (approved): cookieless (`cookieless_mode: "always"`), no consent banner, US cloud, no session recording, no autocapture. Never send email/JD/answer text, IP, or query strings as event properties. Billing events (`tier_upgrade`/`tier_downgrade`/`subscription_cancelled`) belong in the Stripe webhook (Phase 3, blocked on the Stripe branch).
+
+## Payments / Stripe
+
+Stripe test-mode subscriptions sell the `pro` ($10/mo) and `unlimited` ($15/mo) tiers. Usage limits live in `src/lib/tiers.ts`; price points live in `src/lib/stripe.ts`. No live keys committed.
+
+- **Checkout**: `POST /api/stripe/checkout` (authenticated) creates a Checkout Session with the user id in `client_reference_id` + `metadata.tier`, returns `{ url }` to redirect to. Wired from the upgrade modal in `src/components/interview/JDInput.tsx`.
+- **Webhook**: `POST /api/stripe/webhook` verifies `stripe-signature` via `Stripe.webhooks.constructEvent` **before any DB write** (no unauthenticated writes). `checkout.session.completed` upserts `user_roles.role` to the tier and stores `stripe_customer_id`; `customer.subscription.deleted`/`updated` (canceled/unpaid/incomplete_expired) reverts `role` to `user`.
+- **Privileged write**: the webhook has no user session, so it writes `user_roles` via `createServiceClient()` in `src/lib/supabase.ts`, which uses `SUPABASE_SERVICE_ROLE_KEY` to bypass RLS. Keep that key server-only (webhook/backfill paths only).
+- **Env** (all optional, in `astro.config.mjs` `env.schema`): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (server); `STRIPE_PUBLISHABLE_KEY` (client); `SUPABASE_SERVICE_ROLE_KEY` (server).
 
 ## AI / LLM
 
