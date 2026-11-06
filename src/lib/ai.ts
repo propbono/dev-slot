@@ -133,7 +133,11 @@ Then generate ONE follow-up question:\n- If strong: escalate into an adversarial
       .replace(/^```(?:json)?\s*/i, "")
       .replace(/```\s*$/, "")
       .trim();
-    return JSON.parse(cleaned) as EvaluationResult;
+    try {
+      return JSON.parse(cleaned) as EvaluationResult;
+    } catch {
+      throw new Error("Failed to parse evaluation JSON response");
+    }
   });
 }
 
@@ -159,6 +163,10 @@ export async function generateSummary(constraints: JDConstraints, conversation: 
       .replace(/^```(?:json)?\s*/i, "")
       .replace(/```\s*$/, "")
       .trim();
-    return JSON.parse(cleaned) as ChallengeSummary;
+    try {
+      return JSON.parse(cleaned) as ChallengeSummary;
+    } catch {
+      throw new Error("Failed to parse summary JSON response");
+    }
   });
 }
