@@ -22,9 +22,8 @@ import { createClient } from "@/lib/supabase";
 
 type ClaimConfig = {
   insertError?: unknown;
-  claimedAt?: string | null;
-  readError?: unknown;
-  retryInsertError?: unknown;
+  reclaimData?: unknown[] | null;
+  reclaimError?: unknown;
 };
 
 function makeSupabase(
@@ -37,22 +36,21 @@ function makeSupabase(
   const eq = vi.fn().mockReturnValue({ single });
   const select = vi.fn().mockReturnValue({ eq });
 
-  const insert = vi
-    .fn()
-    .mockResolvedValueOnce({ error: claim.insertError ?? null })
-    .mockResolvedValue({ error: claim.retryInsertError ?? null });
-  const claimSingle = vi.fn().mockResolvedValue({
-    data: claim.claimedAt == null ? null : { claimed_at: claim.claimedAt },
-    error: claim.readError ?? null,
-  });
-  const claimEq = vi.fn().mockReturnValue({ single: claimSingle });
-  const claimSelect = vi.fn().mockReturnValue({ eq: claimEq });
+  const insert = vi.fn().mockResolvedValue({ error: claim.insertError ?? null });
   const deleteEq = vi.fn().mockResolvedValue({ error: null });
   const del = vi.fn().mockReturnValue({ eq: deleteEq });
 
+  const claimUpdateSelect = vi.fn().mockResolvedValue({
+    data: claim.reclaimData ?? null,
+    error: claim.reclaimError ?? null,
+  });
+  const claimLt = vi.fn().mockReturnValue({ select: claimUpdateSelect });
+  const claimUpdateEq = vi.fn().mockReturnValue({ lt: claimLt });
+  const claimUpdate = vi.fn().mockReturnValue({ eq: claimUpdateEq });
+
   const from = vi.fn((table: string) => {
     if (table === "checkout_inflight") {
-      return { insert, delete: del, select: claimSelect };
+      return { insert, delete: del, update: claimUpdate };
     }
     return { select };
   });
@@ -62,7 +60,9 @@ function makeSupabase(
     from,
     insert,
     delete: del,
-    claimSingle,
+    claimUpdate,
+    claimUpdateEq,
+    claimLt,
   };
 }
 
@@ -279,7 +279,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
       { id: "user-1", email: "a@b.com" },
       null,
       { code: "PGRST116" },
-      { insertError: { code: "23505" }, claimedAt: new Date().toISOString() },
+      { insertError: { code: "23505" }, reclaimData: [] },
     );
 
     const res = await POST(makeContext({ tier: "unlimited" }) as never);
@@ -294,7 +294,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
       { id: "user-1", email: "a@b.com" },
       null,
       { code: "PGRST116" },
-      { insertError: { code: "23505" }, claimedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString() },
+      { insertError: { code: "23505" }, reclaimData: [{ user_id: "user-1" }] },
     );
     mockSessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.com/c/pay/test_pro" });
 
@@ -302,6 +302,26 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
 
     expect(res.status).toBe(200);
     expect(mockSessionsCreate).toHaveBeenCalled();
+  });
+
+  it("fails closed when a stale claim was just reclaimed by a concurrent request", async () => {
+    const supabase = makeSupabase(
+      { id: "user-1", email: "a@b.com" },
+      null,
+      { code: "PGRST116" },
+      { insertError: { code: "23505" }, reclaimData: [] },
+    );
+    vi.mocked(createClient).mockReturnValue(supabase as never);
+
+    const res = await POST(makeContext({ tier: "pro" }) as never);
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({ error: "checkout_in_flight" });
+    expect(mockSessionsCreate).not.toHaveBeenCalled();
+    expect(supabase.delete).not.toHaveBeenCalled();
+    expect(supabase.claimUpdate).toHaveBeenCalledWith({ tier: "pro", claimed_at: expect.any(String) });
+    expect(supabase.claimUpdateEq).toHaveBeenCalledWith("user_id", "user-1");
+    expect(supabase.claimLt).toHaveBeenCalledWith("claimed_at", expect.any(String));
   });
 
   it("returns 503 when the checkout claim insert fails for a non-conflict reason", async () => {

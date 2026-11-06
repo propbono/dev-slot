@@ -33,28 +33,17 @@ async function claimCheckout(supabase: Supabase, userId: string, tier: PlanTier)
   if (!insertError) return "claimed";
   if (insertError.code !== "23505") return "error";
 
-  const { data, error: readError } = await supabase
+  const staleIso = new Date(Date.now() - CHECKOUT_CLAIM_STALE_MS).toISOString();
+  const { data, error: reclaimError } = await supabase
     .from("checkout_inflight")
-    .select("claimed_at")
+    .update({ tier, claimed_at: new Date().toISOString() })
     .eq("user_id", userId)
-    .single();
+    .lt("claimed_at", staleIso)
+    .select("user_id");
 
-  if (readError && readError.code !== "PGRST116") return "error";
+  if (reclaimError) return "error";
 
-  if (data) {
-    const claimedAt = Date.parse(String(data.claimed_at));
-    const stale = !Number.isFinite(claimedAt) || Date.now() - claimedAt > CHECKOUT_CLAIM_STALE_MS;
-    if (!stale) return "in_flight";
-  }
-
-  await releaseCheckoutClaim(supabase, userId);
-  const { error: retryError } = await supabase
-    .from("checkout_inflight")
-    .insert({ user_id: userId, tier });
-
-  if (!retryError) return "claimed";
-  if (retryError.code === "23505") return "in_flight";
-  return "error";
+  return Array.isArray(data) && data.length === 1 ? "claimed" : "in_flight";
 }
 
 export const POST: APIRoute = async (context) => {

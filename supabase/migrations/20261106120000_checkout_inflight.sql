@@ -24,3 +24,7 @@ CREATE POLICY "Users can claim own checkout" ON checkout_inflight
 DROP POLICY IF EXISTS "Users can release own checkout claim" ON checkout_inflight;
 CREATE POLICY "Users can release own checkout claim" ON checkout_inflight
   FOR DELETE TO authenticated USING (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "Users can reclaim own checkout claim" ON checkout_inflight;
+CREATE POLICY "Users can reclaim own checkout claim" ON checkout_inflight
+  FOR UPDATE TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
