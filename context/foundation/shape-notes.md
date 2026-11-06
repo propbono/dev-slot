@@ -285,11 +285,11 @@ DevSlot has a flat user model (no roles), auth via Supabase, and no payment inte
 
 ### Subscription Tiers
 
-| Tier      | Price  | Interviews/mo | Max turns/challenge | Max challenges | History retention |
-| --------- | ------ | ------------- | ------------------- | -------------- | ----------------- |
-| Free      | $0     | 1             | 3                   | 1              | 7 days            |
-| Pro       | $10/mo | 5             | Unlimited           | 5              | Forever           |
-| Unlimited | $15/mo | Unlimited     | Unlimited           | Unlimited      | Forever           |
+| Tier      | Price    | Interviews/mo | Max turns/challenge | Max challenges | History retention |
+| --------- | -------- | ------------- | ------------------- | -------------- | ----------------- |
+| Free      | $0       | 1             | 3                   | 1              | 7 days            |
+| Pro       | CA$10/mo | 5             | Unlimited           | 5              | Forever           |
+| Unlimited | CA$15/mo | Unlimited     | Unlimited           | Unlimited      | Forever           |
 
 ### What changes
 

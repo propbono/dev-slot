@@ -74,10 +74,7 @@ export const POST: APIRoute = async (context) => {
         );
       if (error) return Response.json({ error: "db_error" }, { status: 500 });
 
-      const { error: claimError } = await supabase
-        .from("checkout_inflight")
-        .delete()
-        .eq("user_id", userId);
+      const { error: claimError } = await supabase.from("checkout_inflight").delete().eq("user_id", userId);
       if (claimError) return Response.json({ error: "db_error" }, { status: 500 });
       break;
     }

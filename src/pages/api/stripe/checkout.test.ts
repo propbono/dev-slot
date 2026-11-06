@@ -157,10 +157,9 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     expect(args.line_items[0].price_data.unit_amount).toBe(1500);
     expect(args.line_items[0].price_data.product_data.name).toBe("Archdrill Unlimited");
     expect(args.metadata.tier).toBe("unlimited");
-    expect(mockSessionsCreate).toHaveBeenCalledWith(
-      expect.anything(),
-      { idempotencyKey: expect.stringMatching(/^user-1:[0-9a-f-]{36}$/) },
-    );
+    expect(mockSessionsCreate).toHaveBeenCalledWith(expect.anything(), {
+      idempotencyKey: expect.stringMatching(/^user-1:[0-9a-f-]{36}$/),
+    });
   });
 
   it("keys Stripe idempotency per user with a per-attempt nonce so tiers never collide", async () => {

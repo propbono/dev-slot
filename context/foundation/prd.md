@@ -237,7 +237,7 @@ No open questions currently.
 
 - **Given** a signed-in free-tier user who has used their single interview for the month
 - **When** they try to start a new interview
-- **Then** they see an upgrade prompt showing Pro ($10/mo) and Unlimited ($15/mo) plans
+- **Then** they see an upgrade prompt showing Pro (CA$10/mo) and Unlimited (CA$15/mo) plans
 - **And** they can select a plan, enter payment via Stripe, and immediately continue
 
 #### Acceptance Criteria
@@ -265,8 +265,8 @@ No open questions currently.
 #### Subscription tiers
 
 - FR-029: User defaults to Free tier on signup (1 interview/mo, 3 turns, 1 challenge, 7-day history). Priority: must-have
-- FR-030: Pro tier ($10/mo): 5 interviews/mo, unlimited turns, 5 challenges, forever history. Priority: must-have
-- FR-031: Unlimited tier ($15/mo): unlimited interviews, turns, challenges, forever history. Priority: must-have
+- FR-030: Pro tier (CA$10/mo): 5 interviews/mo, unlimited turns, 5 challenges, forever history. Priority: must-have
+- FR-031: Unlimited tier (CA$15/mo): unlimited interviews, turns, challenges, forever history. Priority: must-have
 
 #### Payment
 

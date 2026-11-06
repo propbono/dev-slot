@@ -26,9 +26,7 @@ async function releaseCheckoutClaim(supabase: Supabase, userId: string): Promise
  * requests (same or different tier) cannot create two Checkout Sessions.
  */
 async function claimCheckout(supabase: Supabase, userId: string, tier: PlanTier): Promise<ClaimResult> {
-  const { error: insertError } = await supabase
-    .from("checkout_inflight")
-    .insert({ user_id: userId, tier });
+  const { error: insertError } = await supabase.from("checkout_inflight").insert({ user_id: userId, tier });
 
   if (!insertError) return "claimed";
   if (insertError.code !== "23505") return "error";
