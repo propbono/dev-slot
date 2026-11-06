@@ -15,7 +15,7 @@ beforeEach(() => {
 });
 
 describe("stripe lib", () => {
-  it("locks the price points to $10 and $15", () => {
+  it("locks the price points to CA$10 and CA$15", () => {
     expect(PLANS.pro).toEqual({ name: "DevSlot Pro", unitAmount: 1000 });
     expect(PLANS.unlimited).toEqual({ name: "DevSlot Unlimited", unitAmount: 1500 });
   });

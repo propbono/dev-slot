@@ -10,7 +10,7 @@ export type PlanTier = "pro" | "unlimited";
 
 export type Plan = {
   name: string;
-  /** Price in USD cents. Locked by product spec: pro $10/mo, unlimited $15/mo. */
+  /** Price in CAD cents. Locked by product spec: pro CA$10/mo, unlimited CA$15/mo. */
   unitAmount: number;
 };
 
@@ -31,7 +31,7 @@ export function isPlanTier(value: unknown): value is PlanTier {
 /**
  * Stable Stripe Price ID used to change an existing subscription's plan. The
  * initial checkout uses inline `price_data`, but `subscriptions.update` cannot
- * reuse that, so it needs a Price ID created in the Stripe dashboard. Null when
+ * reuse that, so it needs a Price ID created in the Stripe dashboard (in CAD). Null when
  * not configured (which only blocks plan changes, never first-time checkout).
  */
 export function getPriceId(tier: PlanTier): string | null {

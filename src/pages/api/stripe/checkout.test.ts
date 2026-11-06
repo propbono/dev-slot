@@ -91,7 +91,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
         {
           quantity: 1,
           price_data: {
-            currency: "usd",
+            currency: "cad",
             unit_amount: 1000,
             recurring: { interval: "month" },
             product_data: { name: "DevSlot Pro" },
@@ -105,7 +105,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     });
   });
 
-  it("prices the unlimited tier at $15/mo", async () => {
+  it("prices the unlimited tier at CA$15/mo", async () => {
     mockSupabaseUser({ id: "user-1", email: "a@b.com" });
     mockSessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.com/c/pay/test_unlimited" });
 

@@ -84,7 +84,7 @@ export const POST: APIRoute = async (context) => {
         {
           quantity: 1,
           price_data: {
-            currency: "usd",
+            currency: "cad",
             unit_amount: plan.unitAmount,
             recurring: { interval: "month" },
             product_data: { name: plan.name },

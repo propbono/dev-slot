@@ -139,14 +139,14 @@ export default function JDInput({ error }: Props) {
               <div className="rounded-lg border border-white/10 p-3">
                 <div className="flex justify-between">
                   <span className="font-medium text-white">Pro</span>
-                  <span className="text-purple-300">$10/mo</span>
+                  <span className="text-purple-300">CA$10/mo</span>
                 </div>
                 <p className="text-xs text-blue-100/50">5 interviews/mo · Unlimited turns · 5 challenges</p>
               </div>
               <div className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-3">
                 <div className="flex justify-between">
                   <span className="font-medium text-white">Unlimited</span>
-                  <span className="text-purple-300">$15/mo</span>
+                  <span className="text-purple-300">CA$15/mo</span>
                 </div>
                 <p className="text-xs text-blue-100/50">Unlimited everything</p>
               </div>
@@ -160,7 +160,7 @@ export default function JDInput({ error }: Props) {
                 }}
                 className="w-full rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {checkoutTier === "pro" ? "Starting checkout..." : "Upgrade to Pro — $10/mo"}
+                {checkoutTier === "pro" ? "Starting checkout..." : "Upgrade to Pro — CA$10/mo"}
               </button>
               <button
                 type="button"
@@ -170,7 +170,7 @@ export default function JDInput({ error }: Props) {
                 }}
                 className="w-full rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {checkoutTier === "unlimited" ? "Starting checkout..." : "Upgrade to Unlimited — $15/mo"}
+                {checkoutTier === "unlimited" ? "Starting checkout..." : "Upgrade to Unlimited — CA$15/mo"}
               </button>
             </div>
             {checkoutError && <p className="mb-4 text-xs text-red-300">{checkoutError}</p>}
