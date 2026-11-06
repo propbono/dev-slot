@@ -10,7 +10,7 @@ Astro 6 SSR web app with React 19 islands, TypeScript, Tailwind CSS 4, Supabase 
 - Every new Supabase table must have RLS enabled with granular per-operation, per-role policies. Migrations in `supabase/migrations/` use the naming format `YYYYMMDDHHmmss_description.sql`.
 - Use `type` for type aliases, not `interface`. Reserve `interface` for declaration merging only (rare in application code).
 - **After every implementation phase, run the full verification suite before committing:** `npm run lint && npm run typecheck && npm test && npm run build`. All four must pass with zero errors. Fix any failures before proceeding.
-- **Every new feature or API route must have at least one co-located test file.** Test files use `*.test.ts` or `*.test.tsx` alongside the source. Mock external dependencies (Supabase, AI SDK).
+- **Every new feature or API route must have at least one test file.** Test files use `*.test.ts` or `*.test.tsx`. Never put a test under `src/pages/` — it compiles to a live route; keep API-route tests outside `src/pages/` (e.g. `src/lib/__tests__/`). Mock external dependencies (Supabase, AI SDK).
 
 ## Project Structure
 
@@ -84,7 +84,7 @@ Static legal pages render through `src/components/legal/LegalPage.astro` and are
 
 - `npm test` — Run all tests (Vitest)
 - `npm run test:watch` — Watch mode
-- Test files are co-located: `src/**/*.test.ts`
+- Test files are co-located with their source (`src/**/*.test.ts`) — except API-route tests, which live outside `src/pages/` (e.g. `src/lib/__tests__/`) so they aren't emitted as routes.
 - Mock external API calls; don't hit real APIs in unit tests
 
 ```
@@ -93,6 +93,10 @@ src/
     ai.ts
     ai.test.ts        ← co-located test
 ```
+
+## Error tracking (Sentry)
+
+`@sentry/astro` wired via `sentryAstro()` in `astro.config.mjs`; runtime init in root `sentry.server.config.ts` / `sentry.client.config.ts` (auto-discovered). Optional env: `SENTRY_DSN` (server/secret) + `PUBLIC_SENTRY_DSN` (client/public); `SENTRY_ORG`/`SENTRY_PROJECT`/`SENTRY_AUTH_TOKEN` are build-time only (read from `process.env`, not `env.schema`). PII-safe by design: no request body/header/cookie/IP capture, Session Replay OFF. AI calls (`src/lib/ai.ts`) are wrapped in `Sentry.startSpan` with static names only — never attach prompts/answers/JD text.
 
 ## Maintaining this file
 

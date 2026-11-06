@@ -8,7 +8,7 @@ vi.mock("@/lib/ai", () => ({
 vi.mock("@/lib/ai-guard", () => ({ guardAiCall: vi.fn() }));
 vi.mock("@/lib/posthog", () => ({ captureEvent: vi.fn(), flush: vi.fn() }));
 
-import { GET } from "./generate";
+import { GET } from "@/pages/api/interview/generate";
 import { createClient } from "@/lib/supabase";
 import { extractConstraints, generateChallenge } from "@/lib/ai";
 import { guardAiCall } from "@/lib/ai-guard";

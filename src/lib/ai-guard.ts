@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/astro";
 import {
   AI_DAILY_CALL_LIMIT,
   AI_GLOBAL_RATE_LIMIT_PER_WINDOW,
@@ -125,7 +126,10 @@ export async function guardAiCall(
     ip: ip ?? null,
     operation,
   });
-  if (insertError) return { allowed: false, reason: "internal_error" };
+  if (insertError) {
+    Sentry.captureException(insertError, { tags: { operation, guardStage: "insert" } });
+    return { allowed: false, reason: "internal_error" };
+  }
 
   const windowStart = new Date(now.getTime() - limits.windowSeconds * 1000);
   const dayStart = new Date(now);
@@ -140,7 +144,8 @@ export async function guardAiCall(
     ]);
 
     return decideAiCall({ window: windowCount, daily: dailyCount, monthly: monthlyCount }, limits);
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err, { tags: { operation, guardStage: "count" } });
     return { allowed: false, reason: "internal_error" };
   }
 }

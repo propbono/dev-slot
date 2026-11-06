@@ -10,6 +10,7 @@ type SystemContent = {
 };
 
 import type { APIRoute } from "astro";
+import * as Sentry from "@sentry/astro";
 import { createClient } from "@/lib/supabase";
 import { generateChallenge, type JDConstraints } from "@/lib/ai";
 import { checkChallengeLimit } from "@/lib/tiers";
@@ -159,7 +160,8 @@ export const POST: APIRoute = async (context) => {
     await flush();
 
     return context.redirect(`/interview/${sessionId}`);
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err, { tags: { operation: "new_challenge" } });
     return context.redirect(`/interview/${sessionId}?error=challenge_failed`);
   }
 };

@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import * as Sentry from "@sentry/astro";
 import { createClient } from "@/lib/supabase";
 import { evaluateAnswer, generateSummary, type JDConstraints } from "@/lib/ai";
 import { checkTurnLimit } from "@/lib/tiers";
@@ -286,6 +287,11 @@ export const POST: APIRoute = async (context) => {
       return context.redirect(`/interview/${sessionId}`);
     } catch (err) {
       lastError = err;
+      Sentry.addBreadcrumb({
+        category: "interview.evaluate",
+        level: "warning",
+        message: `Evaluation attempt ${attempt}/${MAX_RETRIES} failed`,
+      });
       if (attempt < MAX_RETRIES) {
         await delay(RETRY_DELAY_MS);
       }
@@ -293,7 +299,10 @@ export const POST: APIRoute = async (context) => {
   }
 
   // All retries exhausted — revert the answer so the user can retry.
-  console.error("Evaluation failed after retries:", lastError);
+  Sentry.captureException(lastError, {
+    tags: { operation: "evaluate", sessionId },
+    extra: { attempts: MAX_RETRIES },
+  });
   await revertAnswerToDraft();
   return context.redirect(`/interview/${sessionId}?error=evaluation_failed`);
 };

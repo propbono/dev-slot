@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import * as Sentry from "@sentry/astro";
 import { createClient } from "@/lib/supabase";
 import { extractConstraints, generateChallenge, type JDConstraints } from "@/lib/ai";
 import { guardAiCall } from "@/lib/ai-guard";
@@ -197,7 +198,8 @@ export const GET: APIRoute = async (context) => {
     await flush();
 
     return Response.json({ ready: true });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err, { tags: { operation: "generate" } });
     await supabase.from("session_messages").delete().eq("id", markerId).eq("status", "generating");
     return Response.json({ ready: false, error: "generation_failed" });
   }
