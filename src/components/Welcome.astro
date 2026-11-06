@@ -1,5 +1,6 @@
 ---
 import Topbar from "@/components/Topbar.astro";
+import CheckoutButton from "@/components/CheckoutButton";
 ---
 
 <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
@@ -262,14 +263,7 @@ import Topbar from "@/components/Topbar.astro";
         </div>
 
         <!-- Pro -->
-        <div class="relative rounded-xl border border-purple-500/30 bg-purple-500/5 p-6 backdrop-blur-xl">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-            <span
-              class="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-600/90 px-3 py-0.5 text-xs font-medium text-white backdrop-blur-sm"
-            >
-              Coming Soon
-            </span>
-          </div>
+        <div class="rounded-xl border border-purple-500/30 bg-purple-500/5 p-6 backdrop-blur-xl">
           <h3 class="mb-1 text-lg font-semibold text-white">Pro</h3>
           <div class="mb-4">
             <span class="text-3xl font-bold text-white">CA$10</span>
@@ -307,23 +301,11 @@ import Topbar from "@/components/Topbar.astro";
               5 challenges per session
             </li>
           </ul>
-          <button
-            disabled
-            class="block w-full cursor-not-allowed rounded-lg bg-purple-600/40 px-4 py-2.5 text-center text-sm font-medium text-purple-200/60"
-          >
-            Coming Soon
-          </button>
+          <CheckoutButton client:load tier="pro" label="Get Pro — CA$10/mo" />
         </div>
 
         <!-- Unlimited -->
-        <div class="relative rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-            <span
-              class="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-600/90 px-3 py-0.5 text-xs font-medium text-white backdrop-blur-sm"
-            >
-              Coming Soon
-            </span>
-          </div>
+        <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
           <h3 class="mb-1 text-lg font-semibold text-white">Unlimited</h3>
           <div class="mb-4">
             <span class="text-3xl font-bold text-white">CA$15</span>
@@ -361,25 +343,7 @@ import Topbar from "@/components/Topbar.astro";
               Unlimited challenges
             </li>
           </ul>
-          <button
-            disabled
-            class="block w-full cursor-not-allowed rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-center text-sm font-medium text-blue-100/40"
-          >
-            Coming Soon
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="mx-auto max-w-4xl border-t border-white/10 px-4 py-8">
-      <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
-        <p class="text-sm text-blue-100/40">
-          &copy; {new Date().getFullYear()} Archdrill. Built for engineers, by engineers.
-        </p>
-        <div class="flex gap-6">
-          <a href="/auth/signin" class="text-sm text-blue-100/40 transition-colors hover:text-blue-100/70"> Sign In </a>
-          <a href="/auth/signup" class="text-sm text-blue-100/40 transition-colors hover:text-blue-100/70"> Sign Up </a>
+          <CheckoutButton client:load tier="unlimited" label="Get Unlimited — CA$15/mo" variant="secondary" />
         </div>
       </div>
     </div>
