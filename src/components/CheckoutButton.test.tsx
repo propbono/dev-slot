@@ -27,7 +27,7 @@ function restoreLocation(): void {
   });
 }
 
-function stubFetch(ok: boolean, payload: { url?: string | null; error?: string }) {
+function stubFetch(ok: boolean, payload: { url?: string | null; error?: string; detail?: string }) {
   const fetchMock = vi.fn().mockResolvedValue({
     ok,
     json: () => Promise.resolve(payload),
@@ -97,5 +97,14 @@ describe("CheckoutButton", () => {
     fireEvent.click(screen.getByRole("button", { name: /Get Pro/ }));
 
     expect(await screen.findByText(/Could not start checkout/i)).toBeInTheDocument();
+  });
+
+  it("shows the server detail when checkout fails with a specific cause", async () => {
+    stubFetch(false, { error: "not_configured", detail: "STRIPE_SECRET_KEY is not set" });
+
+    render(<CheckoutButton tier="pro" label="Get Pro — CA$10/mo" />);
+    fireEvent.click(screen.getByRole("button", { name: /Get Pro/ }));
+
+    expect(await screen.findByText(/STRIPE_SECRET_KEY is not set/i)).toBeInTheDocument();
   });
 });

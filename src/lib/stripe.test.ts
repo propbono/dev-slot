@@ -34,14 +34,22 @@ describe("stripe lib", () => {
   });
 
   it("rejects a missing signature", () => {
-    expect(verifyWebhook("payload", null)).toEqual({ ok: false, error: "invalid_signature" });
+    expect(verifyWebhook("payload", null)).toEqual({
+      ok: false,
+      error: "invalid_signature",
+      detail: "Missing stripe-signature header",
+    });
   });
 
   it("rejects a payload whose signature fails verification", () => {
     mockConstructEvent.mockImplementation(() => {
       throw new Error("signature mismatch");
     });
-    expect(verifyWebhook("payload", "sig")).toEqual({ ok: false, error: "invalid_signature" });
+    expect(verifyWebhook("payload", "sig")).toEqual({
+      ok: false,
+      error: "invalid_signature",
+      detail: "Webhook signature verification failed: signature mismatch",
+    });
   });
 
   it("returns the constructed event when the signature verifies", () => {

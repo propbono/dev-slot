@@ -20,13 +20,13 @@ export default function CheckoutButton({ tier, label, variant = "primary" }: Pro
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tier }),
       });
-      const data = (await res.json()) as { url?: string | null; error?: string };
+      const data = (await res.json()) as { url?: string | null; error?: string; detail?: string };
       if (!res.ok) {
         if (data.error === "unauthorized") {
           window.location.href = "/auth/signup";
           return;
         }
-        setError("Could not start checkout. Please try again.");
+        setError(data.detail ?? "Could not start checkout. Please try again.");
         return;
       }
       if (data.url) {
