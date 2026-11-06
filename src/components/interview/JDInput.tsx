@@ -21,6 +21,8 @@ export default function JDInput({ error }: Props) {
   const [maxRounds] = useState(5);
   const [strongThreshold] = useState(3);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [checkoutTier, setCheckoutTier] = useState<"pro" | "unlimited" | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const jdCharCount = jd.length;
   const canSubmitJd = jdCharCount >= 50;
@@ -44,6 +46,34 @@ export default function JDInput({ error }: Props) {
   };
 
   const errorText = error && (errorMessages[error] ?? "An unexpected error occurred.");
+
+  async function handleUpgrade(tier: "pro" | "unlimited") {
+    setCheckoutTier(tier);
+    setCheckoutError(null);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier }),
+      });
+      const data = (await res.json()) as { url?: string | null; error?: string };
+      if (!res.ok) {
+        setCheckoutError(
+          data.error === "unauthorized" ? "Please sign in to upgrade." : "Could not start checkout. Please try again.",
+        );
+        return;
+      }
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      window.location.reload();
+    } catch {
+      setCheckoutError("Could not start checkout. Please try again.");
+    } finally {
+      setCheckoutTier(null);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
@@ -109,19 +139,41 @@ export default function JDInput({ error }: Props) {
               <div className="rounded-lg border border-white/10 p-3">
                 <div className="flex justify-between">
                   <span className="font-medium text-white">Pro</span>
-                  <span className="text-purple-300">$10/mo</span>
+                  <span className="text-purple-300">CA$10/mo</span>
                 </div>
                 <p className="text-xs text-blue-100/50">5 interviews/mo · Unlimited turns · 5 challenges</p>
               </div>
               <div className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-3">
                 <div className="flex justify-between">
                   <span className="font-medium text-white">Unlimited</span>
-                  <span className="text-purple-300">$15/mo</span>
+                  <span className="text-purple-300">CA$15/mo</span>
                 </div>
                 <p className="text-xs text-blue-100/50">Unlimited everything</p>
               </div>
             </div>
-            <p className="mb-4 text-xs text-blue-100/40">Payment processing is coming soon.</p>
+            <div className="mb-4 space-y-2">
+              <button
+                type="button"
+                disabled={checkoutTier !== null}
+                onClick={() => {
+                  void handleUpgrade("pro");
+                }}
+                className="w-full rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {checkoutTier === "pro" ? "Starting checkout..." : "Upgrade to Pro — CA$10/mo"}
+              </button>
+              <button
+                type="button"
+                disabled={checkoutTier !== null}
+                onClick={() => {
+                  void handleUpgrade("unlimited");
+                }}
+                className="w-full rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {checkoutTier === "unlimited" ? "Starting checkout..." : "Upgrade to Unlimited — CA$15/mo"}
+              </button>
+            </div>
+            {checkoutError && <p className="mb-4 text-xs text-red-300">{checkoutError}</p>}
             <button
               type="button"
               onClick={() => {

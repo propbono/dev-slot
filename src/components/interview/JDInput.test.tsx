@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import JDInput from "./JDInput";
 
 describe("JDInput", () => {
@@ -54,5 +54,36 @@ describe("JDInput", () => {
     render(<JDInput error="upgrade_required" />);
     expect(screen.getAllByText(/reached your free tier limit/i)[0]).toBeInTheDocument();
     expect(screen.getAllByText(/View Plans/i)[0]).toBeInTheDocument();
+  });
+
+  it("renders real upgrade buttons instead of the coming-soon placeholder", () => {
+    render(<JDInput error="upgrade_required" />);
+    fireEvent.click(screen.getAllByText(/View Plans/i)[0]);
+    expect(screen.getByRole("button", { name: /Upgrade to Pro/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Upgrade to Unlimited/ })).toBeInTheDocument();
+    expect(screen.queryByText(/Payment processing is coming soon/i)).not.toBeInTheDocument();
+  });
+
+  it("calls the checkout endpoint when an upgrade button is clicked", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      json: () => Promise.resolve({ error: "not_configured" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<JDInput error="upgrade_required" />);
+    fireEvent.click(screen.getAllByText(/View Plans/i)[0]);
+    fireEvent.click(screen.getByRole("button", { name: /Upgrade to Pro/ }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier: "pro" }),
+      });
+    });
+    expect(await screen.findByText(/Could not start checkout/i)).toBeInTheDocument();
+
+    vi.unstubAllGlobals();
   });
 });

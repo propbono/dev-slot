@@ -31,10 +31,23 @@ export default defineConfig({
     schema: {
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),
       SUPABASE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      // Service role key: server-only, bypasses RLS. Used ONLY by the Stripe
+      // webhook to upsert user_roles.role/stripe_customer_id after signature
+      // verification. Never expose to the client.
+      SUPABASE_SERVICE_ROLE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
       DEEPSEEK_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
       DEEPSEEK_MODEL: envField.string({ context: "server", access: "secret", default: "deepseek-flash" }),
       SENTRY_DSN: envField.string({ context: "server", access: "secret", optional: true }),
       PUBLIC_SENTRY_DSN: envField.string({ context: "client", access: "public", optional: true }),
+      // Stripe (test mode). Secret key + webhook secret are server-only;
+      // publishable key is client-visible for Stripe.js/Checkout.
+      STRIPE_SECRET_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      STRIPE_WEBHOOK_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
+      STRIPE_PUBLISHABLE_KEY: envField.string({ context: "client", access: "public", optional: true }),
+      // Stable Price IDs for plan changes (subscriptions.update cannot reuse
+      // inline price_data). Required only when an existing subscriber switches.
+      STRIPE_PRICE_ID_PRO: envField.string({ context: "server", access: "secret", optional: true }),
+      STRIPE_PRICE_ID_UNLIMITED: envField.string({ context: "server", access: "secret", optional: true }),
       // AI abuse/spend protection. Server-side knobs with sensible defaults;
       // override via Vercel env vars to tune for real traffic.
       AI_RATE_LIMIT_WINDOW_SECONDS: envField.number({ context: "server", access: "secret", default: 60 }),
