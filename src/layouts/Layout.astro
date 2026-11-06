@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import Banner from "@/components/Banner.astro";
 import Logo from "@/components/Logo.astro";
+import PostHog from "@/components/PostHog.astro";
 import { missingConfigs } from "@/lib/config-status";
 
 type Props = {
@@ -24,6 +25,7 @@ const year = new Date().getFullYear();
       content="Archdrill — AI-powered technical interview practice. Ace your architecture interview with adaptive system design challenges tailored to your target job description."
     />
     <title>{title}</title>
+    <PostHog />
   </head>
   <body>
     {

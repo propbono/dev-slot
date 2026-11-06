@@ -46,8 +46,7 @@ DeepSeek V4 via `@ai-sdk/deepseek` and Vercel AI SDK. All model calls flow throu
 ### Environment
 
 - Node.js v22.14.0 (see `.nvmrc`)
-- Env vars in `.env.local`: `SUPABASE_URL`, `SUPABASE_KEY`, `DEEPSEEK_API_KEY`; optional `DEEPSEEK_MODEL` (default `deepseek-flash`) overrides the model in `src/lib/ai.ts`
-- Optional AI protection env vars (`AI_RATE_LIMIT_*`, `AI_GLOBAL_RATE_LIMIT_PER_WINDOW`, `AI_DAILY_CALL_LIMIT`, `AI_MONTHLY_CALL_LIMIT`) — defaults in `astro.config.mjs` `env.schema`
+- Env vars (required, optional, and defaults — including PostHog analytics): see `AGENTS.md` → Environment
 - Vercel env vars: managed via `vercel env add` or dashboard
 
 ## CI

@@ -53,6 +53,7 @@ Pre-commit: husky + lint-staged auto-runs ESLint on `*.{ts,tsx,astro}` and Prett
 - Required: `SUPABASE_URL`, `SUPABASE_KEY`, `DEEPSEEK_API_KEY` (server-only, declared in `astro.config.mjs` `env.schema`).
 - Optional: `DEEPSEEK_MODEL` (default `deepseek-flash`) — overrides the model id in `src/lib/ai.ts`.
 - Optional AI protection knobs (defaults baked in): `AI_RATE_LIMIT_WINDOW_SECONDS`, `AI_RATE_LIMIT_PER_USER`, `AI_RATE_LIMIT_PER_IP`, `AI_GLOBAL_RATE_LIMIT_PER_WINDOW`, `AI_DAILY_CALL_LIMIT`, `AI_MONTHLY_CALL_LIMIT`.
+- Optional PostHog analytics (all `optional: true`; unset = silent no-op): `POSTHOG_KEY` + `POSTHOG_HOST` (client/public), `POSTHOG_API_KEY` + `POSTHOG_API_HOST` (server/secret). Hosts default to `https://us.i.posthog.com`.
 - Vercel environment variables: managed via `vercel env add` or dashboard.
 
 ## CI
@@ -62,6 +63,12 @@ GitHub Actions (`.github/workflows/ci.yml`): typecheck + lint + build + test on 
 ## Auth
 
 Cookie-based sessions via `@supabase/ssr`. Middleware (`src/middleware.ts`) resolves user and redirects unauthenticated visitors away from `PROTECTED_ROUTES`. Endpoints at `src/pages/api/auth/{signin,signup,signout}.ts`. Pages at `src/pages/auth/{signin,signup,confirm-email}.astro`.
+
+## Analytics / PostHog
+
+PostHog product analytics. Server events fire from API routes via `src/lib/posthog.ts` (`captureEvent()` + `await flush()` before each route returns; no-op when `POSTHOG_API_KEY` unset; `distinct_id` = Supabase `user.id`). Client snippet initializes once in `src/components/PostHog.astro` (rendered from `Layout.astro`) via `src/lib/posthog-client.ts`.
+
+Privacy posture (approved): cookieless (`cookieless_mode: "always"`), no consent banner, US cloud, no session recording, no autocapture. Never send email/JD/answer text, IP, or query strings as event properties. Billing events (`tier_upgrade`/`tier_downgrade`/`subscription_cancelled`) belong in the Stripe webhook (Phase 3, blocked on the Stripe branch).
 
 ## AI / LLM
 
