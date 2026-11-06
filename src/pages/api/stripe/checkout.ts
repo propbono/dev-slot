@@ -97,7 +97,7 @@ export const POST: APIRoute = async (context) => {
         metadata: { tier, userId: user.id },
         subscription_data: { metadata: { tier } },
       },
-      { idempotencyKey: user.id },
+      { idempotencyKey: `${user.id}:${tier}` },
     );
   } catch {
     return Response.json({ error: "checkout_error" }, { status: 502 });

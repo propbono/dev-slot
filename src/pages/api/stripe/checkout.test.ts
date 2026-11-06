@@ -102,7 +102,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
       cancel_url: "http://localhost:3000/new-session?checkout=cancelled",
       metadata: { tier: "pro", userId: "user-1" },
       subscription_data: { metadata: { tier: "pro" } },
-    }, { idempotencyKey: "user-1" });
+    }, { idempotencyKey: "user-1:pro" });
   });
 
   it("prices the unlimited tier at CA$15/mo", async () => {
@@ -118,6 +118,25 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     expect(args.line_items[0].price_data.unit_amount).toBe(1500);
     expect(args.line_items[0].price_data.product_data.name).toBe("Archdrill Unlimited");
     expect(args.metadata.tier).toBe("unlimited");
+    expect(mockSessionsCreate).toHaveBeenCalledWith(
+      expect.anything(),
+      { idempotencyKey: "user-1:unlimited" },
+    );
+  });
+
+  it("keys idempotency per user and tier so a different tier gets a fresh session", async () => {
+    mockSupabaseUser({ id: "user-1", email: "a@b.com" });
+    mockSessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.com/c/pay/test" });
+
+    await POST(makeContext({ tier: "pro" }) as never);
+    await POST(makeContext({ tier: "unlimited" }) as never);
+
+    expect(mockSessionsCreate).toHaveBeenNthCalledWith(1, expect.anything(), {
+      idempotencyKey: "user-1:pro",
+    });
+    expect(mockSessionsCreate).toHaveBeenNthCalledWith(2, expect.anything(), {
+      idempotencyKey: "user-1:unlimited",
+    });
   });
 
   it("updates the existing subscription instead of creating a second one", async () => {
