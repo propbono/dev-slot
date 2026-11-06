@@ -73,6 +73,12 @@ export const POST: APIRoute = async (context) => {
           { onConflict: "user_id" },
         );
       if (error) return Response.json({ error: "db_error" }, { status: 500 });
+
+      const { error: claimError } = await supabase
+        .from("checkout_inflight")
+        .delete()
+        .eq("user_id", userId);
+      if (claimError) return Response.json({ error: "db_error" }, { status: 500 });
       break;
     }
     case "customer.subscription.deleted": {

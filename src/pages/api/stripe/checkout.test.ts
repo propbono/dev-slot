@@ -20,14 +20,49 @@ vi.mock("stripe", () => ({
 import { POST } from "./checkout";
 import { createClient } from "@/lib/supabase";
 
-function makeSupabase(user: { id: string; email?: string } | null, roleRow: unknown = null, roleError: unknown = null) {
+type ClaimConfig = {
+  insertError?: unknown;
+  claimedAt?: string | null;
+  readError?: unknown;
+  retryInsertError?: unknown;
+};
+
+function makeSupabase(
+  user: { id: string; email?: string } | null,
+  roleRow: unknown = null,
+  roleError: unknown = null,
+  claim: ClaimConfig = {},
+) {
   const single = vi.fn().mockResolvedValue({ data: roleRow, error: roleError });
   const eq = vi.fn().mockReturnValue({ single });
   const select = vi.fn().mockReturnValue({ eq });
-  const from = vi.fn().mockReturnValue({ select });
+
+  const insert = vi
+    .fn()
+    .mockResolvedValueOnce({ error: claim.insertError ?? null })
+    .mockResolvedValue({ error: claim.retryInsertError ?? null });
+  const claimSingle = vi.fn().mockResolvedValue({
+    data: claim.claimedAt == null ? null : { claimed_at: claim.claimedAt },
+    error: claim.readError ?? null,
+  });
+  const claimEq = vi.fn().mockReturnValue({ single: claimSingle });
+  const claimSelect = vi.fn().mockReturnValue({ eq: claimEq });
+  const deleteEq = vi.fn().mockResolvedValue({ error: null });
+  const del = vi.fn().mockReturnValue({ eq: deleteEq });
+
+  const from = vi.fn((table: string) => {
+    if (table === "checkout_inflight") {
+      return { insert, delete: del, select: claimSelect };
+    }
+    return { select };
+  });
+
   return {
     auth: { getUser: () => Promise.resolve({ data: { user } }) },
     from,
+    insert,
+    delete: del,
+    claimSingle,
   };
 }
 
@@ -35,8 +70,9 @@ function mockSupabaseUser(
   user: { id: string; email?: string } | null,
   roleRow: unknown = null,
   roleError: unknown = null,
+  claim: ClaimConfig = {},
 ) {
-  vi.mocked(createClient).mockReturnValue(makeSupabase(user, roleRow, roleError) as never);
+  vi.mocked(createClient).mockReturnValue(makeSupabase(user, roleRow, roleError, claim) as never);
 }
 
 function makeContext(body: unknown) {
@@ -83,26 +119,29 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
 
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({ url: "https://checkout.stripe.com/c/pay/test_pro" });
-    expect(mockSessionsCreate).toHaveBeenCalledWith({
-      mode: "subscription",
-      client_reference_id: "user-1",
-      customer_email: "a@b.com",
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "cad",
-            unit_amount: 1000,
-            recurring: { interval: "month" },
-            product_data: { name: "Archdrill Pro" },
+    expect(mockSessionsCreate).toHaveBeenCalledWith(
+      {
+        mode: "subscription",
+        client_reference_id: "user-1",
+        customer_email: "a@b.com",
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: "cad",
+              unit_amount: 1000,
+              recurring: { interval: "month" },
+              product_data: { name: "Archdrill Pro" },
+            },
           },
-        },
-      ],
-      success_url: "http://localhost:3000/new-session?checkout=success",
-      cancel_url: "http://localhost:3000/new-session?checkout=cancelled",
-      metadata: { tier: "pro", userId: "user-1" },
-      subscription_data: { metadata: { tier: "pro" } },
-    }, { idempotencyKey: "user-1:pro" });
+        ],
+        success_url: "http://localhost:3000/new-session?checkout=success",
+        cancel_url: "http://localhost:3000/new-session?checkout=cancelled",
+        metadata: { tier: "pro", userId: "user-1" },
+        subscription_data: { metadata: { tier: "pro" } },
+      },
+      { idempotencyKey: expect.stringMatching(/^user-1:[0-9a-f-]{36}$/) },
+    );
   });
 
   it("prices the unlimited tier at CA$15/mo", async () => {
@@ -120,23 +159,23 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     expect(args.metadata.tier).toBe("unlimited");
     expect(mockSessionsCreate).toHaveBeenCalledWith(
       expect.anything(),
-      { idempotencyKey: "user-1:unlimited" },
+      { idempotencyKey: expect.stringMatching(/^user-1:[0-9a-f-]{36}$/) },
     );
   });
 
-  it("keys idempotency per user and tier so a different tier gets a fresh session", async () => {
+  it("keys Stripe idempotency per user with a per-attempt nonce so tiers never collide", async () => {
     mockSupabaseUser({ id: "user-1", email: "a@b.com" });
     mockSessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.com/c/pay/test" });
 
     await POST(makeContext({ tier: "pro" }) as never);
     await POST(makeContext({ tier: "unlimited" }) as never);
 
-    expect(mockSessionsCreate).toHaveBeenNthCalledWith(1, expect.anything(), {
-      idempotencyKey: "user-1:pro",
-    });
-    expect(mockSessionsCreate).toHaveBeenNthCalledWith(2, expect.anything(), {
-      idempotencyKey: "user-1:unlimited",
-    });
+    const firstKey = (mockSessionsCreate.mock.calls[0][1] as { idempotencyKey: string }).idempotencyKey;
+    const secondKey = (mockSessionsCreate.mock.calls[1][1] as { idempotencyKey: string }).idempotencyKey;
+
+    expect(firstKey).toMatch(/^user-1:[0-9a-f-]{36}$/);
+    expect(secondKey).toMatch(/^user-1:[0-9a-f-]{36}$/);
+    expect(firstKey).not.toBe(secondKey);
   });
 
   it("updates the existing subscription instead of creating a second one", async () => {
@@ -204,6 +243,17 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     await expect(res.json()).resolves.toEqual({ error: "checkout_error" });
   });
 
+  it("releases the checkout claim when Checkout Session creation fails", async () => {
+    const supabase = makeSupabase({ id: "user-1", email: "a@b.com" });
+    vi.mocked(createClient).mockReturnValue(supabase as never);
+    mockSessionsCreate.mockRejectedValue(new Error("network"));
+
+    const res = await POST(makeContext({ tier: "pro" }) as never);
+
+    expect(res.status).toBe(502);
+    expect(supabase.delete).toHaveBeenCalled();
+  });
+
   it("returns a 503 when the user_roles read fails instead of treating it as no subscription", async () => {
     mockSupabaseUser({ id: "user-1", email: "a@b.com" }, null, { code: "connection_error" });
 
@@ -222,5 +272,50 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
 
     expect(res.status).toBe(200);
     expect(mockSessionsCreate).toHaveBeenCalled();
+  });
+
+  it("returns 409 when a concurrent checkout is already in flight", async () => {
+    mockSupabaseUser(
+      { id: "user-1", email: "a@b.com" },
+      null,
+      { code: "PGRST116" },
+      { insertError: { code: "23505" }, claimedAt: new Date().toISOString() },
+    );
+
+    const res = await POST(makeContext({ tier: "unlimited" }) as never);
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({ error: "checkout_in_flight" });
+    expect(mockSessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("reclaims a stale checkout claim and creates the session", async () => {
+    mockSupabaseUser(
+      { id: "user-1", email: "a@b.com" },
+      null,
+      { code: "PGRST116" },
+      { insertError: { code: "23505" }, claimedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString() },
+    );
+    mockSessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.com/c/pay/test_pro" });
+
+    const res = await POST(makeContext({ tier: "pro" }) as never);
+
+    expect(res.status).toBe(200);
+    expect(mockSessionsCreate).toHaveBeenCalled();
+  });
+
+  it("returns 503 when the checkout claim insert fails for a non-conflict reason", async () => {
+    mockSupabaseUser(
+      { id: "user-1", email: "a@b.com" },
+      null,
+      { code: "PGRST116" },
+      { insertError: { code: "connection_error" } },
+    );
+
+    const res = await POST(makeContext({ tier: "pro" }) as never);
+
+    expect(res.status).toBe(503);
+    await expect(res.json()).resolves.toEqual({ error: "checkout_error" });
+    expect(mockSessionsCreate).not.toHaveBeenCalled();
   });
 });

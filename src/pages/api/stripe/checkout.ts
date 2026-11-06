@@ -1,12 +1,61 @@
 import type { APIRoute } from "astro";
+import { randomUUID } from "node:crypto";
 import type Stripe from "stripe";
 import { createClient } from "@/lib/supabase";
-import { getPriceId, getStripe, isPlanTier, PLANS } from "@/lib/stripe";
+import { getPriceId, getStripe, isPlanTier, PLANS, type PlanTier } from "@/lib/stripe";
 
 export const prerender = false;
 
 /** Statuses for which a stored subscription is still billed and changeable. */
 const CHANGEABLE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due", "unpaid", "paused", "incomplete"]);
+
+type Supabase = NonNullable<ReturnType<typeof createClient>>;
+
+/** How long an un-released checkout claim may block a re-claim before it is
+ * treated as abandoned and reclaimed. */
+const CHECKOUT_CLAIM_STALE_MS = 5 * 60 * 1000;
+
+type ClaimResult = "claimed" | "in_flight" | "error";
+
+async function releaseCheckoutClaim(supabase: Supabase, userId: string): Promise<void> {
+  await supabase.from("checkout_inflight").delete().eq("user_id", userId);
+}
+
+/**
+ * Atomically claim the per-user checkout slot so two concurrent checkout
+ * requests (same or different tier) cannot create two Checkout Sessions.
+ */
+async function claimCheckout(supabase: Supabase, userId: string, tier: PlanTier): Promise<ClaimResult> {
+  const { error: insertError } = await supabase
+    .from("checkout_inflight")
+    .insert({ user_id: userId, tier });
+
+  if (!insertError) return "claimed";
+  if (insertError.code !== "23505") return "error";
+
+  const { data, error: readError } = await supabase
+    .from("checkout_inflight")
+    .select("claimed_at")
+    .eq("user_id", userId)
+    .single();
+
+  if (readError && readError.code !== "PGRST116") return "error";
+
+  if (data) {
+    const claimedAt = Date.parse(String(data.claimed_at));
+    const stale = !Number.isFinite(claimedAt) || Date.now() - claimedAt > CHECKOUT_CLAIM_STALE_MS;
+    if (!stale) return "in_flight";
+  }
+
+  await releaseCheckoutClaim(supabase, userId);
+  const { error: retryError } = await supabase
+    .from("checkout_inflight")
+    .insert({ user_id: userId, tier });
+
+  if (!retryError) return "claimed";
+  if (retryError.code === "23505") return "in_flight";
+  return "error";
+}
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -74,6 +123,14 @@ export const POST: APIRoute = async (context) => {
     }
   }
 
+  const claim = await claimCheckout(supabase, user.id, tier);
+  if (claim === "in_flight") {
+    return Response.json({ error: "checkout_in_flight" }, { status: 409 });
+  }
+  if (claim === "error") {
+    return Response.json({ error: "checkout_error" }, { status: 503 });
+  }
+
   let session: Stripe.Checkout.Session;
   try {
     session = await stripe.checkout.sessions.create(
@@ -97,9 +154,10 @@ export const POST: APIRoute = async (context) => {
         metadata: { tier, userId: user.id },
         subscription_data: { metadata: { tier } },
       },
-      { idempotencyKey: `${user.id}:${tier}` },
+      { idempotencyKey: `${user.id}:${randomUUID()}` },
     );
   } catch {
+    await releaseCheckoutClaim(supabase, user.id);
     return Response.json({ error: "checkout_error" }, { status: 502 });
   }
 

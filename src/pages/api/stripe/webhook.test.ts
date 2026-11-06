@@ -16,14 +16,20 @@ type FakeServiceSupabase = {
   upsert: ReturnType<typeof vi.fn>;
   update: ReturnType<typeof vi.fn>;
   eq: ReturnType<typeof vi.fn>;
+  delete: ReturnType<typeof vi.fn>;
+  deleteEq: ReturnType<typeof vi.fn>;
 };
 
-function makeServiceSupabase(overrides: { upsertError?: unknown; updateError?: unknown } = {}): FakeServiceSupabase {
+function makeServiceSupabase(
+  overrides: { upsertError?: unknown; updateError?: unknown; deleteError?: unknown } = {},
+): FakeServiceSupabase {
   const upsert = vi.fn().mockResolvedValue({ error: overrides.upsertError ?? null });
   const eq = vi.fn().mockResolvedValue({ error: overrides.updateError ?? null });
   const update = vi.fn().mockReturnValue({ eq });
-  const from = vi.fn().mockReturnValue({ upsert, update });
-  return { from, upsert, update, eq };
+  const deleteEq = vi.fn().mockResolvedValue({ error: overrides.deleteError ?? null });
+  const del = vi.fn().mockReturnValue({ eq: deleteEq });
+  const from = vi.fn().mockReturnValue({ upsert, update, delete: del });
+  return { from, upsert, update, eq, delete: del, deleteEq };
 }
 
 function makeContext(signature: string | null, payload: string) {
@@ -78,6 +84,8 @@ describe("webhook.ts (Stripe webhook handler)", () => {
       { user_id: "user-1", role: "pro", stripe_customer_id: "cus_123", stripe_subscription_id: "sub_123" },
       { onConflict: "user_id" },
     );
+    expect(supabase.delete).toHaveBeenCalled();
+    expect(supabase.deleteEq).toHaveBeenCalledWith("user_id", "user-1");
   });
 
   it("ignores checkout completion when the subscription id is missing", async () => {
@@ -103,10 +111,37 @@ describe("webhook.ts (Stripe webhook handler)", () => {
 
     expect(res.status).toBe(200);
     expect(supabase.upsert).not.toHaveBeenCalled();
+    expect(supabase.delete).not.toHaveBeenCalled();
   });
 
   it("returns 500 when the role upsert fails so Stripe retries", async () => {
     const supabase = makeServiceSupabase({ upsertError: new Error("db down") });
+    vi.mocked(createServiceClient).mockReturnValue(supabase as never);
+    mockVerifyWebhook.mockReturnValue({
+      ok: true,
+      event: {
+        type: "checkout.session.completed",
+        data: {
+          object: {
+            mode: "subscription",
+            client_reference_id: "user-1",
+            customer: "cus_123",
+            subscription: "sub_123",
+            metadata: { tier: "pro" },
+          },
+        },
+      },
+    });
+
+    const res = await POST(makeContext("t=1,v1=good", "{}") as never);
+
+    expect(res.status).toBe(500);
+    await expect(res.json()).resolves.toEqual({ error: "db_error" });
+    expect(supabase.delete).not.toHaveBeenCalled();
+  });
+
+  it("returns 500 when releasing the checkout claim fails so Stripe retries", async () => {
+    const supabase = makeServiceSupabase({ deleteError: new Error("db down") });
     vi.mocked(createServiceClient).mockReturnValue(supabase as never);
     mockVerifyWebhook.mockReturnValue({
       ok: true,
