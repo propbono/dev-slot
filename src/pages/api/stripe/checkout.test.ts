@@ -94,7 +94,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
             currency: "cad",
             unit_amount: 1000,
             recurring: { interval: "month" },
-            product_data: { name: "DevSlot Pro" },
+            product_data: { name: "Archdrill Pro" },
           },
         },
       ],
@@ -102,7 +102,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
       cancel_url: "http://localhost:3000/new-session?checkout=cancelled",
       metadata: { tier: "pro", userId: "user-1" },
       subscription_data: { metadata: { tier: "pro" } },
-    });
+    }, { idempotencyKey: "user-1" });
   });
 
   it("prices the unlimited tier at CA$15/mo", async () => {
@@ -116,7 +116,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
       metadata: { tier: string };
     };
     expect(args.line_items[0].price_data.unit_amount).toBe(1500);
-    expect(args.line_items[0].price_data.product_data.name).toBe("DevSlot Unlimited");
+    expect(args.line_items[0].price_data.product_data.name).toBe("Archdrill Unlimited");
     expect(args.metadata.tier).toBe("unlimited");
   });
 

@@ -16,8 +16,8 @@ beforeEach(() => {
 
 describe("stripe lib", () => {
   it("locks the price points to CA$10 and CA$15", () => {
-    expect(PLANS.pro).toEqual({ name: "DevSlot Pro", unitAmount: 1000 });
-    expect(PLANS.unlimited).toEqual({ name: "DevSlot Unlimited", unitAmount: 1500 });
+    expect(PLANS.pro).toEqual({ name: "Archdrill Pro", unitAmount: 1000 });
+    expect(PLANS.unlimited).toEqual({ name: "Archdrill Unlimited", unitAmount: 1500 });
   });
 
   it("only accepts pro and unlimited as sellable tiers", () => {

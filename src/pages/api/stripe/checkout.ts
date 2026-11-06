@@ -76,26 +76,29 @@ export const POST: APIRoute = async (context) => {
 
   let session: Stripe.Checkout.Session;
   try {
-    session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      client_reference_id: user.id,
-      customer_email: user.email ?? undefined,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "cad",
-            unit_amount: plan.unitAmount,
-            recurring: { interval: "month" },
-            product_data: { name: plan.name },
+    session = await stripe.checkout.sessions.create(
+      {
+        mode: "subscription",
+        client_reference_id: user.id,
+        customer_email: user.email ?? undefined,
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: "cad",
+              unit_amount: plan.unitAmount,
+              recurring: { interval: "month" },
+              product_data: { name: plan.name },
+            },
           },
-        },
-      ],
-      success_url: `${origin}/new-session?checkout=success`,
-      cancel_url: `${origin}/new-session?checkout=cancelled`,
-      metadata: { tier, userId: user.id },
-      subscription_data: { metadata: { tier } },
-    });
+        ],
+        success_url: `${origin}/new-session?checkout=success`,
+        cancel_url: `${origin}/new-session?checkout=cancelled`,
+        metadata: { tier, userId: user.id },
+        subscription_data: { metadata: { tier } },
+      },
+      { idempotencyKey: user.id },
+    );
   } catch {
     return Response.json({ error: "checkout_error" }, { status: 502 });
   }

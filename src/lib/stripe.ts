@@ -20,8 +20,8 @@ export type Plan = {
  * price points without a product decision.
  */
 export const PLANS: Record<PlanTier, Plan> = {
-  pro: { name: "DevSlot Pro", unitAmount: 1000 },
-  unlimited: { name: "DevSlot Unlimited", unitAmount: 1500 },
+  pro: { name: "Archdrill Pro", unitAmount: 1000 },
+  unlimited: { name: "Archdrill Unlimited", unitAmount: 1500 },
 };
 
 export function isPlanTier(value: unknown): value is PlanTier {
