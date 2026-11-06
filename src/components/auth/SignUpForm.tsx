@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Mail, Lock, UserPlus } from "lucide-react";
+import { CircleAlert, Mail, Lock, UserPlus } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
@@ -17,7 +17,13 @@ export default function SignUpForm({ serverError }: Props) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
+  const [agreed, setAgreed] = useState(false);
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+    agreed?: string;
+  }>({});
 
   function validate() {
     const next: typeof errors = {};
@@ -38,6 +44,10 @@ export default function SignUpForm({ serverError }: Props) {
       next.confirmPassword = "Please confirm your password";
     } else if (password !== confirmPassword) {
       next.confirmPassword = "Passwords do not match";
+    }
+
+    if (!agreed) {
+      next.agreed = "You must agree to the Terms of Service and Privacy Policy";
     }
 
     setErrors(next);
@@ -125,6 +135,38 @@ export default function SignUpForm({ serverError }: Props) {
       />
 
       <ServerError message={serverError} />
+
+      <div>
+        <div className="flex items-start gap-2 text-sm text-blue-100/70">
+          <input
+            id="agree"
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => {
+              setAgreed(e.target.checked);
+              clearError("agreed");
+            }}
+            className="mt-0.5 size-4 shrink-0 accent-purple-500"
+          />
+          <label htmlFor="agree" className="leading-snug">
+            By continuing, I agree to the{" "}
+            <a href="/terms" className="text-purple-300 underline hover:text-purple-200">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" className="text-purple-300 underline hover:text-purple-200">
+              Privacy Policy
+            </a>
+            .
+          </label>
+        </div>
+        {errors.agreed ? (
+          <p className="mt-1 flex items-center gap-1 text-xs text-red-300">
+            <CircleAlert className="size-3" />
+            {errors.agreed}
+          </p>
+        ) : null}
+      </div>
 
       <SubmitButton pendingText="Creating account..." icon={<UserPlus className="size-4" />}>
         Create account

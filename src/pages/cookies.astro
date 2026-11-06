@@ -1,0 +1,59 @@
+---
+import LegalPage from "@/components/legal/LegalPage.astro";
+
+// TODO(lawyer): Verify the "cookieless / no banner" posture against PostHog's
+// actual configuration and revisit if analytics tooling changes in the future.
+---
+
+<LegalPage title="Cookie Notice" lastUpdated="November 5, 2026">
+  <p>
+    This notice explains how Archdrill uses cookies and similar technologies. “We” means{" "}
+    <strong>Gabeyre Global Inc</strong>, Ontario, Canada.
+  </p>
+
+  <h2>What are cookies?</h2>
+  <p>
+    Cookies are small text files stored on your device by your browser. They are commonly used to remember preferences,
+    keep you signed in, and understand how a site is used.
+  </p>
+
+  <h2>Cookies we use</h2>
+  <ul>
+    <li>
+      <strong>Strictly necessary (session) cookies.</strong> We use session cookies to keep you signed in. These are managed
+      by our authentication provider, Supabase, and are required for the service to work. They are not used for advertising.
+    </li>
+  </ul>
+  <p>We do not use advertising, targeting, or third-party tracking cookies.</p>
+
+  <h2>Analytics without cookies</h2>
+  <p>
+    We use PostHog for product analytics. Our PostHog integration is configured to run <strong>without cookies</strong>,
+    using non-cookie identifiers for aggregate analysis. PostHog processes this data in the United States.
+  </p>
+
+  <h2>No consent banner</h2>
+  <p>
+    Because we do not use advertising or tracking cookies, we do not display a cookie consent banner. You can still
+    control cookies and similar technologies through your browser settings.
+  </p>
+
+  <h2>Your choices</h2>
+  <ul>
+    <li>
+      <strong>Opt out of analytics:</strong> email <a href="mailto:support@archdrill.com">support@archdrill.com</a> to opt
+      out of PostHog analytics, or enable “Do Not Track” in your browser.
+    </li>
+    <li>
+      <strong>Manage cookies:</strong> you can delete or block cookies in your browser settings. Blocking session cookies
+      will prevent you from staying signed in.
+    </li>
+  </ul>
+  <p>
+    Learn more about PostHog’s data practices at{" "}
+    <a href="https://posthog.com/privacy" target="_blank" rel="noopener noreferrer">posthog.com/privacy</a>.
+  </p>
+
+  <h2>Questions</h2>
+  <p>Contact us at <a href="mailto:support@archdrill.com">support@archdrill.com</a>.</p>
+</LegalPage>

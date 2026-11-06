@@ -69,6 +69,10 @@ DeepSeek V4 via `@ai-sdk/deepseek` and Vercel AI SDK (`ai` v7). AI service modul
 
 **All model calls flow through `src/lib/ai.ts`** — keep it that way so BYOK can be added later. Abuse/spend protection lives in `src/lib/ai-guard.ts`: every AI-calling route must `guardAiCall()` before each model call (per-user sliding-window rate limit, per-user daily/monthly spend ceilings, per-IP + global best-effort in-memory limiters, and an audit row in `ai_usage_log`). Limits are env-configurable (`AI_RATE_LIMIT_*`, `AI_GLOBAL_RATE_LIMIT_PER_WINDOW`, `AI_DAILY_CALL_LIMIT`, `AI_MONTHLY_CALL_LIMIT`; see `astro.config.mjs` `env.schema` for defaults).
 
+## Legal & compliance
+
+Static legal pages render through `src/components/legal/LegalPage.astro` and are linked from the shared footer in `src/layouts/Layout.astro`: `src/pages/{privacy,terms,refund,cookies,contact,accessibility}.astro`. Operator: **Gabeyre Global Inc, Ontario, Canada**; support email **support@archdrill.com** (authoritative in `contact.astro` and the footer). Privacy posture is PIPEDA (Canada) with GDPR-awareness — do not claim GDPR/CCPA compliance. Approved decisions: keep DeepSeek and disclose input transmission (`privacy.astro`), 14-day money-back on first payment (`refund.astro`), PostHog cookieless analytics with no cookie banner (`cookies.astro`).
+
 ## Testing
 
 - `npm test` — Run all tests (Vitest)
