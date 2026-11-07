@@ -1,0 +1,93 @@
+---
+import CheckoutButton from "@/components/CheckoutButton";
+import { planFor, planState, type PlanTierId } from "@/lib/plans";
+import type { TierRole } from "@/lib/tiers";
+import { cn } from "@/lib/utils";
+
+type Props = {
+  tier: PlanTierId;
+  currentRole: TierRole | null;
+  highlighted?: boolean;
+};
+
+const { tier, currentRole, highlighted = false } = Astro.props;
+const plan = planFor(tier);
+const state = planState(currentRole, tier);
+
+const isCurrent = state === "current";
+const isAvailable = state === "available";
+const isDowngrade = state === "downgrade";
+
+const upgradeLabel = `Get ${plan.name} — ${plan.price}/mo`;
+const checkoutVariant = tier === "pro" ? "primary" : "secondary";
+---
+
+<div
+  class:list={cn(
+    "rounded-xl border p-6 backdrop-blur-xl",
+    highlighted ? "border-purple-500/30 bg-purple-500/5" : "border-white/10 bg-white/5",
+    isCurrent && "ring-1 ring-purple-400/50",
+  )}
+>
+  <div class="mb-1 flex items-center justify-between gap-2">
+    <h3 class="text-lg font-semibold text-white">{plan.name}</h3>
+    {
+      isCurrent && (
+        <span class="rounded-full border border-purple-400/40 bg-purple-500/20 px-2 py-0.5 text-xs font-medium text-purple-200">
+          Current plan
+        </span>
+      )
+    }
+  </div>
+  <div class="mb-4">
+    <span class="text-3xl font-bold text-white">{plan.price}</span>
+    <span class="text-sm text-blue-100/50">/month</span>
+  </div>
+  <ul class="mb-6 space-y-2 text-sm text-blue-100/60">
+    {
+      plan.features.map((feature) => (
+        <li class="flex items-start gap-2">
+          <svg
+            class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          {feature}
+        </li>
+      ))
+    }
+  </ul>
+  {
+    isCurrent ? (
+      <button
+        type="button"
+        disabled
+        class="block w-full rounded-lg border border-purple-400/30 bg-purple-500/10 px-4 py-2.5 text-center text-sm font-medium text-purple-200 disabled:cursor-not-allowed"
+      >
+        Current plan
+      </button>
+    ) : isDowngrade ? (
+      <button
+        type="button"
+        disabled
+        class="block w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-center text-sm font-medium text-blue-100/40 disabled:cursor-not-allowed"
+      >
+        Not available on your plan
+      </button>
+    ) : tier === "user" && isAvailable ? (
+      <a
+        href="/auth/signup"
+        class="block w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-white/10"
+      >
+        Get Started
+      </a>
+    ) : (
+      <CheckoutButton client:load tier={tier as "pro" | "unlimited"} label={upgradeLabel} variant={checkoutVariant} />
+    )
+  }
+</div>

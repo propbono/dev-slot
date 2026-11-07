@@ -1,0 +1,115 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import ManageSubscriptionButton from "@/components/ManageSubscriptionButton";
+import { checkoutNotice } from "@/lib/checkout-notice";
+import { featuresFor } from "@/lib/plans";
+import { createClient } from "@/lib/supabase";
+import { TIER_LABELS, type TierRole } from "@/lib/tiers";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/auth/signin");
+
+const role: TierRole = Astro.locals.role ?? "user";
+const features = featuresFor(role);
+const isPaid = role === "pro" || role === "unlimited";
+
+let customerId: string | null = null;
+if (supabase) {
+  const { data } = await supabase.from("user_roles").select("stripe_customer_id").eq("user_id", user.id).single();
+  customerId = (data?.stripe_customer_id as string | null | undefined) ?? null;
+}
+
+const notice = checkoutNotice(Astro.url.searchParams.get("checkout"));
+---
+
+<Layout title="Account — Archdrill">
+  <div class="bg-cosmic relative min-h-screen w-full">
+    <div class="relative z-10 p-4 sm:p-8">
+      <Topbar />
+      <div class="mx-auto max-w-2xl px-4 py-12">
+        {
+          notice && (
+            <div
+              role="status"
+              class:list={[
+                "mb-6 rounded-lg border px-4 py-3 text-sm",
+                notice.variant === "success"
+                  ? "border-green-500/30 bg-green-500/10 text-green-200"
+                  : "border-amber-500/30 bg-amber-500/10 text-amber-200",
+              ]}
+            >
+              <strong>{notice.title}:</strong> {notice.message}
+            </div>
+          )
+        }
+
+        <h1 class="mb-2 text-2xl font-bold text-white">Account</h1>
+        <p class="mb-8 text-sm text-blue-100/50">Your subscription and plan details</p>
+
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-white">Current plan</h2>
+            <span
+              class="rounded-full border border-purple-400/40 bg-purple-500/15 px-3 py-1 text-xs font-medium text-purple-200"
+            >
+              {TIER_LABELS[role]}
+            </span>
+          </div>
+          <ul class="mb-6 space-y-2 text-sm text-blue-100/60">
+            {
+              features.map((feature) => (
+                <li class="flex items-start gap-2">
+                  <svg
+                    class="mt-0.5 h-4 w-4 shrink-0 text-purple-400"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {feature}
+                </li>
+              ))
+            }
+          </ul>
+
+          <div class="border-t border-white/10 pt-5">
+            {
+              isPaid && customerId ? (
+                <>
+                  <h3 class="mb-1 text-sm font-medium text-white">Subscription management</h3>
+                  <p class="mb-3 text-xs text-blue-100/50">
+                    Change your plan, update your payment method, or cancel through Stripe's secure billing portal.
+                    Cancelling takes effect at the end of the current billing period.
+                  </p>
+                  <ManageSubscriptionButton client:load />
+                </>
+              ) : (
+                <>
+                  <h3 class="mb-1 text-sm font-medium text-white">
+                    {isPaid ? "Subscription management" : "Ready for more?"}
+                  </h3>
+                  <p class="mb-3 text-xs text-blue-100/50">
+                    {isPaid
+                      ? "Your paid plan isn't linked to a Stripe customer yet. Contact support if this persists."
+                      : "Upgrade to Pro or Unlimited to unlock more interviews, turns, and challenges."}
+                  </p>
+                  <a
+                    href="/pricing"
+                    class="inline-flex items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+                  >
+                    {isPaid ? "View plans" : "Upgrade"}
+                  </a>
+                </>
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

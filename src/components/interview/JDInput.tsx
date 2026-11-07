@@ -69,7 +69,9 @@ export default function JDInput({ error }: Props) {
         window.location.href = data.url;
         return;
       }
-      window.location.reload();
+      // Plan change completed in place — show the same success feedback as a
+      // fresh Checkout Session.
+      window.location.href = "/account?checkout=success";
     } catch {
       setCheckoutError("Could not start checkout. Please try again.");
     } finally {

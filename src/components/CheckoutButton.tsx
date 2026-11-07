@@ -33,7 +33,9 @@ export default function CheckoutButton({ tier, label, variant = "primary" }: Pro
         window.location.href = data.url;
         return;
       }
-      window.location.reload();
+      // Plan change (subscriptions.update) completed in place — show the
+      // same success feedback as a fresh Checkout Session.
+      window.location.href = "/account?checkout=success";
     } catch {
       setError("Could not start checkout. Please try again.");
     } finally {
