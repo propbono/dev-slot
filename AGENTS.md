@@ -63,7 +63,9 @@ GitHub Actions (`.github/workflows/ci.yml`): typecheck + lint + build + test on 
 
 ## Auth
 
-Cookie-based sessions via `@supabase/ssr`. Middleware (`src/middleware.ts`) resolves the user, resolves the current tier into `Astro.locals.role` (`user_roles.role`, default `user`; null when signed out), and redirects unauthenticated visitors away from `PROTECTED_ROUTES` (`/new-session`, `/account`). Endpoints at `src/pages/api/auth/{signin,signup,signout}.ts`. Pages at `src/pages/auth/{signin,signup,confirm-email}.astro`.
+Cookie-based sessions via `@supabase/ssr`. Middleware (`src/middleware.ts`) resolves the user, resolves the current tier into `Astro.locals.role` (`user_roles.role`, default `user`; null when signed out), and redirects unauthenticated visitors away from `PROTECTED_ROUTES` (`/new-session`, `/interview`, `/history`, `/account`). Endpoints at `src/pages/api/auth/{signin,signup,signout,resend}.ts`. Pages at `src/pages/auth/{signin,signup,confirm-email}.astro`.
+
+Email confirmation is enforced at the app layer (the Supabase "Confirm email" dashboard toggle is currently OFF, so unconfirmed users would otherwise sign in): `isEmailConfirmed()` in `src/lib/supabase.ts` checks `email_confirmed_at`/`confirmed_at`; the sign-in route, every protected page/API guard, and `PROTECTED_ROUTES` middleware block unconfirmed users and redirect to `/auth/confirm-email` (resend form → `POST /api/auth/resend`). Owner note: enabling Supabase Auth → "Confirm email" would additionally reject unconfirmed `signInWithPassword` server-side.
 
 ## Analytics / PostHog
 

@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import * as Sentry from "@sentry/astro";
-import { createClient } from "@/lib/supabase";
+import { createClient, isEmailConfirmed } from "@/lib/supabase";
 import { extractConstraints, generateChallenge, type JDConstraints } from "@/lib/ai";
 import { guardAiCall } from "@/lib/ai-guard";
 import { captureEvent, flush } from "@/lib/posthog";
@@ -17,6 +17,7 @@ export const GET: APIRoute = async (context) => {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return Response.json({ ready: false, error: "unauthorized" }, { status: 401 });
+  if (!isEmailConfirmed(user)) return Response.json({ ready: false, error: "email_not_confirmed" }, { status: 403 });
 
   const sessionId = context.url.searchParams.get("sessionId");
   if (!sessionId) return Response.json({ ready: false, error: "missing_session" }, { status: 400 });

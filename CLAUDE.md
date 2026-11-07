@@ -21,10 +21,11 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 ### Auth flow
 
 - `src/lib/supabase.ts` — creates a Supabase SSR client using `@supabase/ssr` with cookie-based sessions. Uses `astro:env/server` for `SUPABASE_URL` and `SUPABASE_KEY` (server-only secrets declared in astro.config.mjs `env.schema`).
-- `src/middleware.ts` — resolves the current user and tier into `context.locals.user` / `context.locals.role`, and redirects unauthenticated visitors away from `PROTECTED_ROUTES` (`/new-session`, `/account`). Full contract in `AGENTS.md` → Auth.
-- API endpoints: `src/pages/api/auth/{signin,signup,signout}.ts`
+- `src/middleware.ts` — resolves the current user and tier into `context.locals.user` / `context.locals.role`, and redirects unauthenticated visitors away from `PROTECTED_ROUTES` (`/new-session`, `/interview`, `/history`, `/account`). Full contract in `AGENTS.md` → Auth.
+- API endpoints: `src/pages/api/auth/{signin,signup,signout,resend}.ts`
 - Auth pages: `src/pages/auth/{signin,signup,confirm-email}.astro`
 - Protected page example: `src/pages/new-session.astro`
+- **Email confirmation** is enforced at the app layer via `isEmailConfirmed()` in `src/lib/supabase.ts` (checks `email_confirmed_at`/`confirmed_at`): the sign-in route, every protected page/API guard, and middleware block unconfirmed users → `/auth/confirm-email` (resend form → `POST /api/auth/resend`). Supabase dashboard "Confirm email" toggle is currently OFF; enabling it adds server-side rejection of unconfirmed sign-ins.
 
 ### Key conventions
 

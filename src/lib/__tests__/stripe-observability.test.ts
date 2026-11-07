@@ -33,6 +33,8 @@ vi.mock("@sentry/astro", () => ({
 vi.mock("@/lib/supabase", () => ({
   createClient: vi.fn(),
   createServiceClient: vi.fn(),
+  isEmailConfirmed: (user: { email_confirmed_at?: string; confirmed_at?: string } | null | undefined) =>
+    Boolean(user?.email_confirmed_at ?? user?.confirmed_at),
 }));
 
 vi.mock("@/lib/stripe", () => ({
@@ -62,6 +64,7 @@ function makeCheckoutSupabase(
   roleRow: unknown = { stripe_subscription_id: "sub_123" },
   roleError: unknown = null,
 ) {
+  const authenticatedUser = user ? { email_confirmed_at: "2024-01-01T00:00:00Z", ...user } : null;
   const single = vi.fn().mockResolvedValue({ data: roleRow, error: roleError });
   const eq = vi.fn().mockReturnValue({ single });
   const select = vi.fn().mockReturnValue({ eq });
@@ -79,7 +82,7 @@ function makeCheckoutSupabase(
     table === "checkout_inflight" ? { insert, delete: del, update: claimUpdate } : { select },
   );
 
-  return { auth: { getUser: () => Promise.resolve({ data: { user } }) }, from };
+  return { auth: { getUser: () => Promise.resolve({ data: { user: authenticatedUser } }) }, from };
 }
 
 function makeServiceSupabase(upsertError: unknown = null) {
