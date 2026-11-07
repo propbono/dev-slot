@@ -1,7 +1,10 @@
 ---
 import Logo from "@/components/Logo.astro";
+import { TIER_LABELS, type TierRole } from "@/lib/tiers";
 
 const { user } = Astro.locals;
+const role: TierRole = Astro.locals.role ?? "user";
+const canUpgrade = role === "user" || role === "pro";
 ---
 
 <header
@@ -11,6 +14,21 @@ const { user } = Astro.locals;
   {
     user ? (
       <div class="flex items-center gap-3">
+        <a
+          href="/account"
+          title="Your plan"
+          class="inline-flex items-center rounded-full border border-purple-400/40 bg-purple-500/15 px-3 py-1 text-xs font-medium text-purple-200 transition-colors hover:bg-purple-500/25"
+        >
+          {TIER_LABELS[role]}
+        </a>
+        {canUpgrade && (
+          <a
+            href="/pricing"
+            class="inline-flex items-center rounded-lg bg-purple-600 px-3 py-1.5 text-sm font-medium text-white shadow-lg shadow-purple-950/40 transition-colors hover:bg-purple-500"
+          >
+            Upgrade
+          </a>
+        )}
         <span class="hidden max-w-[16rem] truncate text-sm text-blue-100/70 sm:inline">{user.email}</span>
         <a
           href="/new-session"

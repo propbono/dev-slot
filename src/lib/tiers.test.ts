@@ -65,3 +65,33 @@ describe("tiers", () => {
     expect(result.allowed).toBe(true);
   });
 });
+
+describe("getRole and tier metadata", () => {
+  const makeRoleSupabase = (data: unknown, error: unknown = null) => {
+    const single = vi.fn().mockResolvedValue({ data, error });
+    const eq = vi.fn().mockReturnValue({ single });
+    const select = vi.fn().mockReturnValue({ eq });
+    const from = vi.fn().mockReturnValue({ select });
+    return { from };
+  };
+
+  it("returns the persisted role", async () => {
+    const supabase = makeRoleSupabase({ role: "pro" });
+    const { getRole } = await import("./tiers");
+    await expect(getRole(supabase as never, "user-1")).resolves.toBe("pro");
+  });
+
+  it("defaults to the free tier when the role row is missing", async () => {
+    const supabase = makeRoleSupabase(null, { code: "PGRST116" });
+    const { getRole } = await import("./tiers");
+    await expect(getRole(supabase as never, "user-1")).resolves.toBe("user");
+  });
+
+  it("exposes human-readable labels and an upgrade ordering", async () => {
+    const { TIER_LABELS, TIER_RANK } = await import("./tiers");
+    expect(TIER_LABELS).toEqual({ user: "Free", pro: "Pro", unlimited: "Unlimited", admin: "Admin" });
+    expect(TIER_RANK.user).toBeLessThan(TIER_RANK.pro);
+    expect(TIER_RANK.pro).toBeLessThan(TIER_RANK.unlimited);
+    expect(TIER_RANK.unlimited).toBeLessThan(TIER_RANK.admin);
+  });
+});

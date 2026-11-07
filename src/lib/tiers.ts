@@ -2,23 +2,47 @@ import { createClient } from "./supabase";
 
 type Supabase = NonNullable<ReturnType<typeof createClient>>;
 
+export type TierRole = "user" | "pro" | "unlimited" | "admin";
+
+/** Human-readable plan names used across the pricing, account, and nav UI. */
+export const TIER_LABELS: Record<TierRole, string> = {
+  user: "Free",
+  pro: "Pro",
+  unlimited: "Unlimited",
+  admin: "Admin",
+};
+
+/** Ordering used to decide whether a target plan is an upgrade. */
+export const TIER_RANK: Record<TierRole, number> = {
+  user: 0,
+  pro: 1,
+  unlimited: 2,
+  admin: 3,
+};
+
 type TierLimits = {
   interviewsPerMonth: number | null; // null = unlimited
   turnsPerChallenge: number | null;
   challengesPerSession: number | null;
 };
 
-const TIERS: Record<string, TierLimits> = {
+const TIERS: Record<TierRole, TierLimits> = {
   user: { interviewsPerMonth: 1, turnsPerChallenge: 3, challengesPerSession: 1 },
   pro: { interviewsPerMonth: 5, turnsPerChallenge: null, challengesPerSession: 5 },
   unlimited: { interviewsPerMonth: null, turnsPerChallenge: null, challengesPerSession: null },
   admin: { interviewsPerMonth: null, turnsPerChallenge: null, challengesPerSession: null },
 };
 
-async function getTier(supabase: Supabase, userId: string): Promise<TierLimits> {
+/** Read the user's persisted role (`user_roles.role`), defaulting to the free tier. */
+export async function getRole(supabase: Supabase, userId: string): Promise<TierRole> {
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).single();
 
-  const role = (data?.role as string) ?? "user";
+  const role = data?.role as TierRole | undefined;
+  return role ?? "user";
+}
+
+async function getTier(supabase: Supabase, userId: string): Promise<TierLimits> {
+  const role = await getRole(supabase, userId);
   return TIERS[role] ?? TIERS.user;
 }
 

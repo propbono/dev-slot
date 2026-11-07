@@ -1,0 +1,15 @@
+---
+import PlanCard from "@/components/PlanCard.astro";
+import { PLAN_CARDS } from "@/lib/plans";
+import type { TierRole } from "@/lib/tiers";
+
+type Props = {
+  currentRole: TierRole | null;
+};
+
+const { currentRole } = Astro.props;
+---
+
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+  {PLAN_CARDS.map((plan) => <PlanCard tier={plan.tier} currentRole={currentRole} highlighted={plan.tier === "pro"} />)}
+</div>

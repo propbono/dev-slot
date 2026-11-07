@@ -79,14 +79,14 @@ describe("CheckoutButton", () => {
     });
   });
 
-  it("reloads the page when checkout returns no URL", async () => {
+  it("redirects to the account page when checkout returns no URL (plan change)", async () => {
     stubFetch(true, { url: null });
 
     render(<CheckoutButton tier="pro" label="Get Pro — CA$10/mo" />);
     fireEvent.click(screen.getByRole("button", { name: /Get Pro/ }));
 
     await waitFor(() => {
-      expect(location.reload).toHaveBeenCalled();
+      expect(location.href).toBe("/account?checkout=success");
     });
   });
 
