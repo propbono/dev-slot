@@ -23,19 +23,24 @@ export const PLAN_CARDS: PlanCard[] = [
     tier: "user",
     name: TIER_LABELS.user,
     price: "$0",
-    features: ["1 interview per month", "3 turns per challenge", "1 challenge per session"],
+    features: ["1 interview per month", "3 turns per challenge", "1 challenge per session", "deepseek-flash model"],
   },
   {
     tier: "pro",
     name: TIER_LABELS.pro,
     price: `CA$${PLANS.pro.unitAmount / 100}`,
-    features: ["5 interviews per month", "Unlimited turns per challenge", "5 challenges per session"],
+    features: [
+      "5 interviews per month",
+      "Unlimited turns per challenge",
+      "5 challenges per session",
+      "deepseek-v4-pro model",
+    ],
   },
   {
     tier: "unlimited",
     name: TIER_LABELS.unlimited,
     price: `CA$${PLANS.unlimited.unitAmount / 100}`,
-    features: ["Unlimited interviews", "Unlimited turns", "Unlimited challenges"],
+    features: ["Unlimited interviews", "Unlimited turns", "Unlimited challenges", "deepseek-v4-pro model"],
   },
 ];
 

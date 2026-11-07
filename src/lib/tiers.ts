@@ -1,4 +1,5 @@
 import { createClient } from "./supabase";
+import type { Role } from "./model-tier";
 
 type Supabase = NonNullable<ReturnType<typeof createClient>>;
 
@@ -33,12 +34,11 @@ const TIERS: Record<TierRole, TierLimits> = {
   admin: { interviewsPerMonth: null, turnsPerChallenge: null, challengesPerSession: null },
 };
 
-/** Read the user's persisted role (`user_roles.role`), defaulting to the free tier. */
-export async function getRole(supabase: Supabase, userId: string): Promise<TierRole> {
+/** Resolve the authenticated user's subscription role (defaults to `user`). */
+export async function getRole(supabase: Supabase, userId: string): Promise<Role> {
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).single();
 
-  const role = data?.role as TierRole | undefined;
-  return role ?? "user";
+  return (data?.role as Role | undefined) ?? "user";
 }
 
 async function getTier(supabase: Supabase, userId: string): Promise<TierLimits> {

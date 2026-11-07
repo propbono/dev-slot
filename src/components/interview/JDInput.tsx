@@ -145,14 +145,16 @@ export default function JDInput({ error }: Props) {
                   <span className="font-medium text-white">Pro</span>
                   <span className="text-purple-300">CA$10/mo</span>
                 </div>
-                <p className="text-xs text-blue-100/50">5 interviews/mo · Unlimited turns · 5 challenges</p>
+                <p className="text-xs text-blue-100/50">
+                  5 interviews/mo · Unlimited turns · 5 challenges · deepseek-v4-pro
+                </p>
               </div>
               <div className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-3">
                 <div className="flex justify-between">
                   <span className="font-medium text-white">Unlimited</span>
                   <span className="text-purple-300">CA$15/mo</span>
                 </div>
-                <p className="text-xs text-blue-100/50">Unlimited everything</p>
+                <p className="text-xs text-blue-100/50">Unlimited everything · deepseek-v4-pro</p>
               </div>
             </div>
             <div className="mb-4 space-y-2">
