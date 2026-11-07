@@ -34,6 +34,13 @@ function makeContext(pathname: string): APIContext {
 function makeSupabase(user: UserLike) {
   return {
     auth: { getUser: () => Promise.resolve({ data: { user } }) },
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          single: () => Promise.resolve({ data: null }),
+        }),
+      }),
+    }),
   };
 }
 
