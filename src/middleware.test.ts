@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { APIContext } from "astro";
 
 const { mockCreateClient, mockIsEmailConfirmed } = vi.hoisted(() => ({
   mockCreateClient: vi.fn(),
@@ -19,7 +20,7 @@ import { onRequest } from "./middleware";
 
 type UserLike = { id: string; email_confirmed_at?: string | null } | null;
 
-function makeContext(pathname: string) {
+function makeContext(pathname: string): APIContext {
   const locals: Record<string, unknown> = {};
   return {
     request: { headers: new Headers() },
@@ -27,7 +28,7 @@ function makeContext(pathname: string) {
     locals,
     url: new URL(`http://localhost${pathname}`),
     redirect: (path: string) => new Response(null, { status: 302, headers: { Location: path } }),
-  };
+  } as unknown as APIContext;
 }
 
 function makeSupabase(user: UserLike) {
@@ -36,7 +37,7 @@ function makeSupabase(user: UserLike) {
   };
 }
 
-const next = () => new Response("ok", { status: 200 });
+const next = () => Promise.resolve(new Response("ok", { status: 200 }));
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -47,7 +48,7 @@ describe("middleware (email-confirmation enforcement)", () => {
     mockCreateClient.mockReturnValue(makeSupabase(null));
 
     const ctx = makeContext("/new-session");
-    const res = await onRequest(ctx, next);
+    const res = (await onRequest(ctx, next)) as Response;
 
     expect(res.status).toBe(302);
     expect(res.headers.get("Location") as string).toBe("/auth/signin");
@@ -58,7 +59,7 @@ describe("middleware (email-confirmation enforcement)", () => {
     mockIsEmailConfirmed.mockReturnValue(false);
 
     const ctx = makeContext("/new-session");
-    const res = await onRequest(ctx, next);
+    const res = (await onRequest(ctx, next)) as Response;
 
     expect(res.status).toBe(302);
     expect(res.headers.get("Location") as string).toBe("/auth/confirm-email");
@@ -69,7 +70,7 @@ describe("middleware (email-confirmation enforcement)", () => {
     mockIsEmailConfirmed.mockReturnValue(false);
 
     const ctx = makeContext("/interview/some-session");
-    const res = await onRequest(ctx, next);
+    const res = (await onRequest(ctx, next)) as Response;
 
     expect(res.status).toBe(302);
     expect(res.headers.get("Location") as string).toBe("/auth/confirm-email");
@@ -80,7 +81,7 @@ describe("middleware (email-confirmation enforcement)", () => {
     mockIsEmailConfirmed.mockReturnValue(true);
 
     const ctx = makeContext("/new-session");
-    const res = await onRequest(ctx, next);
+    const res = (await onRequest(ctx, next)) as Response;
 
     expect(res.status).toBe(200);
     expect(ctx.locals.user).toEqual({
@@ -93,7 +94,7 @@ describe("middleware (email-confirmation enforcement)", () => {
     mockCreateClient.mockReturnValue(null);
 
     const ctx = makeContext("/auth/confirm-email");
-    const res = await onRequest(ctx, next);
+    const res = (await onRequest(ctx, next)) as Response;
 
     expect(res.status).toBe(200);
   });
