@@ -47,10 +47,10 @@ describe("middleware (email-confirmation enforcement)", () => {
     mockCreateClient.mockReturnValue(makeSupabase(null));
 
     const ctx = makeContext("/new-session");
-    const res = await onRequest(ctx as never, next);
+    const res = await onRequest(ctx, next);
 
     expect(res.status).toBe(302);
-    expect((res.headers.get("Location") as string)).toBe("/auth/signin");
+    expect(res.headers.get("Location") as string).toBe("/auth/signin");
   });
 
   it("redirects unconfirmed users from /new-session to the confirm screen", async () => {
@@ -58,10 +58,10 @@ describe("middleware (email-confirmation enforcement)", () => {
     mockIsEmailConfirmed.mockReturnValue(false);
 
     const ctx = makeContext("/new-session");
-    const res = await onRequest(ctx as never, next);
+    const res = await onRequest(ctx, next);
 
     expect(res.status).toBe(302);
-    expect((res.headers.get("Location") as string)).toBe("/auth/confirm-email");
+    expect(res.headers.get("Location") as string).toBe("/auth/confirm-email");
   });
 
   it("redirects unconfirmed users from /interview pages to the confirm screen", async () => {
@@ -69,10 +69,10 @@ describe("middleware (email-confirmation enforcement)", () => {
     mockIsEmailConfirmed.mockReturnValue(false);
 
     const ctx = makeContext("/interview/some-session");
-    const res = await onRequest(ctx as never, next);
+    const res = await onRequest(ctx, next);
 
     expect(res.status).toBe(302);
-    expect((res.headers.get("Location") as string)).toBe("/auth/confirm-email");
+    expect(res.headers.get("Location") as string).toBe("/auth/confirm-email");
   });
 
   it("lets confirmed users through protected routes", async () => {
@@ -80,10 +80,10 @@ describe("middleware (email-confirmation enforcement)", () => {
     mockIsEmailConfirmed.mockReturnValue(true);
 
     const ctx = makeContext("/new-session");
-    const res = await onRequest(ctx as never, next);
+    const res = await onRequest(ctx, next);
 
     expect(res.status).toBe(200);
-    expect((ctx.locals as Record<string, unknown>).user).toEqual({
+    expect(ctx.locals.user).toEqual({
       id: "user-1",
       email_confirmed_at: "2024-01-01T00:00:00Z",
     });
@@ -93,7 +93,7 @@ describe("middleware (email-confirmation enforcement)", () => {
     mockCreateClient.mockReturnValue(null);
 
     const ctx = makeContext("/auth/confirm-email");
-    const res = await onRequest(ctx as never, next);
+    const res = await onRequest(ctx, next);
 
     expect(res.status).toBe(200);
   });
