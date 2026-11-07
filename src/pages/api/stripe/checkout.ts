@@ -69,6 +69,9 @@ export const POST: APIRoute = async (context) => {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  // The 401/400 branches below (unauthorized, invalid_request, invalid_tier)
+  // are intentional client-side validation/control-flow responses, excluded
+  // from Sentry capture to avoid alert noise.
   if (!user) return Response.json({ error: "unauthorized" }, { status: 401 });
 
   const stripe = getStripe();
@@ -133,6 +136,7 @@ export const POST: APIRoute = async (context) => {
 
   const claim = await claimCheckout(supabase, user.id, tier);
   if (claim.status === "in_flight") {
+    Sentry.captureMessage(`${ROUTE_TAG}: checkout_in_flight`, { level: "warning", tags: { route: ROUTE_TAG } });
     return Response.json({ error: "checkout_in_flight" }, { status: 409 });
   }
   if (claim.status === "error") {

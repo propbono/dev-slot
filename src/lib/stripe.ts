@@ -30,8 +30,11 @@ export function isPlanTier(value: unknown): value is PlanTier {
 
 /**
  * Extract a safe, human-readable message from an arbitrary thrown value.
- * Only ever returns `message`/`code` strings — never secrets or PII, which
- * never appear in Supabase Postgrest or Stripe error messages.
+ * Only ever returns `message`/`code` strings. Supabase errors never expose
+ * secrets (`.details`/`.hint`, which can carry row data, are deliberately
+ * skipped). Stripe sanitizes card numbers from its error messages, so the
+ * only PII that can appear is the user's own email (echoed back from
+ * `customer_email`), which is accepted for this project.
  */
 export function errorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
