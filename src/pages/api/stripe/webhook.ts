@@ -1,9 +1,12 @@
 import type { APIRoute } from "astro";
+import * as Sentry from "@sentry/astro";
 import type Stripe from "stripe";
 import { createServiceClient } from "@/lib/supabase";
-import { isPlanTier, verifyWebhook } from "@/lib/stripe";
+import { errorMessage, isPlanTier, toError, verifyWebhook } from "@/lib/stripe";
 
 export const prerender = false;
+
+const ROUTE_TAG = "stripe/webhook";
 
 type ServiceSupabase = NonNullable<ReturnType<typeof createServiceClient>>;
 
@@ -24,19 +27,29 @@ async function updateRoleBySubscription(
   supabase: ServiceSupabase,
   subscriptionId: string | null,
   role: "user" | "pro" | "unlimited",
-): Promise<boolean> {
-  if (!subscriptionId) return true;
+): Promise<unknown> {
+  if (!subscriptionId) return null;
   const { error } = await supabase.from("user_roles").update({ role }).eq("stripe_subscription_id", subscriptionId);
-  return !error;
+  return error ?? null;
 }
 
-async function downgradeToUser(supabase: ServiceSupabase, subscriptionId: string | null): Promise<boolean> {
-  if (!subscriptionId) return true;
+async function downgradeToUser(supabase: ServiceSupabase, subscriptionId: string | null): Promise<unknown> {
+  if (!subscriptionId) return null;
   const { error } = await supabase
     .from("user_roles")
     .update({ role: "user", stripe_subscription_id: null })
     .eq("stripe_subscription_id", subscriptionId);
-  return !error;
+  return error ?? null;
+}
+
+function dbError(error: unknown): Response {
+  Sentry.captureException(toError(error), { tags: { route: ROUTE_TAG } });
+  return Response.json({ error: "db_error", detail: errorMessage(error) }, { status: 500 });
+}
+
+function notConfigured(detail: string): Response {
+  Sentry.captureMessage(`${ROUTE_TAG}: ${detail}`, { level: "error", tags: { route: ROUTE_TAG } });
+  return Response.json({ error: "not_configured", detail }, { status: 503 });
 }
 
 export const POST: APIRoute = async (context) => {
@@ -48,11 +61,15 @@ export const POST: APIRoute = async (context) => {
   const verification = verifyWebhook(payload, signature);
   if (!verification.ok) {
     const status = verification.error === "not_configured" ? 503 : 400;
-    return Response.json({ error: verification.error }, { status });
+    Sentry.captureMessage(`${ROUTE_TAG}: ${verification.detail}`, {
+      level: verification.error === "not_configured" ? "error" : "warning",
+      tags: { route: ROUTE_TAG },
+    });
+    return Response.json({ error: verification.error, detail: verification.detail }, { status });
   }
 
   const supabase = createServiceClient();
-  if (!supabase) return Response.json({ error: "not_configured" }, { status: 503 });
+  if (!supabase) return notConfigured("SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY is not set");
 
   const event = verification.event;
 
@@ -72,28 +89,28 @@ export const POST: APIRoute = async (context) => {
           { user_id: userId, role: tier, stripe_customer_id: customerId, stripe_subscription_id: subscriptionId },
           { onConflict: "user_id" },
         );
-      if (error) return Response.json({ error: "db_error" }, { status: 500 });
+      if (error) return dbError(error);
 
       const { error: claimError } = await supabase.from("checkout_inflight").delete().eq("user_id", userId);
-      if (claimError) return Response.json({ error: "db_error" }, { status: 500 });
+      if (claimError) return dbError(claimError);
       break;
     }
     case "customer.subscription.deleted": {
-      const ok = await downgradeToUser(supabase, event.data.object.id);
-      if (!ok) return Response.json({ error: "db_error" }, { status: 500 });
+      const err = await downgradeToUser(supabase, event.data.object.id);
+      if (err) return dbError(err);
       break;
     }
     case "customer.subscription.updated": {
       const subscription = event.data.object;
       if (DOWNGRADE_STATUSES.has(subscription.status)) {
-        const ok = await downgradeToUser(supabase, subscription.id);
-        if (!ok) return Response.json({ error: "db_error" }, { status: 500 });
+        const err = await downgradeToUser(supabase, subscription.id);
+        if (err) return dbError(err);
         break;
       }
       const tier = subscription.metadata?.tier;
       if (isPlanTier(tier)) {
-        const ok = await updateRoleBySubscription(supabase, subscription.id, tier);
-        if (!ok) return Response.json({ error: "db_error" }, { status: 500 });
+        const err = await updateRoleBySubscription(supabase, subscription.id, tier);
+        if (err) return dbError(err);
       }
       break;
     }

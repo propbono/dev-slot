@@ -216,7 +216,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     const res = await POST(makeContext({ tier: "pro" }) as never);
 
     expect(res.status).toBe(502);
-    await expect(res.json()).resolves.toEqual({ error: "subscription_error" });
+    await expect(res.json()).resolves.toEqual({ error: "subscription_error", detail: "resource_missing" });
     expect(mockSessionsCreate).not.toHaveBeenCalled();
   });
 
@@ -228,7 +228,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     const res = await POST(makeContext({ tier: "unlimited" }) as never);
 
     expect(res.status).toBe(502);
-    await expect(res.json()).resolves.toEqual({ error: "subscription_error" });
+    await expect(res.json()).resolves.toEqual({ error: "subscription_error", detail: "network" });
     expect(mockSessionsCreate).not.toHaveBeenCalled();
   });
 
@@ -239,7 +239,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     const res = await POST(makeContext({ tier: "pro" }) as never);
 
     expect(res.status).toBe(502);
-    await expect(res.json()).resolves.toEqual({ error: "checkout_error" });
+    await expect(res.json()).resolves.toEqual({ error: "checkout_error", detail: "network" });
   });
 
   it("releases the checkout claim when Checkout Session creation fails", async () => {
@@ -259,7 +259,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     const res = await POST(makeContext({ tier: "pro" }) as never);
 
     expect(res.status).toBe(503);
-    await expect(res.json()).resolves.toEqual({ error: "subscription_error" });
+    await expect(res.json()).resolves.toEqual({ error: "subscription_error", detail: "connection_error" });
     expect(mockSessionsCreate).not.toHaveBeenCalled();
   });
 
@@ -334,7 +334,7 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
     const res = await POST(makeContext({ tier: "pro" }) as never);
 
     expect(res.status).toBe(503);
-    await expect(res.json()).resolves.toEqual({ error: "checkout_error" });
+    await expect(res.json()).resolves.toEqual({ error: "checkout_error", detail: "connection_error" });
     expect(mockSessionsCreate).not.toHaveBeenCalled();
   });
 });

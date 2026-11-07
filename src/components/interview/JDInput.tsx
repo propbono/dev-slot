@@ -56,10 +56,12 @@ export default function JDInput({ error }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tier }),
       });
-      const data = (await res.json()) as { url?: string | null; error?: string };
+      const data = (await res.json()) as { url?: string | null; error?: string; detail?: string };
       if (!res.ok) {
         setCheckoutError(
-          data.error === "unauthorized" ? "Please sign in to upgrade." : "Could not start checkout. Please try again.",
+          data.error === "unauthorized"
+            ? "Please sign in to upgrade."
+            : (data.detail ?? "Could not start checkout. Please try again."),
         );
         return;
       }

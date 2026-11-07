@@ -6,6 +6,8 @@ const mockVerifyWebhook = vi.fn();
 vi.mock("@/lib/stripe", () => ({
   verifyWebhook: (...args: unknown[]) => mockVerifyWebhook(...args),
   isPlanTier: (value: unknown) => value === "pro" || value === "unlimited",
+  errorMessage: (err: unknown) => (err instanceof Error ? err.message : String(err)),
+  toError: (err: unknown) => (err instanceof Error ? err : new Error(String(err))),
 }));
 
 import { POST } from "./webhook";
@@ -49,12 +51,19 @@ beforeEach(() => {
 
 describe("webhook.ts (Stripe webhook handler)", () => {
   it("rejects an unverified signature without touching the database", async () => {
-    mockVerifyWebhook.mockReturnValue({ ok: false, error: "invalid_signature" });
+    mockVerifyWebhook.mockReturnValue({
+      ok: false,
+      error: "invalid_signature",
+      detail: "Webhook signature verification failed: signature mismatch",
+    });
 
     const res = await POST(makeContext("t=1,v1=bad", "{}") as never);
 
     expect(res.status).toBe(400);
-    await expect(res.json()).resolves.toEqual({ error: "invalid_signature" });
+    await expect(res.json()).resolves.toEqual({
+      error: "invalid_signature",
+      detail: "Webhook signature verification failed: signature mismatch",
+    });
     expect(createServiceClient).not.toHaveBeenCalled();
   });
 
@@ -136,7 +145,7 @@ describe("webhook.ts (Stripe webhook handler)", () => {
     const res = await POST(makeContext("t=1,v1=good", "{}") as never);
 
     expect(res.status).toBe(500);
-    await expect(res.json()).resolves.toEqual({ error: "db_error" });
+    await expect(res.json()).resolves.toEqual({ error: "db_error", detail: "db down" });
     expect(supabase.delete).not.toHaveBeenCalled();
   });
 
@@ -162,7 +171,7 @@ describe("webhook.ts (Stripe webhook handler)", () => {
     const res = await POST(makeContext("t=1,v1=good", "{}") as never);
 
     expect(res.status).toBe(500);
-    await expect(res.json()).resolves.toEqual({ error: "db_error" });
+    await expect(res.json()).resolves.toEqual({ error: "db_error", detail: "db down" });
   });
 
   it("reverts to the free tier on customer.subscription.deleted", async () => {
@@ -287,6 +296,6 @@ describe("webhook.ts (Stripe webhook handler)", () => {
     const res = await POST(makeContext("t=1,v1=good", "{}") as never);
 
     expect(res.status).toBe(500);
-    await expect(res.json()).resolves.toEqual({ error: "db_error" });
+    await expect(res.json()).resolves.toEqual({ error: "db_error", detail: "db down" });
   });
 });

@@ -1,10 +1,13 @@
 import type { APIRoute } from "astro";
+import * as Sentry from "@sentry/astro";
 import { randomUUID } from "node:crypto";
 import type Stripe from "stripe";
 import { createClient } from "@/lib/supabase";
-import { getPriceId, getStripe, isPlanTier, PLANS, type PlanTier } from "@/lib/stripe";
+import { errorMessage, getPriceId, getStripe, isPlanTier, PLANS, toError, type PlanTier } from "@/lib/stripe";
 
 export const prerender = false;
+
+const ROUTE_TAG = "stripe/checkout";
 
 /** Statuses for which a stored subscription is still billed and changeable. */
 const CHANGEABLE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due", "unpaid", "paused", "incomplete"]);
@@ -15,7 +18,7 @@ type Supabase = NonNullable<ReturnType<typeof createClient>>;
  * treated as abandoned and reclaimed. */
 const CHECKOUT_CLAIM_STALE_MS = 5 * 60 * 1000;
 
-type ClaimResult = "claimed" | "in_flight" | "error";
+type ClaimResult = { status: "claimed" } | { status: "in_flight" } | { status: "error"; error: unknown };
 
 async function releaseCheckoutClaim(supabase: Supabase, userId: string): Promise<void> {
   await supabase.from("checkout_inflight").delete().eq("user_id", userId);
@@ -28,8 +31,8 @@ async function releaseCheckoutClaim(supabase: Supabase, userId: string): Promise
 async function claimCheckout(supabase: Supabase, userId: string, tier: PlanTier): Promise<ClaimResult> {
   const { error: insertError } = await supabase.from("checkout_inflight").insert({ user_id: userId, tier });
 
-  if (!insertError) return "claimed";
-  if (insertError.code !== "23505") return "error";
+  if (!insertError) return { status: "claimed" };
+  if (insertError.code !== "23505") return { status: "error", error: insertError };
 
   const staleIso = new Date(Date.now() - CHECKOUT_CLAIM_STALE_MS).toISOString();
   const { data, error: reclaimError } = await supabase
@@ -39,22 +42,40 @@ async function claimCheckout(supabase: Supabase, userId: string, tier: PlanTier)
     .lt("claimed_at", staleIso)
     .select("user_id");
 
-  if (reclaimError) return "error";
+  if (reclaimError) return { status: "error", error: reclaimError };
 
-  return Array.isArray(data) && data.length === 1 ? "claimed" : "in_flight";
+  return Array.isArray(data) && data.length === 1 ? { status: "claimed" } : { status: "in_flight" };
+}
+
+function notConfigured(detail: string): Response {
+  Sentry.captureMessage(`${ROUTE_TAG}: ${detail}`, { level: "error", tags: { route: ROUTE_TAG } });
+  return Response.json({ error: "not_configured", detail }, { status: 503 });
+}
+
+function captureError(error: unknown): string {
+  Sentry.captureException(toError(error), { tags: { route: ROUTE_TAG } });
+  return errorMessage(error);
+}
+
+function captureFailure(message: string): string {
+  Sentry.captureMessage(`${ROUTE_TAG}: ${message}`, { level: "error", tags: { route: ROUTE_TAG } });
+  return message;
 }
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) return Response.json({ error: "not_configured" }, { status: 503 });
+  if (!supabase) return notConfigured("SUPABASE_URL/KEY is not set");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  // The 401/400 branches below (unauthorized, invalid_request, invalid_tier)
+  // are intentional client-side validation/control-flow responses, excluded
+  // from Sentry capture to avoid alert noise.
   if (!user) return Response.json({ error: "unauthorized" }, { status: 401 });
 
   const stripe = getStripe();
-  if (!stripe) return Response.json({ error: "not_configured" }, { status: 503 });
+  if (!stripe) return notConfigured("STRIPE_SECRET_KEY is not set");
 
   let body: unknown;
   try {
@@ -76,7 +97,7 @@ export const POST: APIRoute = async (context) => {
     .single();
 
   if (roleError && roleError.code !== "PGRST116") {
-    return Response.json({ error: "subscription_error" }, { status: 503 });
+    return Response.json({ error: "subscription_error", detail: captureError(roleError) }, { status: 503 });
   }
 
   const existingSubscriptionId = (roleRow?.stripe_subscription_id as string | undefined | null) ?? null;
@@ -85,16 +106,19 @@ export const POST: APIRoute = async (context) => {
     let subscription: Stripe.Subscription;
     try {
       subscription = await stripe.subscriptions.retrieve(existingSubscriptionId);
-    } catch {
-      return Response.json({ error: "subscription_error" }, { status: 502 });
+    } catch (err) {
+      return Response.json({ error: "subscription_error", detail: captureError(err) }, { status: 502 });
     }
 
     if (CHANGEABLE_SUBSCRIPTION_STATUSES.has(subscription.status)) {
       const priceId = getPriceId(tier);
-      if (!priceId) return Response.json({ error: "not_configured" }, { status: 503 });
+      if (!priceId) return notConfigured(`STRIPE_PRICE_ID_${tier.toUpperCase()} is not set`);
 
       const item = subscription.items.data[0];
-      if (!item) return Response.json({ error: "subscription_error" }, { status: 502 });
+      if (!item) {
+        const detail = captureFailure("Existing subscription has no line items");
+        return Response.json({ error: "subscription_error", detail }, { status: 502 });
+      }
 
       try {
         await stripe.subscriptions.update(existingSubscriptionId, {
@@ -102,8 +126,8 @@ export const POST: APIRoute = async (context) => {
           proration_behavior: "create_prorations",
           metadata: { tier },
         });
-      } catch {
-        return Response.json({ error: "subscription_error" }, { status: 502 });
+      } catch (err) {
+        return Response.json({ error: "subscription_error", detail: captureError(err) }, { status: 502 });
       }
 
       return Response.json({ url: null });
@@ -111,11 +135,12 @@ export const POST: APIRoute = async (context) => {
   }
 
   const claim = await claimCheckout(supabase, user.id, tier);
-  if (claim === "in_flight") {
+  if (claim.status === "in_flight") {
+    Sentry.captureMessage(`${ROUTE_TAG}: checkout_in_flight`, { level: "warning", tags: { route: ROUTE_TAG } });
     return Response.json({ error: "checkout_in_flight" }, { status: 409 });
   }
-  if (claim === "error") {
-    return Response.json({ error: "checkout_error" }, { status: 503 });
+  if (claim.status === "error") {
+    return Response.json({ error: "checkout_error", detail: captureError(claim.error) }, { status: 503 });
   }
 
   let session: Stripe.Checkout.Session;
@@ -143,9 +168,9 @@ export const POST: APIRoute = async (context) => {
       },
       { idempotencyKey: `${user.id}:${randomUUID()}` },
     );
-  } catch {
+  } catch (err) {
     await releaseCheckoutClaim(supabase, user.id);
-    return Response.json({ error: "checkout_error" }, { status: 502 });
+    return Response.json({ error: "checkout_error", detail: captureError(err) }, { status: 502 });
   }
 
   return Response.json({ url: session.url });

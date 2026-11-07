@@ -67,7 +67,7 @@ describe("JDInput", () => {
   it("calls the checkout endpoint when an upgrade button is clicked", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: false,
-      json: () => Promise.resolve({ error: "not_configured" }),
+      json: () => Promise.resolve({ error: "not_configured", detail: "STRIPE_SECRET_KEY is not set" }),
     });
     vi.stubGlobal("fetch", fetchMock);
 
@@ -82,7 +82,7 @@ describe("JDInput", () => {
         body: JSON.stringify({ tier: "pro" }),
       });
     });
-    expect(await screen.findByText(/Could not start checkout/i)).toBeInTheDocument();
+    expect(await screen.findByText(/STRIPE_SECRET_KEY is not set/i)).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });
