@@ -124,24 +124,19 @@ SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_KEY=<anon-key>
 ```
 
-### Email confirmation in local development
+### Email confirmation
 
-By default Supabase requires email confirmation before a user can sign in. To skip this during local development:
-
-1. Open the Supabase dashboard for your project
-2. Go to **Authentication → Email → Confirm email**
-3. Toggle it **off**
-
-Users can then sign in immediately after sign-up without clicking a confirmation link.
+The app enforces email confirmation: after signing up, a confirmation email is sent, and the account can't use the product until the link is clicked. Unconfirmed users who sign in are redirected to `/auth/confirm-email`, which offers a resend option. Enforcement lives in the app (`src/lib/supabase.ts`), independent of the Supabase dashboard "Confirm email" toggle — see `AGENTS.md` → Auth.
 
 ### Auth routes
 
-| Route                 | Description                                                                |
-| --------------------- | -------------------------------------------------------------------------- |
-| `/auth/signin`        | Email/password sign-in form                                                |
-| `/auth/signup`        | Email/password sign-up form                                                |
-| `/auth/confirm-email` | Post-signup "check your inbox" page                                        |
-| `/account`            | Subscription/account page (redirects to `/auth/signin` if unauthenticated) |
+| Route                 | Description                                                                     |
+| --------------------- | ------------------------------------------------------------------------------- |
+| `/auth/signin`        | Email/password sign-in form                                                     |
+| `/auth/signup`        | Email/password sign-up form                                                     |
+| `/auth/confirm-email` | "Confirm your email" screen with resend (redirect target for unconfirmed users) |
+| `/new-session`        | Example protected page (redirects to `/auth/signin` if unauthenticated)         |
+| `/account`            | Subscription/account page (redirects to `/auth/signin` if unauthenticated)      |
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
 
