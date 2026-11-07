@@ -1,8 +1,8 @@
 import { defineMiddleware } from "astro:middleware";
-import { createClient } from "@/lib/supabase";
+import { createClient, isEmailConfirmed, CONFIRM_EMAIL_PATH } from "@/lib/supabase";
 import type { TierRole } from "@/lib/tiers";
 
-const PROTECTED_ROUTES = ["/new-session", "/account"];
+const PROTECTED_ROUTES = ["/new-session", "/interview", "/history", "/account"];
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -29,6 +29,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (PROTECTED_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
     if (!context.locals.user) {
       return context.redirect("/auth/signin");
+    }
+    if (!isEmailConfirmed(context.locals.user)) {
+      return context.redirect(CONFIRM_EMAIL_PATH);
     }
   }
 

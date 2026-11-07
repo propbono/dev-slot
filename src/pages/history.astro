@@ -1,6 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { createClient } from "@/lib/supabase";
+import { createClient, isEmailConfirmed, CONFIRM_EMAIL_PATH } from "@/lib/supabase";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase) return Astro.redirect("/new-session?error=not_configured");
@@ -9,6 +9,7 @@ const {
   data: { user },
 } = await supabase.auth.getUser();
 if (!user) return Astro.redirect("/auth/signin");
+if (!isEmailConfirmed(user)) return Astro.redirect(CONFIRM_EMAIL_PATH);
 
 // Check for active session
 const { data: activeSession } = await supabase

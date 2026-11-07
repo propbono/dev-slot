@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { captureEvent, flush } from "@/lib/posthog";
-import { createClient } from "@/lib/supabase";
+import { createClient, isEmailConfirmed, CONFIRM_EMAIL_PATH } from "@/lib/supabase";
 import { checkInterviewLimit, incrementInterviewCounter } from "@/lib/tiers";
 
 export const POST: APIRoute = async (context) => {
@@ -11,6 +11,7 @@ export const POST: APIRoute = async (context) => {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return context.redirect("/auth/signin");
+  if (!isEmailConfirmed(user)) return context.redirect(CONFIRM_EMAIL_PATH);
 
   const form = await context.request.formData();
   const mode = (form.get("mode") as string) || "jd";

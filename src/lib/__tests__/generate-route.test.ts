@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/supabase", () => ({ createClient: vi.fn() }));
+vi.mock("@/lib/supabase", () => ({
+  createClient: vi.fn(),
+  isEmailConfirmed: (user: { email_confirmed_at?: string; confirmed_at?: string } | null | undefined) =>
+    Boolean(user?.email_confirmed_at ?? user?.confirmed_at),
+}));
 vi.mock("@/lib/ai", () => ({
   extractConstraints: vi.fn(),
   generateChallenge: vi.fn(),
@@ -15,7 +19,7 @@ import { guardAiCall } from "@/lib/ai-guard";
 import { captureEvent, flush } from "@/lib/posthog";
 
 type FakeSupabaseOptions = {
-  user: { id: string } | null;
+  user: { id: string; email_confirmed_at?: string } | null;
   session?: Record<string, unknown> | null;
   activeChallenge?: Record<string, unknown> | null;
   genMsgs?: Record<string, unknown>[];
@@ -105,9 +109,22 @@ describe("generate.ts (challenge generation AI endpoint)", () => {
     expect(captureEvent).not.toHaveBeenCalled();
   });
 
+  it("rejects unconfirmed users before any AI call", async () => {
+    const supabase = makeFakeSupabase({ user: { id: "user-1" } });
+    vi.mocked(createClient).mockReturnValue(supabase as never);
+
+    const res = await GET(makeContext("s1") as never);
+
+    expect(res.status).toBe(403);
+    await expect(res.json()).resolves.toMatchObject({ ready: false, error: "email_not_confirmed" });
+    expect(guardAiCall).not.toHaveBeenCalled();
+    expect(extractConstraints).not.toHaveBeenCalled();
+    expect(generateChallenge).not.toHaveBeenCalled();
+  });
+
   it("blocks the model call and returns 429 when the guard rejects", async () => {
     const supabase = makeFakeSupabase({
-      user: { id: "user-1" },
+      user: { id: "user-1", email_confirmed_at: "2024-01-01T00:00:00Z" },
       session: { id: "s1", status: "created" },
       activeChallenge: { id: "c1" },
       genMsgs: [],
@@ -131,7 +148,7 @@ describe("generate.ts (challenge generation AI endpoint)", () => {
 
   it("guards both extract and generate calls and produces the challenge when allowed", async () => {
     const supabase = makeFakeSupabase({
-      user: { id: "user-1" },
+      user: { id: "user-1", email_confirmed_at: "2024-01-01T00:00:00Z" },
       session: { id: "s1", status: "created" },
       activeChallenge: { id: "c1" },
       genMsgs: [],

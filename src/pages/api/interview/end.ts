@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { createClient } from "@/lib/supabase";
+import { createClient, isEmailConfirmed, CONFIRM_EMAIL_PATH } from "@/lib/supabase";
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -9,6 +9,7 @@ export const POST: APIRoute = async (context) => {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return context.redirect("/auth/signin");
+  if (!isEmailConfirmed(user)) return context.redirect(CONFIRM_EMAIL_PATH);
 
   const form = await context.request.formData();
   const sessionId = (form.get("sessionId") as string)?.trim();

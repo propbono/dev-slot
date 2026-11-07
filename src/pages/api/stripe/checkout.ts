@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import * as Sentry from "@sentry/astro";
 import { randomUUID } from "node:crypto";
 import type Stripe from "stripe";
-import { createClient } from "@/lib/supabase";
+import { createClient, isEmailConfirmed } from "@/lib/supabase";
 import { errorMessage, getPriceId, getStripe, isPlanTier, PLANS, toError, type PlanTier } from "@/lib/stripe";
 
 export const prerender = false;
@@ -73,6 +73,7 @@ export const POST: APIRoute = async (context) => {
   // are intentional client-side validation/control-flow responses, excluded
   // from Sentry capture to avoid alert noise.
   if (!user) return Response.json({ error: "unauthorized" }, { status: 401 });
+  if (!isEmailConfirmed(user)) return Response.json({ error: "email_not_confirmed" }, { status: 403 });
 
   const stripe = getStripe();
   if (!stripe) return notConfigured("STRIPE_SECRET_KEY is not set");

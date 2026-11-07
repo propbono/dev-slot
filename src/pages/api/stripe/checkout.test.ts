@@ -6,7 +6,11 @@ const { mockSessionsCreate, mockSubscriptionsRetrieve, mockSubscriptionsUpdate }
   mockSubscriptionsUpdate: vi.fn(),
 }));
 
-vi.mock("@/lib/supabase", () => ({ createClient: vi.fn() }));
+vi.mock("@/lib/supabase", () => ({
+  createClient: vi.fn(),
+  isEmailConfirmed: (user: { email_confirmed_at?: string; confirmed_at?: string } | null | undefined) =>
+    Boolean(user?.email_confirmed_at ?? user?.confirmed_at),
+}));
 
 vi.mock("stripe", () => ({
   default: function Stripe() {
@@ -27,11 +31,12 @@ type ClaimConfig = {
 };
 
 function makeSupabase(
-  user: { id: string; email?: string } | null,
+  user: { id: string; email?: string; email_confirmed_at?: string | null } | null,
   roleRow: unknown = null,
   roleError: unknown = null,
   claim: ClaimConfig = {},
 ) {
+  const authenticatedUser = user ? { email_confirmed_at: "2024-01-01T00:00:00Z", ...user } : null;
   const single = vi.fn().mockResolvedValue({ data: roleRow, error: roleError });
   const eq = vi.fn().mockReturnValue({ single });
   const select = vi.fn().mockReturnValue({ eq });
@@ -56,7 +61,7 @@ function makeSupabase(
   });
 
   return {
-    auth: { getUser: () => Promise.resolve({ data: { user } }) },
+    auth: { getUser: () => Promise.resolve({ data: { user: authenticatedUser } }) },
     from,
     insert,
     delete: del,
@@ -67,7 +72,7 @@ function makeSupabase(
 }
 
 function mockSupabaseUser(
-  user: { id: string; email?: string } | null,
+  user: { id: string; email?: string; email_confirmed_at?: string | null } | null,
   roleRow: unknown = null,
   roleError: unknown = null,
   claim: ClaimConfig = {},
@@ -98,6 +103,16 @@ describe("checkout.ts (Stripe Checkout session creation)", () => {
 
     expect(res.status).toBe(401);
     await expect(res.json()).resolves.toEqual({ error: "unauthorized" });
+    expect(mockSessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("rejects unconfirmed users before creating a session", async () => {
+    mockSupabaseUser({ id: "user-1", email: "a@b.com", email_confirmed_at: null });
+
+    const res = await POST(makeContext({ tier: "pro" }) as never);
+
+    expect(res.status).toBe(403);
+    await expect(res.json()).resolves.toEqual({ error: "email_not_confirmed" });
     expect(mockSessionsCreate).not.toHaveBeenCalled();
   });
 

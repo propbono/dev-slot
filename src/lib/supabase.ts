@@ -1,7 +1,22 @@
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createClient as createSupabaseClient, type User } from "@supabase/supabase-js";
 import type { AstroCookies } from "astro";
 import { SUPABASE_URL, SUPABASE_KEY, SUPABASE_SERVICE_ROLE_KEY } from "astro:env/server";
+
+/** Where unconfirmed users are redirected until they verify their email. */
+export const CONFIRM_EMAIL_PATH = "/auth/confirm-email";
+
+/**
+ * Whether the user's email has been confirmed. Supabase exposes the timestamp
+ * under `email_confirmed_at` (and the legacy `confirmed_at` alias); it stays
+ * unset until the user clicks the confirmation link. The project may still
+ * allow unconfirmed sign-ins (the Supabase "Confirm email" dashboard toggle is
+ * off), so every protected surface must gate on this rather than on the mere
+ * presence of a session.
+ */
+export function isEmailConfirmed(user: User | null | undefined): boolean {
+  return Boolean(user?.email_confirmed_at ?? user?.confirmed_at);
+}
 
 export function createClient(requestHeaders: Headers, cookies: AstroCookies) {
   if (!SUPABASE_URL || !SUPABASE_KEY) {

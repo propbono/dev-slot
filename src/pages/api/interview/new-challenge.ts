@@ -11,7 +11,7 @@ type SystemContent = {
 
 import type { APIRoute } from "astro";
 import * as Sentry from "@sentry/astro";
-import { createClient } from "@/lib/supabase";
+import { createClient, isEmailConfirmed, CONFIRM_EMAIL_PATH } from "@/lib/supabase";
 import { generateChallenge, type JDConstraints } from "@/lib/ai";
 import { checkChallengeLimit } from "@/lib/tiers";
 import { guardAiCall } from "@/lib/ai-guard";
@@ -25,6 +25,7 @@ export const POST: APIRoute = async (context) => {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return context.redirect("/auth/signin");
+  if (!isEmailConfirmed(user)) return context.redirect(CONFIRM_EMAIL_PATH);
 
   const form = await context.request.formData();
   const sessionId = (form.get("sessionId") as string | null)?.trim();
