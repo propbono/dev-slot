@@ -214,9 +214,7 @@ describe("webhook.ts — Sentry capture + actionable detail", () => {
 
   it("captures the underlying Supabase error for a failed role upsert (status 500)", async () => {
     mockVerifyWebhook.mockReturnValue(completedEvent());
-    vi.mocked(createServiceClient).mockReturnValue(
-      makeServiceSupabase(new Error("db down")) as never,
-    );
+    vi.mocked(createServiceClient).mockReturnValue(makeServiceSupabase(new Error("db down")) as never);
 
     const res = await webhookPOST(webhookContext("t=1,v1=good", "{}") as never);
 

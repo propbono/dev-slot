@@ -29,27 +29,40 @@ export function isPlanTier(value: unknown): value is PlanTier {
 }
 
 /**
+ * Redact PII from a message before it reaches Sentry or the client `detail`
+ * field. Stripe already masks card numbers in its own error messages, but a
+ * thrown error can still echo the customer's own email back via
+ * `customer_email`. This removes email addresses and any 13-19 digit run
+ * (card-number shaped) as defense-in-depth.
+ */
+function sanitize(message: string): string {
+  return message
+    .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[redacted]")
+    .replace(/\d{13,19}/g, "[redacted]");
+}
+
+/**
  * Extract a safe, human-readable message from an arbitrary thrown value.
- * Only ever returns `message`/`code` strings. Supabase errors never expose
+ * Only ever returns `message`/`code` strings, sanitized so no PII (emails or
+ * card data) reaches Sentry or the client. Supabase errors never expose
  * secrets (`.details`/`.hint`, which can carry row data, are deliberately
- * skipped). Stripe sanitizes card numbers from its error messages, so the
- * only PII that can appear is the user's own email (echoed back from
- * `customer_email`), which is accepted for this project.
+ * skipped).
  */
 export function errorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (typeof err === "string") return err;
+  if (err instanceof Error) return sanitize(err.message);
+  if (typeof err === "string") return sanitize(err);
   if (err && typeof err === "object") {
     const record = err as { message?: unknown; code?: unknown };
-    if (typeof record.message === "string" && record.message) return record.message;
-    if (typeof record.code === "string" && record.code) return record.code;
+    if (typeof record.message === "string" && record.message) return sanitize(record.message);
+    if (typeof record.code === "string" && record.code) return sanitize(record.code);
   }
   return "Unknown error";
 }
 
-/** Normalize an arbitrary thrown value to an `Error` for Sentry capture. */
+/** Normalize an arbitrary thrown value to an `Error` for Sentry capture,
+ * with the same PII redaction applied to its message. */
 export function toError(err: unknown): Error {
-  return err instanceof Error ? err : new Error(errorMessage(err));
+  return err instanceof Error ? new Error(sanitize(err.message)) : new Error(errorMessage(err));
 }
 
 /**

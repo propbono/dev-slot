@@ -8,7 +8,7 @@ vi.mock("stripe", () => ({
   },
 }));
 
-import { getPriceId, isPlanTier, PLANS, verifyWebhook } from "./stripe";
+import { errorMessage, getPriceId, isPlanTier, PLANS, verifyWebhook } from "./stripe";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -31,6 +31,22 @@ describe("stripe lib", () => {
   it("resolves stable Price IDs for plan changes", () => {
     expect(getPriceId("pro")).toBe("test-price-pro");
     expect(getPriceId("unlimited")).toBe("test-price-unlimited");
+  });
+
+  describe("errorMessage", () => {
+    it("redacts email addresses from an Error message", () => {
+      expect(errorMessage(new Error("Invalid customer_email: user@example.com"))).toBe(
+        "Invalid customer_email: [redacted]",
+      );
+    });
+
+    it("redacts card-number-shaped digit runs as defense-in-depth", () => {
+      expect(errorMessage("Card 4242424242424242 declined")).toBe("Card [redacted] declined");
+    });
+
+    it("passes ordinary messages through unchanged", () => {
+      expect(errorMessage(new Error("resource_missing"))).toBe("resource_missing");
+    });
   });
 
   it("rejects a missing signature", () => {
