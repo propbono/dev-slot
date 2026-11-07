@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/astro";
 import { createClient } from "@/lib/supabase";
 import { extractConstraints, generateChallenge, type JDConstraints } from "@/lib/ai";
 import { guardAiCall } from "@/lib/ai-guard";
+import { getRole } from "@/lib/tiers";
 import { captureEvent, flush } from "@/lib/posthog";
 
 // If a "generating" lock is older than this, the request that created it is
@@ -17,6 +18,8 @@ export const GET: APIRoute = async (context) => {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return Response.json({ ready: false, error: "unauthorized" }, { status: 401 });
+
+  const role = await getRole(supabase, user.id);
 
   const sessionId = context.url.searchParams.get("sessionId");
   if (!sessionId) return Response.json({ ready: false, error: "missing_session" }, { status: 400 });
@@ -142,7 +145,7 @@ export const GET: APIRoute = async (context) => {
         await supabase.from("session_messages").delete().eq("id", markerId);
         return Response.json({ ready: false, error: extractGuard.reason }, { status: 429 });
       }
-      constraints = await extractConstraints(jd);
+      constraints = await extractConstraints(jd, role);
     }
 
     // Update system message with extracted constraints.
@@ -174,7 +177,7 @@ export const GET: APIRoute = async (context) => {
       return Response.json({ ready: false, error: generateGuard.reason }, { status: 429 });
     }
     const generateStartedAt = Date.now();
-    const challengeText = await generateChallenge(jd, constraints);
+    const challengeText = await generateChallenge(jd, constraints, undefined, role);
     const generationMs = Date.now() - generateStartedAt;
 
     // Promote the marker to a committed interviewer message.

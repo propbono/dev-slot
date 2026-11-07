@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import * as Sentry from "@sentry/astro";
 import { createClient } from "@/lib/supabase";
 import { evaluateAnswer, generateSummary, type JDConstraints } from "@/lib/ai";
-import { checkTurnLimit } from "@/lib/tiers";
+import { checkTurnLimit, getRole } from "@/lib/tiers";
 import { guardAiCall } from "@/lib/ai-guard";
 import { captureEvent, flush, isPostHogEnabled } from "@/lib/posthog";
 
@@ -21,6 +21,8 @@ export const POST: APIRoute = async (context) => {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return context.redirect("/auth/signin");
+
+  const role = await getRole(supabase, user.id);
 
   const form = await context.request.formData();
   const sessionId = (form.get("sessionId") as string)?.trim();
@@ -176,7 +178,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     try {
-      const result = await evaluateAnswer(constraints, challengeMsg.content, answerMsg.content);
+      const result = await evaluateAnswer(constraints, challengeMsg.content, answerMsg.content, role);
 
       // Update answer message with evaluation metadata
       if (answerRowId) {
@@ -280,7 +282,7 @@ export const POST: APIRoute = async (context) => {
           return context.redirect(`/interview/${sessionId}?error=${summaryGuard.reason}`);
         }
 
-        const summary = await generateSummary(constraints, conversation);
+        const summary = await generateSummary(constraints, conversation, role);
         await supabase.from("challenges").update({ status: "completed", summary }).eq("id", challenge.id);
       }
 

@@ -1,7 +1,8 @@
 import * as Sentry from "@sentry/astro";
 import { createDeepSeek } from "@ai-sdk/deepseek";
 import { generateText } from "ai";
-import { DEEPSEEK_API_KEY, DEEPSEEK_MODEL } from "astro:env/server";
+import { DEEPSEEK_API_KEY } from "astro:env/server";
+import { resolveModel, type Role } from "./model-tier";
 
 const deepseek = createDeepSeek({ apiKey: DEEPSEEK_API_KEY });
 
@@ -30,10 +31,10 @@ export class ExtractionError extends Error {
   }
 }
 
-export async function extractConstraints(jdText: string): Promise<JDConstraints> {
+export function extractConstraints(jdText: string, role?: Role): Promise<JDConstraints> {
   return Sentry.startSpan({ name: "ai.extractConstraints", op: "ai.run" }, async () => {
     const { text } = await generateText({
-      model: deepseek(DEEPSEEK_MODEL),
+      model: deepseek(resolveModel(role)),
       providerOptions: JSON_OUTPUT_PROVIDER_OPTIONS,
       system: "You extract structured information from job descriptions. Return ONLY valid JSON, no other text.",
       prompt: `Extract from the following job description:
@@ -60,10 +61,11 @@ ${jdText}`,
   });
 }
 
-export async function generateChallenge(
+export function generateChallenge(
   jdText: string,
   constraints: JDConstraints,
   previousTopics?: string[],
+  role?: Role,
 ): Promise<string> {
   return Sentry.startSpan({ name: "ai.generateChallenge", op: "ai.run" }, async () => {
     const avoidSection = previousTopics?.length
@@ -71,7 +73,7 @@ export async function generateChallenge(
       : "";
 
     const { text } = await generateText({
-      model: deepseek(DEEPSEEK_MODEL),
+      model: deepseek(resolveModel(role)),
       providerOptions: JSON_OUTPUT_PROVIDER_OPTIONS,
       system:
         "You are an expert technical interviewer conducting system design interviews. Return ONLY the challenge text — no preamble, no labels.",
@@ -100,14 +102,15 @@ export type EvaluationResult = {
   followUp: string;
 };
 
-export async function evaluateAnswer(
+export function evaluateAnswer(
   constraints: JDConstraints,
   challenge: string,
   answer: string,
+  role?: Role,
 ): Promise<EvaluationResult> {
   return Sentry.startSpan({ name: "ai.evaluateAnswer", op: "ai.run" }, async () => {
     const { text } = await generateText({
-      model: deepseek(DEEPSEEK_MODEL),
+      model: deepseek(resolveModel(role)),
       providerOptions: JSON_OUTPUT_PROVIDER_OPTIONS,
       system:
         "You are an expert technical interviewer evaluating answers. Be direct and constructive — like a real interviewer giving feedback. Point out what the candidate missed or got right. Return ONLY valid JSON, no other text.",
@@ -149,10 +152,14 @@ export type ChallengeSummary = {
   improvement_areas: string[];
 };
 
-export async function generateSummary(constraints: JDConstraints, conversation: string): Promise<ChallengeSummary> {
+export function generateSummary(
+  constraints: JDConstraints,
+  conversation: string,
+  role?: Role,
+): Promise<ChallengeSummary> {
   return Sentry.startSpan({ name: "ai.generateSummary", op: "ai.run" }, async () => {
     const { text } = await generateText({
-      model: deepseek(DEEPSEEK_MODEL),
+      model: deepseek(resolveModel(role)),
       providerOptions: JSON_OUTPUT_PROVIDER_OPTIONS,
       system:
         "You are evaluating a completed interview challenge. Provide an honest, constructive summary of the candidate's performance. Return ONLY valid JSON.",

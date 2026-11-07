@@ -16,6 +16,9 @@ vi.mock("@ai-sdk/deepseek", () => ({
 vi.mock("astro:env/server", () => ({
   DEEPSEEK_API_KEY: "test-key",
   DEEPSEEK_MODEL: "deepseek-flash",
+  MODEL_FREE: "deepseek-flash",
+  MODEL_PRO: "deepseek-v4-pro",
+  MODEL_UNLIMITED: "deepseek-v4-pro",
 }));
 
 import { extractConstraints, evaluateAnswer, generateChallenge, generateSummary } from "./ai";
@@ -133,5 +136,13 @@ describe("model configuration", () => {
         providerOptions: { deepseek: { thinking: { type: "disabled" } } },
       }),
     );
+  });
+
+  it("resolves the model per tier when a role is provided", async () => {
+    mockText("ok");
+
+    await generateChallenge("Fake JD", constraints, undefined, "pro");
+
+    expect(modelMock).toHaveBeenCalledWith("deepseek-v4-pro");
   });
 });

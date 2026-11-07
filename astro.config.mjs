@@ -36,7 +36,15 @@ export default defineConfig({
       // verification. Never expose to the client.
       SUPABASE_SERVICE_ROLE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
       DEEPSEEK_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      // Deprecated in favor of the tiered MODEL_FREE/MODEL_PRO/MODEL_UNLIMITED
+      // slots below. Kept for backward compatibility with existing env configs.
       DEEPSEEK_MODEL: envField.string({ context: "server", access: "secret", default: "deepseek-flash" }),
+      // Tiered model slots (all DeepSeek for now, server/secret). Free →
+      // deepseek-flash, Pro/Unlimited → deepseek-v4-pro by default; override
+      // per slot without a deploy. See src/lib/model-tier.ts.
+      MODEL_FREE: envField.string({ context: "server", access: "secret", default: "deepseek-flash" }),
+      MODEL_PRO: envField.string({ context: "server", access: "secret", default: "deepseek-v4-pro" }),
+      MODEL_UNLIMITED: envField.string({ context: "server", access: "secret", default: "deepseek-v4-pro" }),
       SENTRY_DSN: envField.string({ context: "server", access: "secret", optional: true }),
       PUBLIC_SENTRY_DSN: envField.string({ context: "client", access: "public", optional: true }),
       // Stripe (test mode). Secret key + webhook secret are server-only;

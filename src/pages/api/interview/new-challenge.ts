@@ -13,7 +13,7 @@ import type { APIRoute } from "astro";
 import * as Sentry from "@sentry/astro";
 import { createClient } from "@/lib/supabase";
 import { generateChallenge, type JDConstraints } from "@/lib/ai";
-import { checkChallengeLimit } from "@/lib/tiers";
+import { checkChallengeLimit, getRole } from "@/lib/tiers";
 import { guardAiCall } from "@/lib/ai-guard";
 import { captureEvent, flush, isPostHogEnabled } from "@/lib/posthog";
 
@@ -25,6 +25,8 @@ export const POST: APIRoute = async (context) => {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return context.redirect("/auth/signin");
+
+  const role = await getRole(supabase, user.id);
 
   const form = await context.request.formData();
   const sessionId = (form.get("sessionId") as string | null)?.trim();
@@ -103,7 +105,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     const generateStartedAt = Date.now();
-    const challenge = await generateChallenge(jd, constraints, previousTopics);
+    const challenge = await generateChallenge(jd, constraints, previousTopics, role);
     const generationMs = Date.now() - generateStartedAt;
 
     // Get previous challenge max_rounds to inherit

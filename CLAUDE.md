@@ -46,7 +46,7 @@ DeepSeek V4 via `@ai-sdk/deepseek` and Vercel AI SDK. All model calls flow throu
 ### Environment
 
 - Node.js v22.14.0 (see `.nvmrc`)
-- Env vars in `.env.local`: `SUPABASE_URL`, `SUPABASE_KEY`, `DEEPSEEK_API_KEY`; optional `DEEPSEEK_MODEL` (default `deepseek-flash`) overrides the model in `src/lib/ai.ts`
+- Env vars in `.env.local`: `SUPABASE_URL`, `SUPABASE_KEY`, `DEEPSEEK_API_KEY`; tiered model slots `MODEL_FREE`/`MODEL_PRO`/`MODEL_UNLIMITED` (defaults `deepseek-flash`/`deepseek-v4-pro`/`deepseek-v4-pro`; `DEEPSEEK_MODEL` is deprecated)
 - All env vars are declared in `astro.config.mjs` `env.schema`; see `AGENTS.md` → Environment for the full required/optional list (Supabase, DeepSeek, Stripe, service role, AI protection knobs, PostHog analytics).
 - Vercel env vars: managed via `vercel env add` or dashboard
 
